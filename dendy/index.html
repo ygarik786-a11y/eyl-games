@@ -4,40 +4,44 @@
 <title>🦆 Коллекция Dendy — E.Y.L Games</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-body{font-family:-apple-system,'Segoe UI',Roboto,sans-serif;background:#0b0b16;color:#f4f4f8;min-height:100vh}
-.bg{position:fixed;inset:0;z-index:-1;background:radial-gradient(700px 420px at 15% -5%,rgba(255,183,0,.18),transparent 60%),radial-gradient(760px 500px at 95% 12%,rgba(124,77,255,.20),transparent 60%),#0b0b16}
-.wrap{max-width:680px;margin:0 auto;padding:18px 14px 44px}
-a.back{color:#aef;font-size:14px;text-decoration:none}
-header{text-align:center;padding:26px 14px 20px;border-radius:24px;background:linear-gradient(165deg,rgba(255,255,255,.09),rgba(255,255,255,.02));border:1px solid rgba(255,255,255,.14);margin-top:10px}
-header .ico{font-size:50px}
-header h1{font-size:32px;font-weight:900;margin-top:4px}
-header h1 .gold{background:linear-gradient(92deg,#ffe082,#ffb300 45%,#ff8f00 70%,#ffe082);-webkit-background-clip:text;background-clip:text;color:transparent}
-header .sub{color:#c9c9da;font-size:14.5px;margin-top:8px;line-height:1.5}
-h2.sec{font-size:20px;font-weight:800;margin:26px 2px 13px;display:flex;align-items:center;gap:10px}
-h2.sec::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,rgba(255,255,255,.25),transparent)}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:13px}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',sans-serif;background:#08080d;color:#f5f5f7;min-height:100vh;-webkit-font-smoothing:antialiased}
+.bg{position:fixed;inset:0;z-index:-1;background:radial-gradient(720px 420px at 50% -10%,rgba(55,174,226,.16),transparent 62%),radial-gradient(680px 460px at 100% 30%,rgba(130,90,255,.10),transparent 60%),#08080d}
+.wrap{max-width:680px;margin:0 auto;padding:20px 16px 46px}
+a.back{color:#7dd3fc;font-size:14px;text-decoration:none;font-weight:500}
+header{text-align:center;padding:34px 14px 24px}
+.applogo{width:92px;height:92px;margin:0 auto;border-radius:25px;display:flex;align-items:center;justify-content:center;font-size:50px;background:linear-gradient(160deg,rgba(255,255,255,.14),rgba(255,255,255,.04));border:1px solid rgba(255,255,255,.16);box-shadow:0 18px 40px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.22)}
+header h1{font-size:34px;font-weight:800;letter-spacing:-.5px;margin-top:16px;line-height:1.05}
+header h1 .gold{background:linear-gradient(92deg,#7dd3fc,#37aee2 40%,#8b7bff 75%,#e0c3fc);-webkit-background-clip:text;background-clip:text;color:transparent}
+header .sub{color:#9c9cae;font-size:14.5px;margin-top:10px;line-height:1.55}
+h2.sec{font-size:13px;font-weight:700;letter-spacing:2.2px;text-transform:uppercase;color:#8e8ea3;margin:30px 4px 15px;display:flex;align-items:center;gap:12px}
+h2.sec::after{content:"";flex:1;height:1px;background:rgba(255,255,255,.08)}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
 @media(max-width:480px){.grid{grid-template-columns:1fr}}
-.game{background:linear-gradient(180deg,rgba(255,255,255,.07),rgba(255,255,255,.03));border:1px solid rgba(255,255,255,.12);border-radius:20px;overflow:hidden;text-decoration:none;color:inherit;display:flex;flex-direction:column;box-shadow:0 12px 30px rgba(0,0,0,.4)}
-.cover{height:118px;position:relative;display:flex;align-items:center;justify-content:center}
-.cover .main{font-size:62px;filter:drop-shadow(0 10px 14px rgba(0,0,0,.45))}
-.cover .sat{position:absolute;filter:drop-shadow(0 5px 8px rgba(0,0,0,.4))}
-.cover .s1{left:11%;top:15%;font-size:26px}.cover .s2{right:12%;top:20%;font-size:23px}
-.cover .s3{right:18%;bottom:12%;font-size:19px}.cover .s4{left:18%;bottom:14%;font-size:17px}
-.tag{position:absolute;left:9px;top:9px;background:rgba(5,5,12,.55);border:1px solid rgba(255,255,255,.22);font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px}
-.new{position:absolute;top:9px;right:9px;background:linear-gradient(92deg,#ffe082,#ffb300);color:#231a00;font-size:11px;font-weight:900;padding:3px 10px;border-radius:999px;letter-spacing:.5px}
-.gbody{padding:12px 14px 14px;display:flex;flex-direction:column;gap:6px;flex:1}
-.gbody h3{font-size:17px;font-weight:800}
-.gbody p{color:#bdbdd2;font-size:13.5px;line-height:1.5;flex:1}
-.meta{font-size:12px;color:#9a9ab2}
-.play{margin-top:6px;background:linear-gradient(92deg,#ffe082,#ffb300);color:#231a00;font-weight:900;text-align:center;padding:11px;border-radius:13px;font-size:15.5px}
-.soon{background:rgba(255,255,255,.05);border:1px dashed rgba(255,255,255,.25);border-radius:18px;padding:15px 17px;color:#dcdce8;font-size:14.5px;line-height:1.6;margin-top:14px}
-footer{text-align:center;color:#8f8fa8;font-size:13px;margin-top:30px;line-height:1.7}
+.game{background:#101018;border:1px solid rgba(255,255,255,.08);border-radius:24px;overflow:hidden;text-decoration:none;color:inherit;display:flex;flex-direction:column;box-shadow:0 10px 28px rgba(0,0,0,.35);transition:transform .18s,border-color .18s}
+.game:hover{border-color:rgba(125,211,252,.45);transform:translateY(-3px)}
+.game:active{transform:scale(.985)}
+.cover{height:148px;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center}
+.cover::before{content:"";position:absolute;inset:0;background:radial-gradient(420px 190px at 50% -20%,rgba(255,255,255,.28),transparent 65%),linear-gradient(180deg,transparent 55%,rgba(0,0,0,.28))}
+.cover .main{position:relative;z-index:1;width:98px;height:98px;border-radius:26px;display:flex;align-items:center;justify-content:center;font-size:56px;background:linear-gradient(160deg,rgba(255,255,255,.30),rgba(255,255,255,.08));border:1px solid rgba(255,255,255,.35);box-shadow:0 16px 32px rgba(0,0,0,.40),inset 0 1px 0 rgba(255,255,255,.45)}
+.cover .sat{position:absolute;z-index:1;opacity:.55}
+.cover .s1{left:11%;top:15%;font-size:23px}.cover .s2{right:12%;top:20%;font-size:20px}
+.cover .s3{right:19%;bottom:12%;font-size:17px}.cover .s4{left:19%;bottom:15%;font-size:15px}
+.tag{position:absolute;left:10px;top:10px;z-index:2;background:rgba(5,5,12,.5);border:1px solid rgba(255,255,255,.18);font-size:11px;font-weight:600;padding:4px 10px;border-radius:999px}
+.new{position:absolute;top:10px;right:10px;z-index:2;background:linear-gradient(92deg,#56c8f5,#2f9be8);color:#fff;font-size:11px;font-weight:700;padding:4px 11px;border-radius:999px;letter-spacing:.8px;box-shadow:0 6px 16px rgba(47,155,232,.45)}
+.gbody{padding:14px 16px 16px;display:flex;flex-direction:column;gap:6px;flex:1}
+.gbody h3{font-size:17px;font-weight:700;letter-spacing:-.2px}
+.gbody p{color:#a7a7ba;font-size:13.5px;line-height:1.55;flex:1}
+.meta{font-size:12px;color:#7c7c92}
+.play{margin-top:7px;background:linear-gradient(92deg,#37aee2,#2b7de0);color:#fff;font-weight:700;text-align:center;padding:11px;border-radius:13px;font-size:15.5px;box-shadow:0 8px 20px rgba(43,125,224,.35)}
+.soon{background:rgba(255,255,255,.04);border:1px dashed rgba(255,255,255,.20);border-radius:20px;padding:16px 18px;color:#c6c6d4;font-size:14.5px;line-height:1.6;margin-top:18px}
+.soon b{color:#fff}
+footer{text-align:center;color:#71718a;font-size:13px;margin-top:32px;line-height:1.7}
 </style></head><body>
 <div class="bg"></div>
 <div class="wrap">
 <a class="back" href="../">← E.Y.L Games</a>
 <header>
-  <div class="ico">📺</div>
+  <div class="applogo">📺</div>
   <h1>Коллекция <span class="gold">DENDY</span></h1>
   <p class="sub">Легенды восьми бит — в лёгких эмодзи-версиях от E.Y.L.<br>Каждая игра: свой герой, свои враги, свои уровни. Без скачивания, прямо в браузере!</p>
 </header>
@@ -45,7 +49,7 @@ footer{text-align:center;color:#8f8fa8;font-size:13px;margin-top:30px;line-heigh
 <h2 class="sec">⭐ Основная коллекция</h2>
 <div class="grid">
   <a class="game" href="chipndale/">
-    <div class="cover" style="background:linear-gradient(150deg,#81d4fa,#2e7d32 60%,#1b3a1b)">
+    <div class="cover" style="background:linear-gradient(150deg,#5da24a,#2e7d32 60%,#122b12)">
       <span class="tag">Платформер</span><span class="new">НОВОЕ</span>
       <span class="sat s1">🌰</span><span class="sat s2">📦</span><span class="sat s3">🐝</span><span class="sat s4">🌳</span>
       <span class="main">🐿️</span>
@@ -58,7 +62,7 @@ footer{text-align:center;color:#8f8fa8;font-size:13px;margin-top:30px;line-heigh
     </div>
   </a>
   <a class="game" href="ducktales/">
-    <div class="cover" style="background:linear-gradient(150deg,#b39ddb,#4527a0 60%,#1a0b33)">
+    <div class="cover" style="background:linear-gradient(150deg,#7e57c2,#4527a0 60%,#0d0624)">
       <span class="tag">Платформер</span><span class="new">НОВОЕ</span>
       <span class="sat s1">💎</span><span class="sat s2">💰</span><span class="sat s3">🦉</span><span class="sat s4">🪙</span>
       <span class="main">🦆</span>
@@ -70,9 +74,48 @@ footer{text-align:center;color:#8f8fa8;font-size:13px;margin-top:30px;line-heigh
       <div class="play">Играть →</div>
     </div>
   </a>
+  <a class="game" href="chipndale2/">
+    <div class="cover" style="background:linear-gradient(150deg,#78909c,#37474f 60%,#10181c)">
+      <span class="tag">Платформер</span><span class="new">НОВОЕ</span>
+      <span class="sat s1">🔩</span><span class="sat s2">📦</span><span class="sat s3">🛸</span><span class="sat s4">🏭</span>
+      <span class="main">🐿️</span>
+    </div>
+    <div class="gbody">
+      <h3>🐿️ Chip 'n Dale 2</h3>
+      <p>Завод роботов Толстяка! Собирай болты, швыряй ящики в роботов и пробирайся через цеха и крыши. 3 уровня.</p>
+      <div class="meta">📦 Ящики • 🔩 Болты • 🤖 Роботы</div>
+      <div class="play">Играть →</div>
+    </div>
+  </a>
+  <a class="game" href="ducktales2/">
+    <div class="cover" style="background:linear-gradient(150deg,#ffb74d,#e65100 60%,#331a00)">
+      <span class="tag">Платформер</span><span class="new">НОВОЕ</span>
+      <span class="sat s1">🪙</span><span class="sat s2">🗺️</span><span class="sat s3">🦅</span><span class="sat s4">🏜️</span>
+      <span class="main">🦆</span>
+    </div>
+    <div class="gbody">
+      <h3>🦆 DuckTales 2</h3>
+      <p>Карта сокровищ ведёт Скруджа через каньоны и пирамиды. Пого-трость, волки, орлы и горы монет. 3 уровня.</p>
+      <div class="meta">🦯 Пого-трость • 🪙 Монеты • 🗺️ Карта сокровищ</div>
+      <div class="play">Играть →</div>
+    </div>
+  </a>
+  <a class="game" href="advisland/">
+    <div class="cover" style="background:linear-gradient(150deg,#4fc3f7,#2e7d32 60%,#0e2a10)">
+      <span class="tag">Платформер</span><span class="new">НОВОЕ</span>
+      <span class="sat s1">🍓</span><span class="sat s2">🪓</span><span class="sat s3">🛹</span><span class="sat s4">🌴</span>
+      <span class="main">👦</span>
+    </div>
+    <div class="gbody">
+      <h3>🏝️ Adventure Island</h3>
+      <p>Мастер Хиггинс на тропическом острове: метай топоры в змей и птиц, собирай фрукты, хватай скейт для скорости. 3 уровня.</p>
+      <div class="meta">🪓 Топоры • 🍓 Фрукты • 🛹 Скейт</div>
+      <div class="play">Играть →</div>
+    </div>
+  </a>
 </div>
 
-<div class="soon">🚧 <b>Коллекция растёт!</b> Всего здесь будет 52 игры: уже готовятся Chip 'n Dale 2, DuckTales 2, Adventure Island, Tiny Toon, Felix, Pac-Man, Lolo, Kirby и многие другие. Заглядывай — новые игры появляются сериями!</div>
+<div class="soon">🚧 <b>Коллекция растёт!</b> Уже готово 5 игр, а всего здесь будет 52: дальше — Adventure Island II и III, Tiny Toon, Felix, Flintstones, Pac-Man, Lolo, Kirby и многие другие. Заглядывай — новые игры появляются сериями!</div>
 
 <footer>📺 E.Y.L Dendy — лёгкие версии классики из эмодзи<br>Сделано создателем Erik Lebed ✨</footer>
 </div>

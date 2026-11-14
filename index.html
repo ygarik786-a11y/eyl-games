@@ -8,7 +8,7 @@
 <script>
 // Самообновление каталога: телефон Erik держал старую копию страницы
 // из кэша и не видел новые игры. Сверяемся с gversion.txt на сервере.
-var GAMES_VER = 7;
+var GAMES_VER = 8;
 fetch("gversion.txt?x=" + Date.now()).then(function(r){ return r.text(); }).then(function(t){
   var rv = parseInt(t, 10);
   if (rv && rv > GAMES_VER && sessionStorage.getItem("gamesUpd") !== String(rv)) {
@@ -18,122 +18,111 @@ fetch("gversion.txt?x=" + Date.now()).then(function(r){ return r.text(); }).then
 }).catch(function(){});
 </script>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#0b0b16">
+<meta name="theme-color" content="#08080d">
 <meta name="description" content="E.Y.L Games — бесплатные игры президента Erik: ферма, Супер Ерик, KOMBAT, гонки, змейка и тетрис. Без скачивания и регистрации.">
 <title>🎮 E.Y.L Games — игровая империя президента E.Y.L</title>
 <style>
   * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
   html { scroll-behavior:smooth; }
-  body { font-family:-apple-system,'Segoe UI',Roboto,'Helvetica Neue',sans-serif; background:#0b0b16; color:#f4f4f8; min-height:100vh; overflow-x:hidden; }
+  body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',sans-serif; background:#08080d; color:#f5f5f7; min-height:100vh; overflow-x:hidden; -webkit-font-smoothing:antialiased; }
 
-  /* Живой фон: сияние и звёздочки */
+  /* Фон: глубокий тёмный, мягкое свечение сверху — как в Telegram */
   .bg { position:fixed; inset:0; z-index:-2; background:
-      radial-gradient(700px 420px at 15% -5%, rgba(255,183,0,.20), transparent 60%),
-      radial-gradient(760px 500px at 95% 12%, rgba(124,77,255,.22), transparent 60%),
-      radial-gradient(640px 460px at 50% 108%, rgba(0,176,255,.14), transparent 60%),
-      #0b0b16; }
-  .bg::after { content:""; position:absolute; inset:0; opacity:.5; background-image:
-      radial-gradient(1.5px 1.5px at 12% 22%, #fff, transparent),
-      radial-gradient(1px 1px at 32% 68%, #cfd8ff, transparent),
-      radial-gradient(1.5px 1.5px at 55% 12%, #fff, transparent),
-      radial-gradient(1px 1px at 74% 44%, #ffe9a8, transparent),
-      radial-gradient(1.5px 1.5px at 88% 78%, #fff, transparent),
-      radial-gradient(1px 1px at 44% 88%, #cfd8ff, transparent),
-      radial-gradient(1px 1px at 6% 56%, #ffe9a8, transparent),
-      radial-gradient(1.5px 1.5px at 66% 92%, #fff, transparent); }
+      radial-gradient(720px 420px at 50% -10%, rgba(55,174,226,.16), transparent 62%),
+      radial-gradient(680px 460px at 100% 30%, rgba(130,90,255,.10), transparent 60%),
+      radial-gradient(600px 420px at 0% 85%, rgba(255,179,0,.06), transparent 60%),
+      #08080d; }
 
-  .wrap { max-width:680px; margin:0 auto; padding:20px 14px 46px; }
+  .wrap { max-width:680px; margin:0 auto; padding:22px 16px 48px; }
 
-  /* Шапка */
-  header.hero { text-align:center; padding:34px 16px 26px; border-radius:26px; position:relative; overflow:hidden;
-    background:linear-gradient(165deg, rgba(255,255,255,.09), rgba(255,255,255,.02));
-    border:1px solid rgba(255,255,255,.14); box-shadow:0 24px 60px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.15);
-    backdrop-filter:blur(6px); }
-  header.hero::before { content:""; position:absolute; inset:-40%; background:conic-gradient(from 0deg, transparent 70%, rgba(255,213,79,.14), transparent 82%); animation:spin 9s linear infinite; }
-  @keyframes spin { to { transform:rotate(360deg); } }
-  .crown { font-size:54px; display:inline-block; animation:floaty 3.2s ease-in-out infinite; filter:drop-shadow(0 10px 18px rgba(255,183,0,.45)); position:relative; }
-  @keyframes floaty { 0%,100% { transform:translateY(0) rotate(-3deg); } 50% { transform:translateY(-8px) rotate(3deg); } }
-  header.hero h1 { font-size:40px; font-weight:900; letter-spacing:.5px; margin-top:6px; position:relative; line-height:1.05; }
-  header.hero h1 .gold { background:linear-gradient(92deg,#ffe082,#ffb300 45%,#ff8f00 70%,#ffe082); -webkit-background-clip:text; background-clip:text; color:transparent; text-shadow:0 0 34px rgba(255,179,0,.25); }
-  header.hero .sub { position:relative; color:#c9c9da; font-size:15px; margin-top:10px; line-height:1.5; }
-  header.hero .sub b { color:#fff; }
-  .chips { position:relative; display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin-top:16px; }
-  .chip { background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.14); padding:7px 13px; border-radius:999px; font-size:13px; font-weight:600; }
-  .chip.gold { background:rgba(255,179,0,.16); border-color:rgba(255,179,0,.45); color:#ffd54f; }
+  /* Шапка: минимализм, воздух, одна акцентная плитка-иконка */
+  header.hero { text-align:center; padding:40px 18px 30px; }
+  .applogo { width:96px; height:96px; margin:0 auto; border-radius:26px; display:flex; align-items:center; justify-content:center; font-size:52px;
+    background:linear-gradient(160deg, rgba(255,255,255,.14), rgba(255,255,255,.04));
+    border:1px solid rgba(255,255,255,.16);
+    box-shadow:0 18px 40px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.22);
+    animation:floaty 4s ease-in-out infinite; }
+  @keyframes floaty { 0%,100% { transform:translateY(0); } 50% { transform:translateY(-6px); } }
+  header.hero h1 { font-size:42px; font-weight:800; letter-spacing:-.5px; margin-top:18px; line-height:1.04; }
+  header.hero h1 .gold { background:linear-gradient(92deg,#7dd3fc,#37aee2 40%,#8b7bff 75%,#e0c3fc); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  header.hero .sub { color:#9c9cae; font-size:15px; margin-top:12px; line-height:1.55; font-weight:400; }
+  header.hero .sub b { color:#f5f5f7; font-weight:600; }
+  .chips { display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin-top:20px; }
+  .chip { background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.09); padding:7px 14px; border-radius:999px; font-size:13px; font-weight:500; color:#d7d7e2; }
+  .chip.gold { background:rgba(255,183,0,.12); border-color:rgba(255,183,0,.35); color:#ffd54f; }
 
-  /* Кнопка ТВ на первом экране: страница /tv/ жива, но с главной на неё не было ни одной ссылки */
-  .tvbanner { display:flex; align-items:center; gap:14px; margin-top:16px; background:linear-gradient(92deg, rgba(255,213,79,.20), rgba(255,143,0,.12)); border:1px solid rgba(255,213,79,.55); border-radius:22px; padding:16px 18px; text-decoration:none; color:inherit; box-shadow:0 14px 34px rgba(0,0,0,.42); }
-  .tvbanner-ico { font-size:44px; }
-  .tvbanner-txt b { display:block; font-size:19px; }
-  .tvbanner-txt i { display:block; font-style:normal; color:#c9c9da; font-size:14px; margin-top:3px; }
+  h2.sec { font-size:13px; font-weight:700; letter-spacing:2.2px; text-transform:uppercase; color:#8e8ea3; margin:34px 4px 16px; display:flex; align-items:center; gap:12px; }
+  h2.sec::after { content:""; flex:1; height:1px; background:rgba(255,255,255,.08); }
 
-  h2.sec { font-size:21px; font-weight:800; margin:28px 2px 14px; display:flex; align-items:center; gap:10px; }
-  h2.sec::after { content:""; flex:1; height:1px; background:linear-gradient(90deg, rgba(255,255,255,.25), transparent); }
+  .about { background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.08); border-radius:20px; padding:17px 19px; color:#c6c6d4; font-size:14.5px; line-height:1.65; }
+  .about b { color:#fff; font-weight:600; }
 
-  .about { background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.10); border-radius:18px; padding:15px 17px; color:#dcdce8; font-size:14.5px; line-height:1.6; }
-  .about b { color:#ffd54f; }
-
-  /* Карточки игр */
-  .grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+  /* Карточки игр: чистые тёмные панели, иконка-плитка по центру обложки */
+  .grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
   @media (max-width:480px){ .grid { grid-template-columns:1fr; } }
-  .game { background:linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.03)); border:1px solid rgba(255,255,255,.12); border-radius:22px; overflow:hidden; text-decoration:none; color:inherit; display:flex; flex-direction:column; box-shadow:0 14px 34px rgba(0,0,0,.42); transition:transform .15s, border-color .15s, box-shadow .15s; animation:rise .6s both; }
-  .game:hover { border-color:rgba(255,213,79,.65); transform:translateY(-3px); box-shadow:0 20px 44px rgba(0,0,0,.55); }
+  .game { background:#101018; border:1px solid rgba(255,255,255,.08); border-radius:24px; overflow:hidden; text-decoration:none; color:inherit; display:flex; flex-direction:column; box-shadow:0 10px 28px rgba(0,0,0,.35); transition:transform .18s, border-color .18s, box-shadow .18s; animation:rise .55s both; }
+  .game:hover { border-color:rgba(125,211,252,.45); transform:translateY(-3px); box-shadow:0 18px 40px rgba(0,0,0,.5); }
   .game:active { transform:scale(.985); }
-  @keyframes rise { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:none; } }
-  .game:nth-child(2){ animation-delay:.06s } .game:nth-child(3){ animation-delay:.12s }
-  .game:nth-child(4){ animation-delay:.18s } .game:nth-child(5){ animation-delay:.24s }
-  .game:nth-child(6){ animation-delay:.30s }
+  @keyframes rise { from { opacity:0; transform:translateY(14px); } to { opacity:1; transform:none; } }
+  .game:nth-child(2){ animation-delay:.05s } .game:nth-child(3){ animation-delay:.1s }
+  .game:nth-child(4){ animation-delay:.15s } .game:nth-child(5){ animation-delay:.2s }
+  .game:nth-child(6){ animation-delay:.25s } .game:nth-child(7){ animation-delay:.3s }
+  .game:nth-child(8){ animation-delay:.35s }
 
-  .cover { height:150px; position:relative; overflow:hidden; display:flex; align-items:center; justify-content:center; }
-  .cover::after { content:""; position:absolute; inset:0; background:linear-gradient(115deg, transparent 30%, rgba(255,255,255,.22) 48%, transparent 62%); transform:translateX(-120%); }
-  .game:hover .cover::after { transform:translateX(120%); transition:transform .8s ease; }
-  .cover .main { font-size:76px; filter:drop-shadow(0 12px 16px rgba(0,0,0,.45)); animation:floaty 3.6s ease-in-out infinite; z-index:1; }
-  .cover .sat { position:absolute; filter:drop-shadow(0 6px 10px rgba(0,0,0,.4)); z-index:1; }
-  .cover .s1 { left:12%; top:16%; font-size:30px; transform:rotate(-10deg); }
-  .cover .s2 { right:13%; top:22%; font-size:26px; transform:rotate(8deg); }
-  .cover .s3 { right:20%; bottom:13%; font-size:22px; }
-  .cover .s4 { left:20%; bottom:16%; font-size:20px; }
-  .tag { position:absolute; left:10px; top:10px; z-index:2; background:rgba(5,5,12,.55); border:1px solid rgba(255,255,255,.22); color:#fff; font-size:11.5px; font-weight:700; padding:4px 10px; border-radius:999px; backdrop-filter:blur(3px); }
-  .new { position:absolute; top:10px; right:10px; z-index:2; background:linear-gradient(92deg,#ffe082,#ffb300); color:#231a00; font-size:11.5px; font-weight:900; padding:4px 11px; border-radius:999px; letter-spacing:.6px; box-shadow:0 6px 16px rgba(255,179,0,.5); }
+  .cover { height:158px; position:relative; overflow:hidden; display:flex; align-items:center; justify-content:center; }
+  .cover::before { content:""; position:absolute; inset:0; background:radial-gradient(420px 190px at 50% -20%, rgba(255,255,255,.28), transparent 65%), linear-gradient(180deg, transparent 55%, rgba(0,0,0,.28)); }
+  .cover::after { content:""; position:absolute; inset:0; background:linear-gradient(115deg, transparent 32%, rgba(255,255,255,.16) 48%, transparent 60%); transform:translateX(-130%); }
+  .game:hover .cover::after { transform:translateX(130%); transition:transform .8s ease; }
+  .cover .main { position:relative; z-index:1; width:102px; height:102px; border-radius:27px; display:flex; align-items:center; justify-content:center; font-size:58px;
+    background:linear-gradient(160deg, rgba(255,255,255,.30), rgba(255,255,255,.08));
+    border:1px solid rgba(255,255,255,.35);
+    box-shadow:0 16px 32px rgba(0,0,0,.40), inset 0 1px 0 rgba(255,255,255,.45);
+    backdrop-filter:blur(3px); animation:floaty 4s ease-in-out infinite; }
+  .cover .sat { position:absolute; z-index:1; opacity:.55; filter:blur(.2px) drop-shadow(0 4px 8px rgba(0,0,0,.35)); }
+  .cover .s1 { left:11%; top:15%; font-size:24px; transform:rotate(-10deg); }
+  .cover .s2 { right:12%; top:20%; font-size:21px; transform:rotate(8deg); }
+  .cover .s3 { right:19%; bottom:12%; font-size:18px; }
+  .cover .s4 { left:19%; bottom:15%; font-size:16px; }
+  .tag { position:absolute; left:10px; top:10px; z-index:2; background:rgba(5,5,12,.5); border:1px solid rgba(255,255,255,.18); color:#eeeef4; font-size:11px; font-weight:600; padding:4px 10px; border-radius:999px; backdrop-filter:blur(4px); }
+  .new { position:absolute; top:10px; right:10px; z-index:2; background:linear-gradient(92deg,#56c8f5,#2f9be8); color:#fff; font-size:11px; font-weight:700; padding:4px 11px; border-radius:999px; letter-spacing:.8px; box-shadow:0 6px 16px rgba(47,155,232,.45); }
 
-  .c-farm  { background:linear-gradient(150deg,#8fd35a,#43a047 55%,#1b5e20); }
-  .c-mario { background:linear-gradient(150deg,#4fc3f7,#1976d2 60%,#0d47a1); }
-  .c-kombat{ background:linear-gradient(150deg,#ef5350,#b71c1c 55%,#4a0000); }
-  .c-gonki { background:linear-gradient(150deg,#7e57c2,#283593 60%,#12092e); }
-  .c-snake { background:linear-gradient(150deg,#26c6da,#00838f 60%,#004d40); }
-  .c-tetris{ background:linear-gradient(150deg,#ab47bc,#6a1b9a 60%,#311b92); }
-  .c-tir   { background:linear-gradient(150deg,#ffb300,#e65100 60%,#4e2600); }
-  .c-arkanoid{ background:linear-gradient(150deg,#7e57c2,#4527a0 60%,#12002e); }
-  .c-pet   { background:linear-gradient(150deg,#ffab91,#e91e63 60%,#4a0e2e); }
-  .c-neonrace{ background:linear-gradient(150deg,#ff4081,#7c4dff 55%,#12092e); }
-  .c-moto  { background:linear-gradient(150deg,#ff9800,#b3477e 55%,#2c1850); }
-  .game:nth-child(7){ animation-delay:.36s } .game:nth-child(8){ animation-delay:.42s }
+  .c-farm  { background:linear-gradient(150deg,#69b84a,#2f7d32 58%,#173d18); }
+  .c-mario { background:linear-gradient(150deg,#3fa9e0,#1663ad 60%,#0a2f57); }
+  .c-kombat{ background:linear-gradient(150deg,#d84a4a,#8e1414 55%,#2e0000); }
+  .c-gonki { background:linear-gradient(150deg,#5f6ee8,#232a7d 60%,#0b0824); }
+  .c-snake { background:linear-gradient(150deg,#1fb6c9,#066e7d 60%,#02302c); }
+  .c-tetris{ background:linear-gradient(150deg,#9b4fc0,#571b85 60%,#24105e); }
+  .c-tir   { background:linear-gradient(150deg,#e8a91c,#b34d00 60%,#331a00); }
+  .c-arkanoid{ background:linear-gradient(150deg,#6a4fd0,#3a1f86 60%,#0d0024); }
+  .c-pet   { background:linear-gradient(150deg,#f78fb0,#c2185b 60%,#33081e); }
+  .c-neonrace{ background:linear-gradient(150deg,#e84e8a,#6236e8 55%,#0b0624); }
+  .c-moto  { background:linear-gradient(150deg,#ef8f1f,#94406e 55%,#1d0f38); }
 
-  .gbody { padding:14px 16px 16px; display:flex; flex-direction:column; gap:7px; flex:1; }
-  .gbody h3 { font-size:18.5px; font-weight:800; }
-  .gbody p { color:#bdbdd2; font-size:13.8px; line-height:1.5; flex:1; }
-  .meta { font-size:12.3px; color:#9a9ab2; }
-  .play { margin-top:8px; background:linear-gradient(92deg,#ffe082,#ffb300); color:#231a00; font-weight:900; text-align:center; padding:12px; border-radius:14px; font-size:16px; letter-spacing:.3px; box-shadow:0 10px 22px rgba(255,179,0,.35); }
+  .gbody { padding:15px 17px 17px; display:flex; flex-direction:column; gap:7px; flex:1; }
+  .gbody h3 { font-size:18px; font-weight:700; letter-spacing:-.2px; }
+  .gbody p { color:#a7a7ba; font-size:13.8px; line-height:1.55; flex:1; }
+  .meta { font-size:12.3px; color:#7c7c92; }
+  .play { margin-top:9px; background:linear-gradient(92deg,#37aee2,#2b7de0); color:#fff; font-weight:700; text-align:center; padding:12px; border-radius:14px; font-size:15.5px; letter-spacing:.2px; box-shadow:0 8px 20px rgba(43,125,224,.35); }
 
-  /* Большая карточка фермы */
-  .featured { margin-bottom:14px; }
-  .featured .cover { height:178px; }
-  .featured .cover .main { font-size:96px; }
-  .featured .gbody h3 { font-size:21px; }
+  .featured { margin-bottom:2px; }
+  .featured .cover { height:186px; }
+  .featured .cover .main { width:124px; height:124px; border-radius:32px; font-size:70px; }
+  .featured .gbody h3 { font-size:20px; }
 
-  footer { text-align:center; color:#8f8fa8; font-size:13.5px; margin-top:32px; line-height:1.7; }
+  footer { text-align:center; color:#71718a; font-size:13.5px; margin-top:38px; line-height:1.7; }
   footer .crown2 { font-size:22px; }
+  footer b { color:#a9a9c0; font-weight:600; }
 </style>
 </head>
 <body>
 <div class="bg"></div>
 <div class="wrap">
   <header class="hero">
-    <div class="crown">👑</div>
+    <div class="applogo">👑</div>
     <h1><span class="gold">E.Y.L</span> GAMES</h1>
     <p class="sub">Игровая империя президента <b>Erik Lebed</b> 🎮<br>Бесплатные игры прямо в браузере — без скачивания и регистрации.<br>Открыл — и играешь. Прогресс сохраняется в телефоне.</p>
     <div class="chips">
-      <span class="chip gold">👑 38 игр</span>
+      <span class="chip gold">👑 41 игра</span>
       <span class="chip">💸 Полностью бесплатно</span>
       <span class="chip">📱 С телефона и компьютера</span>
     </div>
@@ -290,22 +279,22 @@ fetch("gversion.txt?x=" + Date.now()).then(function(r){ return r.text(); }).then
 
   <h2 class="sec">📺 Коллекция Dendy</h2>
   <a class="game featured" href="dendy/">
-    <div class="cover" style="background:linear-gradient(150deg,#ef5350,#6a1b9a 60%,#1a0b33)">
+    <div class="cover" style="background:linear-gradient(150deg,#c73e54,#571b85 60%,#0d0624)">
       <span class="tag">Ретро • 8 бит</span><span class="new">НОВОЕ</span>
       <span class="sat s1">🐿️</span><span class="sat s2">🦆</span><span class="sat s3">👻</span><span class="sat s4">⭐</span>
       <span class="main">📺</span>
     </div>
     <div class="gbody">
       <h3>📺 Коллекция Dendy</h3>
-      <p>Легенды Денди в лёгких эмодзи-версиях: Chip 'n Dale с метанием ящиков, DuckTales с пого-тростью Скруджа — и это только начало, всего будет 52 игры! У каждой свой герой, враги и уровни.</p>
-      <div class="meta">🐿️ Бурундуки • 🦆 Скрудж • 🎮 Будет 52 игры</div>
+      <p>Легенды Денди в лёгких эмодзи-версиях: Chip 'n Dale 1–2 с метанием ящиков, DuckTales 1–2 с пого-тростью Скруджа, Adventure Island с топорами — уже 5 игр, а всего будет 52! У каждой свой герой, враги и уровни.</p>
+      <div class="meta">🐿️ Бурундуки • 🦆 Скрудж • 🏝️ Остров • 🎮 Будет 52 игры</div>
       <div class="play">Играть →</div>
     </div>
   </a>
 
   <h2 class="sec">🕹️ Ретро-приставка</h2>
   <a class="game featured" href="brick/">
-    <div class="cover" style="background:linear-gradient(150deg,#cfd8dc,#78909c 60%,#37474f)">
+    <div class="cover" style="background:linear-gradient(150deg,#9fb3bd,#546e7a 60%,#1d262b)">
       <span class="tag">Приставка • как в детстве</span><span class="new">НОВОЕ</span>
       <span class="sat s1">🧱</span><span class="sat s2">🚀</span><span class="sat s3">🏎️</span><span class="sat s4">🔨</span>
       <span class="main">🕹️</span>
@@ -321,7 +310,7 @@ fetch("gversion.txt?x=" + Date.now()).then(function(r){ return r.text(); }).then
   <h2 class="sec">🧠 Мини-игры • Emoji Arcade</h2>
   <div class="grid">
     <a class="game" href="memory/">
-      <div class="cover" style="background:linear-gradient(150deg,#26a69a,#00695c 60%,#00352e)">
+      <div class="cover" style="background:linear-gradient(150deg,#1d9e8f,#065548 60%,#02231e)">
         <span class="tag">Мини-игра • память</span><span class="new">НОВОЕ</span>
         <span class="sat s1">🍓</span><span class="sat s2">🦊</span><span class="sat s3">🍋</span><span class="sat s4">🐼</span>
         <span class="main">🧠</span>
@@ -334,7 +323,7 @@ fetch("gversion.txt?x=" + Date.now()).then(function(r){ return r.text(); }).then
       </div>
     </a>
     <a class="game" href="coinflip/">
-      <div class="cover" style="background:linear-gradient(150deg,#ffd54f,#ff8f00 60%,#7a3b00)">
+      <div class="cover" style="background:linear-gradient(150deg,#e8b93e,#b45f00 60%,#4d2700)">
         <span class="tag">Мини-игра • удача</span><span class="new">НОВОЕ</span>
         <span class="sat s1">🦅</span><span class="sat s2">👑</span><span class="sat s3">🍀</span><span class="sat s4">🎲</span>
         <span class="main">🪙</span>
