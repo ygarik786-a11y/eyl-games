@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<script>
+// Самообновление каталога: телефон Erik держал старую копию страницы
+// из кэша и не видел новые игры. Сверяемся с gversion.txt на сервере.
+var GAMES_VER = 4;
+fetch("gversion.txt?x=" + Date.now()).then(function(r){ return r.text(); }).then(function(t){
+  var rv = parseInt(t, 10);
+  if (rv && rv > GAMES_VER && sessionStorage.getItem("gamesUpd") !== String(rv)) {
+    sessionStorage.setItem("gamesUpd", String(rv));
+    location.replace(location.pathname + "?u=" + rv);
+  }
+}).catch(function(){});
+</script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0b0b16">
+<meta name="description" content="E.Y.L Games — бесплатные игры президента Erik: ферма, Супер Ерик, KOMBAT, гонки, змейка и тетрис. Без скачивания и регистрации.">
+<title>🎮 E.Y.L Games — игровая империя президента E.Y.L</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html { scroll-behavior:smooth; }
+  body { font-family:-apple-system,'Segoe UI',Roboto,'Helvetica Neue',sans-serif; background:#0b0b16; color:#f4f4f8; min-height:100vh; overflow-x:hidden; }
+
+  /* Живой фон: сияние и звёздочки */
+  .bg { position:fixed; inset:0; z-index:-2; background:
+      radial-gradient(700px 420px at 15% -5%, rgba(255,183,0,.20), transparent 60%),
+      radial-gradient(760px 500px at 95% 12%, rgba(124,77,255,.22), transparent 60%),
+      radial-gradient(640px 460px at 50% 108%, rgba(0,176,255,.14), transparent 60%),
+      #0b0b16; }
+  .bg::after { content:""; position:absolute; inset:0; opacity:.5; background-image:
+      radial-gradient(1.5px 1.5px at 12% 22%, #fff, transparent),
+      radial-gradient(1px 1px at 32% 68%, #cfd8ff, transparent),
+      radial-gradient(1.5px 1.5px at 55% 12%, #fff, transparent),
+      radial-gradient(1px 1px at 74% 44%, #ffe9a8, transparent),
+      radial-gradient(1.5px 1.5px at 88% 78%, #fff, transparent),
+      radial-gradient(1px 1px at 44% 88%, #cfd8ff, transparent),
+      radial-gradient(1px 1px at 6% 56%, #ffe9a8, transparent),
+      radial-gradient(1.5px 1.5px at 66% 92%, #fff, transparent); }
+
+  .wrap { max-width:680px; margin:0 auto; padding:20px 14px 46px; }
+
+  /* Шапка */
+  header.hero { text-align:center; padding:34px 16px 26px; border-radius:26px; position:relative; overflow:hidden;
+    background:linear-gradient(165deg, rgba(255,255,255,.09), rgba(255,255,255,.02));
+    border:1px solid rgba(255,255,255,.14); box-shadow:0 24px 60px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.15);
+    backdrop-filter:blur(6px); }
+  header.hero::before { content:""; position:absolute; inset:-40%; background:conic-gradient(from 0deg, transparent 70%, rgba(255,213,79,.14), transparent 82%); animation:spin 9s linear infinite; }
+  @keyframes spin { to { transform:rotate(360deg); } }
+  .crown { font-size:54px; display:inline-block; animation:floaty 3.2s ease-in-out infinite; filter:drop-shadow(0 10px 18px rgba(255,183,0,.45)); position:relative; }
+  @keyframes floaty { 0%,100% { transform:translateY(0) rotate(-3deg); } 50% { transform:translateY(-8px) rotate(3deg); } }
+  header.hero h1 { font-size:40px; font-weight:900; letter-spacing:.5px; margin-top:6px; position:relative; line-height:1.05; }
+  header.hero h1 .gold { background:linear-gradient(92deg,#ffe082,#ffb300 45%,#ff8f00 70%,#ffe082); -webkit-background-clip:text; background-clip:text; color:transparent; text-shadow:0 0 34px rgba(255,179,0,.25); }
+  header.hero .sub { position:relative; color:#c9c9da; font-size:15px; margin-top:10px; line-height:1.5; }
+  header.hero .sub b { color:#fff; }
+  .chips { position:relative; display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin-top:16px; }
+  .chip { background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.14); padding:7px 13px; border-radius:999px; font-size:13px; font-weight:600; }
+  .chip.gold { background:rgba(255,179,0,.16); border-color:rgba(255,179,0,.45); color:#ffd54f; }
+
+  /* Кнопка ТВ на первом экране: страница /tv/ жива, но с главной на неё не было ни одной ссылки */
+  .tvbanner { display:flex; align-items:center; gap:14px; margin-top:16px; background:linear-gradient(92deg, rgba(255,213,79,.20), rgba(255,143,0,.12)); border:1px solid rgba(255,213,79,.55); border-radius:22px; padding:16px 18px; text-decoration:none; color:inherit; box-shadow:0 14px 34px rgba(0,0,0,.42); }
+  .tvbanner-ico { font-size:44px; }
+  .tvbanner-txt b { display:block; font-size:19px; }
+  .tvbanner-txt i { display:block; font-style:normal; color:#c9c9da; font-size:14px; margin-top:3px; }
+
+  h2.sec { font-size:21px; font-weight:800; margin:28px 2px 14px; display:flex; align-items:center; gap:10px; }
+  h2.sec::after { content:""; flex:1; height:1px; background:linear-gradient(90deg, rgba(255,255,255,.25), transparent); }
+
+  .about { background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.10); border-radius:18px; padding:15px 17px; color:#dcdce8; font-size:14.5px; line-height:1.6; }
+  .about b { color:#ffd54f; }
+
+  /* Карточки игр */
+  .grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+  @media (max-width:480px){ .grid { grid-template-columns:1fr; } }
+  .game { background:linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.03)); border:1px solid rgba(255,255,255,.12); border-radius:22px; overflow:hidden; text-decoration:none; color:inherit; display:flex; flex-direction:column; box-shadow:0 14px 34px rgba(0,0,0,.42); transition:transform .15s, border-color .15s, box-shadow .15s; animation:rise .6s both; }
+  .game:hover { border-color:rgba(255,213,79,.65); transform:translateY(-3px); box-shadow:0 20px 44px rgba(0,0,0,.55); }
+  .game:active { transform:scale(.985); }
+  @keyframes rise { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:none; } }
+  .game:nth-child(2){ animation-delay:.06s } .game:nth-child(3){ animation-delay:.12s }
+  .game:nth-child(4){ animation-delay:.18s } .game:nth-child(5){ animation-delay:.24s }
+  .game:nth-child(6){ animation-delay:.30s }
+
+  .cover { height:150px; position:relative; overflow:hidden; display:flex; align-items:center; justify-content:center; }
+  .cover::after { content:""; position:absolute; inset:0; background:linear-gradient(115deg, transparent 30%, rgba(255,255,255,.22) 48%, transparent 62%); transform:translateX(-120%); }
+  .game:hover .cover::after { transform:translateX(120%); transition:transform .8s ease; }
+  .cover .main { font-size:76px; filter:drop-shadow(0 12px 16px rgba(0,0,0,.45)); animation:floaty 3.6s ease-in-out infinite; z-index:1; }
+  .cover .sat { position:absolute; filter:drop-shadow(0 6px 10px rgba(0,0,0,.4)); z-index:1; }
+  .cover .s1 { left:12%; top:16%; font-size:30px; transform:rotate(-10deg); }
+  .cover .s2 { right:13%; top:22%; font-size:26px; transform:rotate(8deg); }
+  .cover .s3 { right:20%; bottom:13%; font-size:22px; }
+  .cover .s4 { left:20%; bottom:16%; font-size:20px; }
+  .tag { position:absolute; left:10px; top:10px; z-index:2; background:rgba(5,5,12,.55); border:1px solid rgba(255,255,255,.22); color:#fff; font-size:11.5px; font-weight:700; padding:4px 10px; border-radius:999px; backdrop-filter:blur(3px); }
+  .new { position:absolute; top:10px; right:10px; z-index:2; background:linear-gradient(92deg,#ffe082,#ffb300); color:#231a00; font-size:11.5px; font-weight:900; padding:4px 11px; border-radius:999px; letter-spacing:.6px; box-shadow:0 6px 16px rgba(255,179,0,.5); }
+
+  .c-farm  { background:linear-gradient(150deg,#8fd35a,#43a047 55%,#1b5e20); }
+  .c-mario { background:linear-gradient(150deg,#4fc3f7,#1976d2 60%,#0d47a1); }
+  .c-kombat{ background:linear-gradient(150deg,#ef5350,#b71c1c 55%,#4a0000); }
+  .c-gonki { background:linear-gradient(150deg,#7e57c2,#283593 60%,#12092e); }
+  .c-snake { background:linear-gradient(150deg,#26c6da,#00838f 60%,#004d40); }
+  .c-tetris{ background:linear-gradient(150deg,#ab47bc,#6a1b9a 60%,#311b92); }
+  .c-tir   { background:linear-gradient(150deg,#ffb300,#e65100 60%,#4e2600); }
+  .c-arkanoid{ background:linear-gradient(150deg,#7e57c2,#4527a0 60%,#12002e); }
+  .c-pet   { background:linear-gradient(150deg,#ffab91,#e91e63 60%,#4a0e2e); }
+  .c-neonrace{ background:linear-gradient(150deg,#ff4081,#7c4dff 55%,#12092e); }
+  .c-moto  { background:linear-gradient(150deg,#ff9800,#b3477e 55%,#2c1850); }
+  .game:nth-child(7){ animation-delay:.36s } .game:nth-child(8){ animation-delay:.42s }
+
+  .gbody { padding:14px 16px 16px; display:flex; flex-direction:column; gap:7px; flex:1; }
+  .gbody h3 { font-size:18.5px; font-weight:800; }
+  .gbody p { color:#bdbdd2; font-size:13.8px; line-height:1.5; flex:1; }
+  .meta { font-size:12.3px; color:#9a9ab2; }
+  .play { margin-top:8px; background:linear-gradient(92deg,#ffe082,#ffb300); color:#231a00; font-weight:900; text-align:center; padding:12px; border-radius:14px; font-size:16px; letter-spacing:.3px; box-shadow:0 10px 22px rgba(255,179,0,.35); }
+
+  /* Большая карточка фермы */
+  .featured { margin-bottom:14px; }
+  .featured .cover { height:178px; }
+  .featured .cover .main { font-size:96px; }
+  .featured .gbody h3 { font-size:21px; }
+
+  footer { text-align:center; color:#8f8fa8; font-size:13.5px; margin-top:32px; line-height:1.7; }
+  footer .crown2 { font-size:22px; }
+</style>
+</head>
+<body>
+<div class="bg"></div>
+<div class="wrap">
+  <header class="hero">
+    <div class="crown">👑</div>
+    <h1><span class="gold">E.Y.L</span> GAMES</h1>
+    <p class="sub">Игровая империя президента <b>Erik Lebed</b> 🎮<br>Бесплатные игры прямо в браузере — без скачивания и регистрации.<br>Открыл — и играешь. Прогресс сохраняется в телефоне.</p>
+    <div class="chips">
+      <span class="chip gold">👑 11 игр</span>
+      <span class="chip">💸 Полностью бесплатно</span>
+      <span class="chip">📱 С телефона и компьютера</span>
+    </div>
+  </header>
+
+  <h2 class="sec">⭐ Игра дня</h2>
+  <a class="game featured" href="farm/">
+    <div class="cover c-farm">
+      <span class="tag">Ферма • хозяйство</span><span class="new">ОБНОВЛЕНО</span>
+      <span class="sat s1">🌻</span><span class="sat s2">🐄</span><span class="sat s3">🥕</span><span class="sat s4">🐝</span>
+      <span class="main">🚜</span>
+    </div>
+    <div class="gbody">
+      <h3>🚜 Ферма президента E.Y.L</h3>
+      <p>Грядки и животные, живой рынок с ценами, заказы, переработка в сыр и варенье, погода и сезоны, пчёлы и свиньи, двор с прудом и рыбалкой, рейтинг фермеров и сторожевая Линда. Урожай растёт, даже пока тебя нет!</p>
+      <div class="meta">🏡 Двор и постройки • ❄️ Сезоны • 🏆 Рейтинг фермеров</div>
+      <div class="play">Играть →</div>
+    </div>
+  </a>
+
+  <h2 class="sec">🎮 Все игры</h2>
+  <div class="grid">
+    <a class="game" href="pet/">
+      <div class="cover c-pet">
+        <span class="tag">Питомец • как Pou</span><span class="new">НОВОЕ</span>
+        <span class="sat s1">🍔</span><span class="sat s2">🚿</span><span class="sat s3">🛏️</span><span class="sat s4">👑</span>
+        <span class="main">🐾</span>
+      </div>
+      <div class="gbody">
+        <h3>🐾 Мой питомец</h3>
+        <p>Твой собственный питомец как в Pou: корми из холодильника, мой с пеной и душем, укладывай спать, играй и одевай. Он растёт по уровням — от малыша до большого, а в гардеробе его ждёт корона президента!</p>
+        <div class="meta">🍳 Кухня • 🚿 Ванная • 🎮 Игры • 👑 Гардероб</div>
+        <div class="play">Играть →</div>
+      </div>
+    </a>
+    <a class="game" href="motocross/">
+      <div class="cover c-moto">
+        <span class="tag">Мотокросс • как на Денди</span><span class="new">НОВОЕ</span>
+        <span class="sat s1">🕊️</span><span class="sat s2">⛽</span><span class="sat s3">🟤</span><span class="sat s4">🏁</span>
+        <span class="main">🏍️</span>
+      </div>
+      <div class="gbody">
+        <h3>🏍️ Мотокросс E.Y.L</h3>
+        <p>Как Excitebike на Денди: 1200 метров трассы с трамплинами! Лети с горок, наклоняйся в воздухе, приземляйся ровно и обгоняй Юрку, Mita и Тень.</p>
+        <div class="meta">🕊️ Прыжки • 🏆 3 соперника • 🟤 Грязь тормозит</div>
+        <div class="play">Играть →</div>
+      </div>
+    </a>
+    <a class="game" href="neonrace/">
+      <div class="cover c-neonrace">
+        <span class="tag">Гонки • неон и скорость</span>
+        <span class="sat s1">🌆</span><span class="sat s2">🔥</span><span class="sat s3">💨</span><span class="sat s4">🏁</span>
+        <span class="main">🏎️</span>
+      </div>
+      <div class="gbody">
+        <h3>🏎️ Неоновые гонки E.Y.L</h3>
+        <p>Трасса уходит в закат: повороты, холмы и трафик. Обгоняй вплотную, копи нитро и жги на 350+! Успей до контрольной арки, пока не вышло время.</p>
+        <div class="meta">🔥 Нитро • 💨 Обгоны вплотную • ⏱️ Арки времени</div>
+        <div class="play">Играть →</div>
+      </div>
+    </a>
+    <a class="game" href="mario/">
+      <div class="cover c-mario">
+        <span class="tag">Платформер • как на Денди</span>
+        <span class="sat s1">🪙</span><span class="sat s2">⭐</span><span class="sat s3">🧱</span><span class="sat s4">🍄</span>
+        <span class="main">🏃</span>
+      </div>
+      <div class="gbody">
+        <h3>🏃 Супер Ерик</h3>
+        <p>Прыгалки как Марио на Денди: беги, прыгай по платформам, собирай монеты и доходи до финиша.</p>
+        <div class="meta">📱 С телефона • ⌨️ И с клавиатуры</div>
+        <div class="play">Играть →</div>
+      </div>
+    </a>
+    <a class="game" href="kombat/?u=2">
+      <div class="cover c-kombat">
+        <span class="tag">Файтинг • как Мортал Комбат</span><span class="new">ОБНОВЛЕНО</span>
+        <span class="sat s1">🥊</span><span class="sat s2">💥</span><span class="sat s3">🔥</span><span class="sat s4">⚡</span>
+        <span class="main">👊</span>
+      </div>
+      <div class="gbody">
+        <h3>👊 E.Y.L KOMBAT</h3>
+        <p>Теперь 4 бойца: Erik, Юрка, Mita и босс Тень! Огонь как в Мортал Комбат на Денди, суперудары, комбо и Лестница из 5 соперников до чемпионской короны.</p>
+        <div class="meta">🔥 Огонь • 🏆 Лестница • ⚡ Суперудар</div>
+        <div class="play">Играть →</div>
+      </div>
+    </a>
+    <a class="game" href="gonki/">
+      <div class="cover c-gonki">
+        <span class="tag">Гонки • скорость</span>
+        <span class="sat s1">🏁</span><span class="sat s2">🚥</span><span class="sat s3">🔥</span><span class="sat s4">💨</span>
+        <span class="main">🏎️</span>
+      </div>
+      <div class="gbody">
+        <h3>🏎️ Уличные гонки</h3>
+        <p>Гонки как в ВК: гараж, соперники и быстрые машины. Обгоняй всех и приходи первым.</p>
+        <div class="meta">📱 С телефона • ⌨️ И с клавиатуры</div>
+        <div class="play">Играть →</div>
+      </div>
+    </a>
+    <a class="game" href="snake/">
+      <div class="cover c-snake">
+        <span class="tag">Классика • на рекорд</span>
+        <span class="sat s1">🍎</span><span class="sat s2">🍏</span><span class="sat s3">⭐</span><span class="sat s4">🌿</span>
+        <span class="main">🐍</span>
+      </div>
+      <div class="gbody">
+        <h3>🐍 Змейка</h3>
+        <p>Классика с телефонов: ешь яблоки, расти и не врезайся в стены. Играется и с клавиатуры, и с телефона.</p>
+        <div class="meta">📱 С телефона • ⌨️ И с клавиатуры</div>
+        <div class="play">Играть →</div>
+      </div>
+    </a>
+    <a class="game" href="tetris/">
+      <div class="cover c-tetris">
+        <span class="tag">Классика • на рекорд</span>
+        <span class="sat s1">🟪</span><span class="sat s2">🟦</span><span class="sat s3">🟨</span><span class="sat s4">🟩</span>
+        <span class="main">🧱</span>
+      </div>
+      <div class="gbody">
+        <h3>🧱 Тетрис</h3>
+        <p>Тот самый тетрис: складывай фигуры, закрывай линии и набирай рекорд. С телефона и с клавиатуры.</p>
+        <div class="meta">📱 С телефона • ⌨️ И с клавиатуры</div>
+        <div class="play">Играть →</div>
+      </div>
+    </a>
+    <a class="game" href="tir/">
+      <div class="cover c-tir">
+        <span class="tag">Стрелялка • волны бандитов</span><span class="new">НОВОЕ</span>
+        <span class="sat s1">🎯</span><span class="sat s2">💥</span><span class="sat s3">⭐</span><span class="sat s4">❤️</span>
+        <span class="main">🔫</span>
+      </div>
+      <div class="gbody">
+        <h3>🎯 E.Y.L ТИР</h3>
+        <p>Стреляй по бандитам — волны всё быстрее и злее! Золотые мишени дают бонусы, а по мирным с сердечками стрелять нельзя. Комбо множит очки!</p>
+        <div class="meta">🌊 Волны • 🔥 Комбо • 🏆 Рекорд</div>
+        <div class="play">Играть →</div>
+      </div>
+    </a>
+    <a class="game" href="arkanoid/">
+      <div class="cover c-arkanoid">
+        <span class="tag">Классика • кирпичи и бонусы</span><span class="new">НОВОЕ</span>
+        <span class="sat s1">🏓</span><span class="sat s2">💊</span><span class="sat s3">❤️</span><span class="sat s4">⭐</span>
+        <span class="main">🧱</span>
+      </div>
+      <div class="gbody">
+        <h3>🧱 Арканоид E.Y.L</h3>
+        <p>Вечная классика: отбивай мяч, разбивай кирпичи, лови бонусы — широкая платформа, замедление и лишние жизни. Уровни всё быстрее!</p>
+        <div class="meta">🎁 Бонусы • 🚀 Уровни • 🏆 Рекорд</div>
+        <div class="play">Играть →</div>
+      </div>
+    </a>
+  </div>
+
+  <h2 class="sec">💬 Об играх</h2>
+  <div class="about">
+    Хочешь спокойствия и своего хозяйства — заходи на <b>Ферму президента</b>: сажай, выращивай и богатей.
+    Хочешь своего друга в телефоне — <b>«Мой питомец»</b>: корми, мой, играй — как в Pou.
+    Хочешь скорости — <b>«Неоновые гонки»</b> с нитро и обгонами вплотную, а как в детстве на Денди — прыгай в <b>«Супер Ерике»</b> и гоняй в <b>«Уличных гонках»</b>.
+    Хочешь подраться — <b>E.Y.L KOMBAT</b> ждёт: четыре бойца, огонь и лестница до босса!
+    Пострелять — <b>«E.Y.L ТИР»</b> с волнами бандитов. А <b>«Змейка»</b>, <b>«Тетрис»</b> и <b>«Арканоид»</b> — вечная классика на рекорд.
+  </div>
+
+  <footer>
+    <div class="crown2">👑</div>
+    E.Y.L Games — от компании <b>E.Y.L</b><br>
+    Игры созданы создателем Erik Lebed ✨
+  </footer>
+</div>
+</body>
+</html>
