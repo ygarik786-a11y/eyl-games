@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>🎯 E.Y.L ТИР — E.Y.L Games</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:#0d0f1a;color:#eef;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;min-height:100vh;padding:14px 10px 30px}
+  .wrap{max-width:920px;margin:0 auto}
+  .back{display:inline-block;color:#ffa751;text-decoration:none;font-size:15px;margin-bottom:6px}
+  .back:active{opacity:.7}
+  h1{font-size:26px;letter-spacing:.5px}
+  h1 span{background:linear-gradient(90deg,#ffa751,#ffe259);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .sub{color:#9aa0c3;font-size:14px;margin:2px 0 12px}
+  .hud{display:flex;flex-wrap:wrap;gap:8px;align-items:stretch;margin-bottom:10px}
+  .hud .cell{background:#171a2e;border:1px solid #262a47;border-radius:10px;padding:7px 12px;font-size:15px;font-weight:600;display:flex;align-items:center;gap:6px}
+  .hud .cell b{color:#ffe259;font-size:17px}
+  #lives{letter-spacing:2px;font-size:14px}
+  .ammoDots{color:#ffe259;letter-spacing:3px;font-size:13px}
+  .reloadWrap{width:90px;height:9px;background:#262a47;border-radius:5px;overflow:hidden}
+  #reloadFill{height:100%;width:0%;background:linear-gradient(90deg,#ffa751,#ffe259)}
+  .stage{position:relative;border:2px solid #262a47;border-radius:14px;overflow:hidden;background:#0a0c16;box-shadow:0 10px 40px rgba(0,0,0,.5)}
+  canvas{display:block;width:100%;height:auto;cursor:none;touch-action:none;-webkit-tap-highlight-color:transparent}
+  /* Меню/пауза/финал — на ВЕСЬ экран телефона: раньше оверлей жил внутри
+     низкого поля и кнопка ИГРАТЬ обрезалась — её было не нажать */
+  .overlay{position:fixed;inset:0;background:rgba(8,9,18,.94);display:flex;flex-direction:column;align-items:center;justify-content:flex-start;text-align:center;padding:30px 18px 40px;gap:16px;z-index:50;overflow-y:auto}
+  .hidden{display:none!important}
+  .overlay h2{font-size:30px}
+  .overlay h2 span{background:linear-gradient(90deg,#ffa751,#ffe259);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .rules{font-size:15.5px;line-height:1.6;color:#dfe3ff;max-width:580px}
+  .bigbtn{background:linear-gradient(90deg,#ffa751,#ffe259);color:#231600;border:0;border-radius:14px;padding:15px 42px;font-size:20px;font-weight:800;cursor:pointer;box-shadow:0 6px 20px rgba(255,167,81,.35);font-family:inherit}
+  .bigbtn:active{transform:scale(.97)}
+  .banner{position:absolute;top:36%;left:0;right:0;text-align:center;font-size:46px;font-weight:900;color:#ffe259;text-shadow:0 4px 24px rgba(0,0,0,.85),0 0 44px rgba(255,167,81,.55);pointer-events:none;z-index:4;letter-spacing:1px}
+  .controls{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+  .controls button{flex:1;min-width:150px;background:#1b1e33;border:1px solid #2c3050;color:#eef;border-radius:12px;padding:14px 10px;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit}
+  .controls button:active{transform:scale(.98);background:#232642}
+  .hint{color:#7c81a3;font-size:13px;margin-top:10px;text-align:center;line-height:1.55}
+  .final{font-size:18px;line-height:1.65}
+  .final b{color:#ffe259}
+  .bestline{color:#9aa0c3;font-size:15px}
+  .bestline b{color:#ffe259}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="back" href="../index.html">← Все игры</a>
+  <h1>🎯 E.Y.L <span>ТИР</span></h1>
+  <div class="sub">Отстреливай бандитов, береги мирных — и держись до последней волны!</div>
+
+  <div class="hud">
+    <div class="cell">🏆 Очки: <b id="score">0</b></div>
+    <div class="cell">⭐ Рекорд: <b id="best">0</b></div>
+    <div class="cell">🌊 Волна: <b id="wave">1</b></div>
+    <div class="cell"><span id="lives">❤️❤️❤️</span></div>
+    <div class="cell">🔥 Комбо: <b id="combo">x1</b></div>
+    <div class="cell">🔫 <span class="ammoDots" id="ammo">●●●●●●</span></div>
+    <div class="cell" id="reloadCell" style="display:none">🔄<div class="reloadWrap"><div id="reloadFill"></div></div></div>
+  </div>
+
+  <div class="stage" id="stage">
+    <canvas id="cv" width="880" height="495"></canvas>
+    <div class="banner hidden" id="banner"></div>
+
+    <div class="overlay" id="menuOv">
+      <h2>🎯 E.Y.L <span>ТИР</span></h2>
+      <div class="rules">
+        🎯 Стреляй по бандитам: чем меньше и быстрее мишень — тем больше очков, а серия попаданий без промаха даёт комбо x2, x3 и выше!<br>
+        💐 По мирным с сердечком и цветком стрелять НЕЛЬЗЯ — минус жизнь и минус очки! ⭐ Золотая мишень: +100 очков и +1 патрон.<br>
+        ❤️ Жизней всего 3: бандит, ушедший за край поля, — минус жизнь. Магазин на 6 выстрелов, перезарядка идёт сама или по кнопке R.
+      </div>
+      <button class="bigbtn" id="playBtn">▶ ИГРАТЬ</button>
+      <div class="bestline">Рекорд: <b id="menuBest">0</b> очков</div>
+    </div>
+
+    <div class="overlay hidden" id="overOv">
+      <h2>🏁 ИГРА <span>ОКОНЧЕНА</span></h2>
+      <div class="final" id="finalText"></div>
+      <button class="bigbtn" id="againBtn">🔄 ЕЩЁ РАЗ</button>
+    </div>
+
+    <div class="overlay hidden" id="pauseOv">
+      <h2>⏸ <span>ПАУЗА</span></h2>
+      <div class="rules">Мишени подождут. Передохни — и обратно в бой!</div>
+      <button class="bigbtn" id="resumeBtn">▶ ДАЛЬШЕ</button>
+    </div>
+  </div>
+
+  <div class="controls">
+    <button id="reloadBtn">🔄 Перезарядка (R)</button>
+    <button id="pauseBtn">⏸ Пауза (P)</button>
+  </div>
+  <div class="hint">🖱️ На компьютере: веди мышь — прицел сам бежит за ней, стреляй кликом. 📱 На телефоне: просто тапай прямо по бандитам.<br>Не попади по мирным с сердечком и цветком — они свои! 💐</div>
+</div>
+
+<script>
+(() => {
+"use strict";
+const cv = document.getElementById("cv");
+const ctx = cv.getContext("2d");
+const W = 880, H = 495;
+const $ = id => document.getElementById(id);
+const scoreEl = $("score"), bestEl = $("best"), waveEl = $("wave"), livesEl = $("lives"),
+      comboEl = $("combo"), ammoEl = $("ammo"), reloadFill = $("reloadFill"),
+      reloadCell = $("reloadCell"), bannerEl = $("banner"),
+      menuOv = $("menuOv"), overOv = $("overOv"), pauseOv = $("pauseOv"),
+      finalText = $("finalText"), menuBest = $("menuBest");
+
+/* ---------- Звук: WebAudio-бипы, без файлов ---------- */
+let AC = null, soundReady = false;
+function initAudio(){
+  try{
+    if(!AC) AC = new (window.AudioContext || window.webkitAudioContext)();
+    if(AC.state === "suspended") AC.resume();
+    soundReady = true;
+  }catch(e){}
+}
+function beep(f0, f1, dur, type, vol, delay){
+  if(!soundReady || !AC) return;
+  try{
+    const t0 = AC.currentTime + (delay || 0);
+    const o = AC.createOscillator(), g = AC.createGain();
+    o.type = type || "square";
+    o.frequency.setValueAtTime(f0, t0);
+    if(f1 && f1 !== f0) o.frequency.exponentialRampToValueAtTime(Math.max(30, f1), t0 + dur);
+    g.gain.setValueAtTime(vol || 0.12, t0);
+    g.gain.exponentialRampToValueAtTime(0.001, t0 + dur);
+    o.connect(g); g.connect(AC.destination);
+    o.start(t0); o.stop(t0 + dur + 0.02);
+  }catch(e){}
+}
+function noiseHit(dur, vol){
+  if(!soundReady || !AC) return;
+  try{
+    const n = Math.max(1, Math.floor(AC.sampleRate * dur));
+    const buf = AC.createBuffer(1, n, AC.sampleRate), d = buf.getChannelData(0);
+    for(let i = 0; i < n; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / n);
+    const src = AC.createBufferSource(); src.buffer = buf;
+    const f = AC.createBiquadFilter(); f.type = "lowpass"; f.frequency.value = 1800;
+    const g = AC.createGain(); g.gain.value = vol || 0.2;
+    src.connect(f); f.connect(g); g.connect(AC.destination); src.start();
+  }catch(e){}
+}
+const sShot   = () => { noiseHit(0.07, 0.25); beep(320, 70, 0.08, "sawtooth", 0.10); };
+const sHit    = m => { beep(520 + m * 70, 900 + m * 90, 0.09, "triangle", 0.16); beep(1040 + m * 90, 0, 0.07, "sine", 0.10, 0.05); };
+const sBad    = () => { beep(160, 90, 0.28, "sawtooth", 0.15); beep(120, 70, 0.30, "square", 0.10, 0.05); };
+const sGold   = () => { beep(880, 0, 0.09, "triangle", 0.16); beep(1174, 0, 0.09, "triangle", 0.16, 0.08); beep(1568, 0, 0.15, "triangle", 0.16, 0.16); };
+const sReloadS= () => beep(300, 180, 0.06, "square", 0.10);
+const sReloadD= () => { beep(500, 0, 0.05, "square", 0.12); beep(760, 0, 0.06, "square", 0.12, 0.06); };
+const sWave   = () => { beep(392, 0, 0.12, "triangle", 0.16); beep(587, 0, 0.18, "triangle", 0.16, 0.11); };
+const sOver   = () => { beep(523, 0, 0.16, "triangle", 0.16); beep(415, 0, 0.16, "triangle", 0.16, 0.16); beep(311, 0, 0.32, "triangle", 0.16, 0.32); };
+const sEmpty  = () => beep(200, 140, 0.05, "square", 0.08);
+
+/* ---------- Состояние игры ---------- */
+const MAG = 6, RELOAD_TIME = 0.8;
+let state = "menu";           // menu | playing | paused | over
+let phase = "banner";         // banner | fight
+let phaseT = 0;
+let score = 0, wave = 0, lives = 3, streak = 0, mult = 1;
+let ammo = MAG, reloading = false, reloadT = 0;
+let targets = [], particles = [], floats = [];
+let toSpawn = 0, spawnT = 0, spawnInterval = 1;
+let slowmoUntil = -1, flashRed = 0, shake = 0, timeNow = 0;
+let best = 0;
+try{ best = parseInt(localStorage.getItem("eyl-tir-best") || "0", 10) || 0; }catch(e){}
+const pointer = { x: W / 2, y: H / 2, inside: false };
+const BANDIT_COLORS = ["#3b4a6b", "#5b3a3a", "#2e4a3a", "#4a3a5b", "#6b543a"];
+
+/* ---------- HUD ---------- */
+function updateHUD(){
+  scoreEl.textContent = score;
+  bestEl.textContent = Math.max(best, score);
+  waveEl.textContent = wave || 1;
+  const lv = Math.max(0, Math.min(3, lives));
+  livesEl.textContent = "❤️".repeat(lv) + "🖤".repeat(3 - lv);
+  comboEl.textContent = streak >= 2 ? ("x" + mult + " · серия " + streak) : "x1";
+  comboEl.style.color = mult > 1 ? "#ffa751" : "#ffe259";
+  ammoEl.textContent = "●".repeat(ammo) + "○".repeat(MAG - ammo);
+  reloadCell.style.display = reloading ? "flex" : "none";
+}
+let bannerTO = null;
+function showBanner(txt, ms){
+  bannerEl.textContent = txt;
+  bannerEl.classList.remove("hidden");
+  if(bannerTO) clearTimeout(bannerTO);
+  bannerTO = setTimeout(() => bannerEl.classList.add("hidden"), ms || 1300);
+}
+function addFloat(text, x, y, color){
+  floats.push({ text: text, x: Math.max(70, Math.min(W - 70, x)), y: y, color: color || "#ffe259", life: 1.15 });
+}
+function burst(x, y, color, n, power){
+  for(let i = 0; i < n; i++){
+    const a = Math.random() * 6.283, sp = (40 + Math.random() * 130) * (power || 1);
+    particles.push({ x: x, y: y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - 30, life: 0.35 + Math.random() * 0.3, color: color, size: 2 + Math.random() * 3 });
+  }
+}
+/* ---------- Волны и мишени ---------- */
+function startGame(){
+  // Поле — в центр экрана телефона, чтобы играть без прокруток
+  const st = document.getElementById("stage");
+  if (st) setTimeout(()=>st.scrollIntoView({behavior:"smooth", block:"center"}), 60);
+  initAudio();
+  score = 0; wave = 0; lives = 3; streak = 0; mult = 1;
+  ammo = MAG; reloading = false; slowmoUntil = -1; flashRed = 0; shake = 0;
+  targets = []; particles = []; floats = [];
+  state = "playing";
+  menuOv.classList.add("hidden"); overOv.classList.add("hidden"); pauseOv.classList.add("hidden");
+  nextWave();
+  updateHUD();
+}
+function nextWave(){
+  wave++;
+  toSpawn = 7 + wave * 3;
+  spawnInterval = Math.max(0.42, 1.15 - wave * 0.07);
+  spawnT = 0.3;
+  phase = "banner"; phaseT = 1.4;
+  showBanner("🌊 Волна " + wave, 1350);
+  sWave();
+  updateHUD();
+}
+function spawnTarget(){
+  const roll = Math.random();
+  let type = "bandit";
+  if(roll < 0.07) type = "gold"; else if(roll < 0.23) type = "peaceful";
+  const r = type === "gold" ? 19 + Math.random() * 6 : 27 + Math.random() * 19;
+  const spd = 55 + wave * 13 + Math.random() * 55;
+  const t = {
+    type: type, r: r, mode: "lr", x: 0, y: 0, baseY: 0, vx: 0, vy: 0,
+    wob: Math.random() * 6.28, wobSpeed: 1.2 + Math.random() * 1.8, wobAmp: 6 + Math.random() * 10,
+    color: BANDIT_COLORS[Math.floor(Math.random() * BANDIT_COLORS.length)],
+    pcolor: Math.random() < 0.5 ? "#ffd9e8" : "#d9f7e3",
+    hat: Math.random() < 0.5,
+    symbol: Math.random() < 0.5 ? "❤️" : "🌸"
+  };
+  const m = Math.random();
+  if(m < 0.60){                       // справа налево
+    t.mode = "lr";
+    t.x = W + r + 12;
+    t.baseY = 56 + Math.random() * (H - 130);
+    t.y = t.baseY;
+    t.vx = -spd * (0.85 + Math.random() * 0.5);
+  } else if(m < 0.82){                // сверху вниз
+    t.mode = "fall";
+    t.x = 110 + Math.random() * (W - 200);
+    t.y = -r - 12;
+    t.baseY = t.y;
+    t.vx = -(8 + Math.random() * 26);
+    t.vy = spd * (0.65 + Math.random() * 0.4);
+  } else {                            // по диагонали справа налево
+    t.mode = "diag";
+    t.x = W + r + 12;
+    const top = Math.random() < 0.5;
+    t.baseY = top ? 46 : H - 56;
+    t.y = t.baseY;
+    t.vx = -spd * (0.9 + Math.random() * 0.3);
+    t.vy = (top ? 1 : -1) * (26 + Math.random() * 38);
+  }
+  targets.push(t);
+}
+
+/* ---------- Игровая логика ---------- */
+function loseLife(){
+  lives--;
+  flashRed = 0.3; shake = 9;
+  sBad();
+  updateHUD();
+  if(lives <= 0) gameOver();
+}
+function gameOver(){
+  state = "over";
+  if(score > best){
+    best = score;
+    try{ localStorage.setItem("eyl-tir-best", String(best)); }catch(e){}
+  }
+  menuBest.textContent = best;
+  finalText.innerHTML = "Твой счёт: <b>" + score + "</b> очков<br>Дошёл до волны: <b>" + wave + "</b><br>Рекорд: <b>" + best + "</b> очков";
+  overOv.classList.remove("hidden");
+  sOver();
+  updateHUD();
+}
+function startReload(){
+  if(reloading || ammo === MAG || state !== "playing") return;
+  reloading = true; reloadT = RELOAD_TIME;
+  reloadFill.style.width = "0%";
+  sReloadS();
+  updateHUD();
+}
+function onHit(t){
+  if(t.type === "peaceful"){
+    score = Math.max(0, score - 50);
+    streak = 0; mult = 1;
+    burst(t.x, t.y, "#ff8fab", 14, 1);
+    addFloat("МИРНЫЙ! −50", t.x, t.y - 12, "#ff5d7a");
+    loseLife();
+    return;
+  }
+  streak++;
+  mult = Math.min(5, 1 + Math.floor(streak / 4));
+  if(t.type === "gold"){
+    score += 100;
+    burst(t.x, t.y, "#ffe259", 22, 1.2);
+    if(ammo < MAG){
+      ammo++;
+      addFloat("+100 ⭐ +1 патрон", t.x, t.y - 12, "#ffe259");
+    } else {
+      slowmoUntil = timeNow + 3;
+      addFloat("+100 ⭐ время замедлено!", t.x, t.y - 12, "#ffe259");
+    }
+    sGold();
+    return;
+  }
+  // Бандит: меньше и быстрее — дороже
+  const speedBonus = Math.abs(t.vx) + (t.mode === "fall" ? Math.abs(t.vy) * 0.6 : 0);
+  let base = Math.round((56 - t.r) * 2 + speedBonus * 0.8);
+  if(base < 10) base = 10;
+  const pts = base * mult;
+  score += pts;
+  burst(t.x, t.y, "#ffa751", 16, 1);
+  addFloat("+" + pts + (mult > 1 ? "  x" + mult : ""), t.x, t.y - 12, "#ffe259");
+  sHit(mult);
+}
+function shoot(px, py){
+  if(state !== "playing") return;
+  initAudio();
+  if(reloading){ sEmpty(); return; }
+  if(ammo <= 0){ startReload(); return; }
+  ammo--;
+  sShot();
+  burst(px, py, "#ffd76a", 4, 0.35);
+  let hitIdx = -1;
+  for(let i = targets.length - 1; i >= 0; i--){
+    const t = targets[i], dx = px - t.x, dy = py - t.y;
+    if(dx * dx + dy * dy <= t.r * t.r){ hitIdx = i; break; }
+  }
+  if(hitIdx >= 0){
+    const t = targets[hitIdx];
+    targets.splice(hitIdx, 1);
+    onHit(t);
+  } else {
+    if(streak >= 3) addFloat("Промах — комбо сгорело", px, py - 16, "#9aa0c3");
+    streak = 0; mult = 1;
+    burst(px, py, "#8a8fae", 3, 0.3);
+  }
+  if(ammo === 0 && !reloading) startReload();
+  updateHUD();
+}
+function togglePause(force){
+  if(state === "playing" && force !== false){
+    state = "paused";
+    pauseOv.classList.remove("hidden");
+  } else if(state === "paused" && force !== true){
+    state = "playing";
+    pauseOv.classList.add("hidden");
+  }
+}
+
+/* ---------- Обновление мира ---------- */
+function update(dt){
+  timeNow += dt;
+  if(flashRed > 0) flashRed -= dt;
+  if(shake > 0) shake = Math.max(0, shake - dt * 26);
+  if(reloading){
+    reloadT -= dt;
+    reloadFill.style.width = Math.max(0, Math.min(100, (1 - reloadT / RELOAD_TIME) * 100)) + "%";
+    if(reloadT <= 0){ reloading = false; ammo = MAG; sReloadD(); updateHUD(); }
+  }
+  if(phase === "banner"){
+    phaseT -= dt;
+    if(phaseT <= 0) phase = "fight";
+  } else {
+    if(toSpawn > 0){
+      spawnT -= dt;
+      if(spawnT <= 0){
+        spawnTarget();
+        toSpawn--;
+        spawnT = spawnInterval * (0.6 + Math.random() * 0.8);
+      }
+    } else if(targets.length === 0 && state === "playing"){
+      nextWave();
+    }
+  }
+  const slow = timeNow < slowmoUntil ? 0.45 : 1;
+  const fdt = dt * slow;
+  for(let i = targets.length - 1; i >= 0; i--){
+    const t = targets[i];
+    t.wob += fdt * t.wobSpeed;
+    if(t.mode === "lr"){
+      t.x += t.vx * fdt;
+      t.y = t.baseY + Math.sin(t.wob) * t.wobAmp;
+    } else {
+      t.x += t.vx * fdt;
+      t.y += t.vy * fdt;
+    }
+    const out = t.x < -t.r - 24 || t.y > H + t.r + 24 || (t.mode === "diag" && t.y < -t.r - 24);
+    if(out){
+      targets.splice(i, 1);
+      if(t.type === "bandit" && state === "playing"){
+        addFloat("Бандит ушёл! −❤️", 110, Math.max(36, Math.min(H - 90, t.y)), "#ff5d7a");
+        loseLife();
+      }
+    }
+  }
+  stepFx(dt);
+}
+function stepFx(dt){
+  for(let i = particles.length - 1; i >= 0; i--){
+    const p = particles[i];
+    p.life -= dt;
+    if(p.life <= 0){ particles.splice(i, 1); continue; }
+    p.x += p.vx * dt; p.y += p.vy * dt; p.vy += 300 * dt;
+  }
+  for(let i = floats.length - 1; i >= 0; i--){
+    const f = floats[i];
+    f.life -= dt; f.y -= 34 * dt;
+    if(f.life <= 0) floats.splice(i, 1);
+  }
+}
+/* ---------- Рисование ---------- */
+function circle(x, y, r, fill, stroke){
+  ctx.beginPath(); ctx.arc(x, y, r, 0, 6.2832);
+  ctx.fillStyle = fill; ctx.fill();
+  if(stroke){ ctx.strokeStyle = stroke; ctx.lineWidth = 3; ctx.stroke(); }
+}
+function seg(x1, y1, x2, y2){
+  ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+}
+function rrect(x, y, w, h, r){
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.arcTo(x + w, y, x + w, y + h, r);
+  ctx.arcTo(x + w, y + h, x, y + h, r);
+  ctx.arcTo(x, y + h, x, y, r);
+  ctx.arcTo(x, y, x + w, y, r);
+  ctx.closePath();
+}
+function drawBandit(t){
+  const x = t.x, y = t.y, r = t.r;
+  circle(x, y, r, t.color, "#0a0a14");                    // тело-куртка
+  circle(x, y - r * 0.05, r * 0.60, "#f2c79b");           // голова
+  if(t.hat){                                              // кепка
+    ctx.fillStyle = "#20222f";
+    ctx.beginPath(); ctx.arc(x, y - r * 0.05, r * 0.60, Math.PI, 2 * Math.PI); ctx.fill();
+    ctx.fillRect(x - r * 0.66, y - r * 0.12, r * 1.32, r * 0.09);
+  }
+  ctx.fillStyle = "#11131f";                              // маска бандита
+  rrect(x - r * 0.58, y - r * 0.24, r * 1.16, r * 0.34, r * 0.16); ctx.fill();
+  circle(x - r * 0.26, y - r * 0.07, r * 0.105, "#ffffff");  // глаза
+  circle(x + r * 0.26, y - r * 0.07, r * 0.105, "#ffffff");
+  circle(x - r * 0.26, y - r * 0.07, r * 0.048, "#111318");
+  circle(x + r * 0.26, y - r * 0.07, r * 0.048, "#111318");
+  ctx.strokeStyle = "#111318";                            // злые брови
+  ctx.lineWidth = Math.max(2, r * 0.06);
+  seg(x - r * 0.42, y - r * 0.36, x - r * 0.13, y - r * 0.25);
+  seg(x + r * 0.42, y - r * 0.36, x + r * 0.13, y - r * 0.25);
+  ctx.strokeStyle = "#7a3b2e";                            // недовольный рот
+  ctx.lineWidth = Math.max(2, r * 0.055);
+  ctx.beginPath(); ctx.arc(x, y + r * 0.44, r * 0.18, Math.PI * 1.2, Math.PI * 1.8); ctx.stroke();
+}
+function drawPeaceful(t){
+  const x = t.x, y = t.y, r = t.r;
+  circle(x, y, r, t.pcolor, "#8a5a72");
+  ctx.strokeStyle = "#5b3a44";
+  ctx.lineWidth = Math.max(2, r * 0.05);
+  ctx.beginPath(); ctx.arc(x - r * 0.27, y - r * 0.10, r * 0.11, Math.PI, 2 * Math.PI); ctx.stroke();  // счастливые закрытые глаза
+  ctx.beginPath(); ctx.arc(x + r * 0.27, y - r * 0.10, r * 0.11, Math.PI, 2 * Math.PI); ctx.stroke();
+  ctx.beginPath(); ctx.arc(x, y + r * 0.02, r * 0.17, Math.PI * 0.15, Math.PI * 0.85); ctx.stroke();  // улыбка
+  circle(x - r * 0.46, y + r * 0.13, r * 0.09, "rgba(255,110,150,0.55)");   // румянец
+  circle(x + r * 0.46, y + r * 0.13, r * 0.09, "rgba(255,110,150,0.55)");
+  ctx.font = Math.round(r * 0.85) + "px serif";
+  ctx.textAlign = "center"; ctx.textBaseline = "middle";
+  ctx.fillText(t.symbol, x, y + r * 0.52);
+}
+function drawGold(t){
+  const x = t.x, y = t.y, r = t.r;
+  ctx.save();
+  ctx.shadowColor = "#ffe259"; ctx.shadowBlur = 18;
+  const g = ctx.createRadialGradient(x - r * 0.3, y - r * 0.3, r * 0.2, x, y, r);
+  g.addColorStop(0, "#fff6bf"); g.addColorStop(0.6, "#ffd83d"); g.addColorStop(1, "#e0a800");
+  circle(x, y, r, g, "#9a7400");
+  ctx.shadowBlur = 0;
+  ctx.font = Math.round(r * 1.05) + "px serif";
+  ctx.textAlign = "center"; ctx.textBaseline = "middle";
+  ctx.fillText("⭐", x, y + 1);
+  ctx.restore();
+}
+function drawTarget(t){
+  if(t.type === "gold") drawGold(t);
+  else if(t.type === "peaceful") drawPeaceful(t);
+  else drawBandit(t);
+}
+function drawCrosshair(){
+  if(!pointer.inside) return;
+  const x = pointer.x, y = pointer.y;
+  ctx.save();
+  ctx.strokeStyle = reloading ? "#8a8fae" : "#ffe259";
+  ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.arc(x, y, 15, 0, 6.2832); ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(x - 25, y); ctx.lineTo(x - 7, y);
+  ctx.moveTo(x + 7, y);  ctx.lineTo(x + 25, y);
+  ctx.moveTo(x, y - 25); ctx.lineTo(x, y - 7);
+  ctx.moveTo(x, y + 7);  ctx.lineTo(x, y + 25);
+  ctx.stroke();
+  ctx.fillStyle = "#ff5d5d";
+  ctx.beginPath(); ctx.arc(x, y, 2.6, 0, 6.2832); ctx.fill();
+  if(reloading){
+    const p = 1 - reloadT / RELOAD_TIME;
+    ctx.strokeStyle = "#ffa751"; ctx.lineWidth = 4;
+    ctx.beginPath(); ctx.arc(x, y, 21, -Math.PI / 2, -Math.PI / 2 + p * 6.2832); ctx.stroke();
+  }
+  ctx.restore();
+}
+function draw(){
+  ctx.clearRect(0, 0, W, H);
+  ctx.save();
+  if(shake > 0) ctx.translate((Math.random() - 0.5) * shake, (Math.random() - 0.5) * shake);
+  const g = ctx.createLinearGradient(0, 0, 0, H);
+  g.addColorStop(0, "#12142a"); g.addColorStop(0.75, "#0d0f1e"); g.addColorStop(1, "#080912");
+  ctx.fillStyle = g; ctx.fillRect(-24, -24, W + 48, H + 48);
+  ctx.strokeStyle = "rgba(120,130,200,0.10)"; ctx.lineWidth = 2;
+  for(let x = 44; x < W; x += 110){ ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H - 64); ctx.stroke(); }
+  ctx.fillStyle = "#141126"; ctx.fillRect(-24, H - 64, W + 48, 64);
+  ctx.strokeStyle = "rgba(255,167,81,0.28)"; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(-24, H - 64); ctx.lineTo(W + 24, H - 64); ctx.stroke();
+  if(timeNow < slowmoUntil){
+    ctx.fillStyle = "rgba(90,140,255,0.08)"; ctx.fillRect(-24, -24, W + 48, H + 48);
+  }
+  for(const t of targets) drawTarget(t);
+  for(const p of particles){
+    ctx.globalAlpha = Math.max(0, Math.min(1, p.life * 2.4));
+    ctx.fillStyle = p.color;
+    ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, 6.2832); ctx.fill();
+  }
+  ctx.globalAlpha = 1;
+  ctx.textAlign = "center"; ctx.textBaseline = "middle";
+  for(const f of floats){
+    ctx.globalAlpha = Math.max(0, Math.min(1, f.life));
+    ctx.font = "800 17px system-ui, sans-serif";
+    ctx.strokeStyle = "rgba(0,0,0,0.75)"; ctx.lineWidth = 4;
+    ctx.strokeText(f.text, f.x, f.y);
+    ctx.fillStyle = f.color;
+    ctx.fillText(f.text, f.x, f.y);
+  }
+  ctx.globalAlpha = 1;
+  if(reloading && state === "playing"){
+    ctx.font = "800 20px system-ui, sans-serif";
+    ctx.fillStyle = "#ffa751";
+    ctx.fillText("🔄 ПЕРЕЗАРЯДКА…", W / 2, H - 34);
+  }
+  ctx.restore();
+  if(flashRed > 0){
+    ctx.fillStyle = "rgba(255,40,70," + (flashRed * 0.55).toFixed(3) + ")";
+    ctx.fillRect(0, 0, W, H);
+  }
+  if(state === "playing" || state === "paused") drawCrosshair();
+}
+
+/* ---------- Ввод: мышь, палец, клавиши ---------- */
+function canvasPos(e){
+  const rect = cv.getBoundingClientRect();
+  return { x: (e.clientX - rect.left) * W / rect.width, y: (e.clientY - rect.top) * H / rect.height };
+}
+cv.addEventListener("pointermove", e => {
+  const p = canvasPos(e);
+  pointer.x = p.x; pointer.y = p.y; pointer.inside = true;
+});
+cv.addEventListener("pointerdown", e => {
+  e.preventDefault();
+  const p = canvasPos(e);
+  pointer.x = p.x; pointer.y = p.y; pointer.inside = true;
+  shoot(p.x, p.y);
+});
+cv.addEventListener("pointerleave", () => { pointer.inside = false; });
+window.addEventListener("keydown", e => {
+  if(e.code === "KeyR"){
+    if(state === "playing") startReload();
+  } else if(e.code === "KeyP" || e.code === "Escape"){
+    if(state === "playing" || state === "paused") togglePause();
+  } else if(e.code === "Space" || e.code === "Enter"){
+    if(state === "menu" || state === "over"){ e.preventDefault(); startGame(); }
+    else if(state === "paused"){ e.preventDefault(); togglePause(); }
+  }
+});
+$("playBtn").onclick = () => startGame();
+$("againBtn").onclick = () => startGame();
+$("resumeBtn").onclick = () => togglePause();
+$("pauseBtn").onclick = () => { if(state === "playing" || state === "paused") togglePause(); };
+$("reloadBtn").onclick = () => { if(state === "playing") startReload(); };
+document.addEventListener("visibilitychange", () => {
+  if(document.hidden && state === "playing") togglePause(true);
+});
+
+/* ---------- Главный цикл ---------- */
+let last = 0;
+function tick(ts){
+  requestAnimationFrame(tick);
+  const dt = Math.min(0.033, last ? (ts - last) / 1000 : 0.016);
+  last = ts;
+  if(state === "playing") update(dt);
+  else stepFx(dt);
+  draw();
+}
+menuBest.textContent = best;
+updateHUD();
+requestAnimationFrame(tick);
+})();
+</script>
+</body>
+</html>
