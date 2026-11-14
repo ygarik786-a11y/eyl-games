@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ru"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>📺 E.Y.L Launcher — твой экран</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{font-family:-apple-system,'Segoe UI',Roboto,sans-serif;background:#0b0b16;color:#f4f4f8;overflow:hidden}
+.bg{position:fixed;inset:0;z-index:-1;background:radial-gradient(800px 480px at 15% -5%,rgba(255,183,0,.16),transparent 60%),radial-gradient(800px 520px at 95% 12%,rgba(124,77,255,.18),transparent 60%),#0b0b16}
+.wrap{height:100vh;max-width:1100px;margin:0 auto;padding:3vh 3vw;display:flex;flex-direction:column}
+header{display:flex;align-items:flex-end;justify-content:space-between;gap:16px}
+h1{font-size:clamp(28px,4.5vw,52px);font-weight:900;line-height:1.05}
+h1 .gold{background:linear-gradient(92deg,#ffe082,#ffb300 45%,#ff8f00 70%,#ffe082);-webkit-background-clip:text;background-clip:text;color:transparent}
+.sub{color:#c9c9da;font-size:clamp(14px,1.8vw,20px);margin-top:8px}
+.clock{text-align:right;flex-shrink:0}
+.clock .time{font-size:clamp(30px,4.5vw,54px);font-weight:900;color:#ffe082;line-height:1}
+.clock .date{color:#c9c9da;font-size:clamp(13px,1.6vw,18px);margin-top:6px}
+.grid{flex:1;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:1fr 1fr;gap:18px;margin-top:3vh}
+.tile{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-decoration:none;color:inherit;border-radius:26px;border:2px solid rgba(255,255,255,.14);background:linear-gradient(180deg,rgba(255,255,255,.08),rgba(255,255,255,.02));box-shadow:0 14px 34px rgba(0,0,0,.4);outline:none}
+.tile .ico{font-size:clamp(44px,7vw,84px);line-height:1;filter:drop-shadow(0 10px 14px rgba(0,0,0,.45))}
+.tile h2{font-size:clamp(19px,2.6vw,32px);font-weight:900;text-align:center}
+.tile p{color:#c9c9da;font-size:clamp(13px,1.6vw,19px);text-align:center;padding:0 12px}
+.tile:focus,.tile.focused{border-color:#ffb300;box-shadow:0 0 0 4px #ffb300,0 18px 40px rgba(0,0,0,.5);transform:scale(1.03);background:linear-gradient(180deg,rgba(255,183,0,.22),rgba(255,183,0,.06))}
+footer{text-align:center;color:#9a9ab2;font-size:clamp(13px,1.6vw,18px);padding-top:2vh}
+footer b{color:#ffe082}
+</style></head><body>
+<div class="bg"></div>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>📺 <span class="gold">E.Y.L</span> Launcher</h1>
+      <p class="sub">Твои сайты — большими плитками, листается пультом 💛</p>
+    </div>
+    <div class="clock"><div class="time" id="clock">--:--</div><div class="date" id="date"></div></div>
+  </header>
+  <nav class="grid" id="grid">
+    <a class="tile" href="https://eriksocial.alwaysdata.net"><span class="ico">💛</span><h2>Соцсеть E.Y.L</h2><p>Посты, друзья, подарки и звонки</p></a>
+    <a class="tile" href="../"><span class="ico">🎮</span><h2>Игры E.Y.L</h2><p>Все игры, ферма и приставка</p></a>
+    <a class="tile" href="../farm/"><span class="ico">🚜</span><h2>Ферма</h2><p>Твоё хозяйство и монетки</p></a>
+    <a class="tile" href="https://erik-newyear.onrender.com"><span class="ico">🎄</span><h2>Новогодний сайт</h2><p>Ёлка, часы и радио до Нового года</p></a>
+    <a class="tile" href="../brick/"><span class="ico">🕹️</span><h2>Приставка Brick</h2><p>23 игры, как в детстве</p></a>
+    <a class="tile" href="../memory/"><span class="ico">🧠</span><h2>Мини-игры</h2><p>Память и орёл или решка</p></a>
+  </nav>
+  <footer>⬅️ ➡️ ⬆️ ⬇️ — листать пультом &nbsp;•&nbsp; <b>OK / Enter</b> — открыть &nbsp;•&nbsp; Всё на первом экране, ничего листать вниз не надо</footer>
+</div>
+<script>
+var tiles=[].slice.call(document.querySelectorAll('.tile'));
+var cols=3, idx=0;
+function focusTile(i){idx=(i+tiles.length)%tiles.length;tiles.forEach(function(t){t.classList.remove('focused')});tiles[idx].classList.add('focused');tiles[idx].focus();}
+tiles.forEach(function(t,i){
+  t.addEventListener('mouseenter',function(){focusTile(i)});
+  t.addEventListener('click',function(){focusTile(i)});
+});
+document.addEventListener('keydown',function(e){
+  if(e.key==='ArrowRight')focusTile(idx+1);
+  else if(e.key==='ArrowLeft')focusTile(idx-1);
+  else if(e.key==='ArrowDown')focusTile(idx+cols);
+  else if(e.key==='ArrowUp')focusTile(idx-cols);
+  else if(e.key==='Enter'||e.key===' '){e.preventDefault();tiles[idx].click();}
+  else return;
+  e.preventDefault();
+});
+function tick(){
+  var d=new Date();
+  var hh=String(d.getHours()).padStart(2,'0'), mm=String(d.getMinutes()).padStart(2,'0');
+  document.getElementById('clock').textContent=hh+':'+mm;
+  document.getElementById('date').textContent=d.toLocaleDateString('ru-RU',{weekday:'long',day:'numeric',month:'long'});
+}
+tick();setInterval(tick,10000);
+focusTile(0);
+</script>
+</body></html>

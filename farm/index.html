@@ -693,7 +693,7 @@ function render(){
       '<button class="btn small" ' + (locked || !S.animals[k] || !readyN ? "disabled" : "") + ' data-collect="' + k + '">Собрать ' + GOODS[a.good].em + '</button>' +
       '<button class="btn small gold" ' + (locked ? "disabled" : "") + ' data-buy="' + k + '">Купить за ' + a.price + ' 🪙</button>' +
       '<button class="btn small" ' + (locked || !S.animals[k] || fedLeft ? "disabled" : "") + ' data-feed="' + k + '">🌽 Кормить ' + 5 * Math.max(1, S.animals[k]) + ' 🪙</button>' +
-      '<button class="btn small" ' + (locked || (S.animals[k] - youngN) < 2 || youngN >= 2 ? "disabled" : "") + ' data-breed="' + k + '">🐣 Разводить ' + Math.round(a.price * 0.5) + ' 🪙</button></div>';
+      '<button class="btn small" ' + (locked || (S.animals[k] - youngN) < 2 || youngN >= 2 ? "disabled" : "") + ' data-breed="' + k + '">💕 Разводить ' + Math.round(a.price * 0.5) + ' 🪙</button></div>';
     an.appendChild(div);
   });
   an.querySelectorAll("[data-collect]").forEach(b=>b.onclick = ()=>collectAnimal(b.dataset.collect));
