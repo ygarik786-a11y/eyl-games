@@ -34,6 +34,14 @@ input{font-family:inherit}
 #resetBtn{background:none;color:rgba(255,255,255,.75);font-size:12px;margin-top:14px;text-decoration:underline}
 /* ===== ИГРА ===== */
 #gameScr{position:fixed;inset:0;display:none;flex-direction:column;background:#0d1526}
+@media(min-width:700px){
+ body{background:radial-gradient(1000px 600px at 50% 30%,#1d2c4d,#0d1526)}
+ #gameScr{left:50%;right:auto;transform:translateX(-50%);width:560px;box-shadow:0 0 60px rgba(0,0,0,.65);border-left:1px solid rgba(255,255,255,.08);border-right:1px solid rgba(255,255,255,.08)}
+ #scene{height:330px}
+ .charimg{height:150px}
+ .person.me .charimg{height:162px}
+ #chatLog{max-height:170px}
+}
 #topbar{background:linear-gradient(180deg,#d6eefc,#a9d7f8);padding:7px 10px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;color:#14456b;box-shadow:0 2px 6px rgba(20,69,107,.25)}
 #topbar .nm{font-weight:800;font-size:15px}
 #topbar .pill{background:#fff;border-radius:999px;padding:3px 10px;font-size:13px;font-weight:700;color:#14456b;box-shadow:0 1px 3px rgba(20,69,107,.2)}
@@ -45,7 +53,7 @@ input{font-family:inherit}
 #questBubble b{color:#8a5a00}
 #questBubble .qp{font-weight:800;color:#b3001b}
 .deco{position:absolute;pointer-events:none;line-height:1}
-.person{position:absolute;bottom:26px;transform:translateX(-50%);text-align:center;z-index:3;transition:left .25s}
+.person{position:absolute;bottom:26px;transform:translateX(-50%);text-align:center;z-index:3;transition:left .55s ease}
 .person .av{line-height:.95;filter:drop-shadow(0 3px 3px rgba(0,0,0,.35))}
 .person .av svg{height:66px;width:auto;display:block;margin:0 auto}
 @keyframes legSwing{0%,100%{transform:rotate(8deg)}50%{transform:rotate(-8deg)}}
@@ -63,6 +71,8 @@ input{font-family:inherit}
 .charimg{height:118px;width:auto;filter:drop-shadow(0 3px 3px rgba(0,0,0,.28));animation:sway 2.8s ease-in-out infinite}
 .charimg.me{height:128px}
 @keyframes sway{0%,100%{transform:translateY(0)}50%{transform:translateY(-2.5px)}}
+.walking .charimg{animation:walkB .16s ease-in-out infinite alternate!important}
+@keyframes walkB{from{transform:translateY(0) rotate(-1.6deg)}to{transform:translateY(-6px) rotate(1.6deg)}}
 .dancing .charimg{animation:danceB .4s ease-in-out infinite alternate}
 @keyframes danceB{from{transform:translateY(0) rotate(-2deg)}to{transform:translateY(-7px) rotate(2deg)}}
 .shopChar{height:88px;width:auto}
@@ -306,11 +316,13 @@ function chatMsg(who,text,sys){var log=$('chatLog');var d=document.createElement
 function sysChat(t){chatMsg('',t,true);}
 /* ================= РЕНДЕР ================= */
 var SAY={};
-function personHTML(npc,isMe,avHTML){var say=SAY[npc.n]&&Date.now()<SAY[npc.n].until?'<div class="say">'+esc(SAY[npc.n].text)+'</div>':'';
+function personHTML(npc,isMe,avHTML){var say='';
+ if(SAY[npc.n]&&Date.now()<SAY[npc.n].until){var sst='';if(npc.x<24)sst=' style="left:0;transform:none"';else if(npc.x>76)sst=' style="left:auto;right:0;transform:none"';
+ say='<div class="say"'+sst+'>'+esc(SAY[npc.n].text)+'</div>';}
  var fx='';if(npc.fx)fx='<div class="fxb">'+npc.fx+'</div>';
  if(isMe&&S.fx&&Date.now()<S.fx.until)fx='<div class="fxb">'+S.fx.icon+'</div>';
  var pet='';if(isMe&&S.pet){var pi=itemById(S.pet);if(pi)pet='<div class="pet">'+pi.e+'</div>';}
- var dc=(isMe&&S.danceUntil&&Date.now()<S.danceUntil)?' dancing':'';
+ var dc=(isMe&&S.danceUntil&&Date.now()<S.danceUntil)?' dancing':'';if(isMe&&S.walkUntil&&Date.now()<S.walkUntil)dc+=' walking';
  return '<div class="person'+(isMe?' me':'')+dc+'" data-npc="'+esc(npc.n)+'" style="left:'+npc.x+'%">'+say+fx+pet+
  '<div class="av">'+avHTML+'</div><div class="pn">'+esc(npc.n)+'</div></div>';}
 function renderTop(){$('tbName').textContent=S.name+' ['+LOCS[S.loc].n+']';$('tbLvl').textContent=lvl();
@@ -357,7 +369,7 @@ function renderLocs(){var l=$('locs');var h='';Object.keys(LOCS).forEach(functio
  b.addEventListener('click',function(){go(b.getAttribute('data-l'));});});}
 function renderAll(){renderTop();renderScene();renderActions();renderLocs();}
 /* ================= ДЕЙСТВИЯ ================= */
-function move(d){S.x=Math.max(6,Math.min(94,S.x+d));save();renderScene();}
+function move(d){S.x=Math.max(6,Math.min(94,S.x+d));S.walkUntil=Date.now()+560;save();renderScene();setTimeout(function(){renderScene();},580);}
 function go(loc){if(S.loc===loc)return;S.loc=loc;save();renderAll();
  var npcs=LOCS[loc].npcs;if(npcs.length){var n=npcs[Math.floor(Math.random()*npcs.length)];
   setTimeout(function(){chatMsg(n.n,'о, '+S.name+' пришёл! 😊');},400);}}
@@ -482,6 +494,8 @@ function sendChat(){var inp=$('chatInp');var t=inp.value.trim();if(!t)return;inp
  else if(low.indexOf('люблю')>=0)reply='💛';
  else if(Math.random()<0.6)reply=CHAT_REPLY[Math.floor(Math.random()*CHAT_REPLY.length)];
  if(reply)setTimeout(function(){chatMsg(n.n,reply);say(n.n,reply);},800);}
+setInterval(function(){if(!S||$('gameScr').style.display==='none')return;
+ var ns=LOCS[S.loc].npcs;if(ns.length&&Math.random()<0.85){var w=ns[Math.floor(Math.random()*ns.length)];w.x=Math.max(9,Math.min(91,w.x+(Math.random()<0.5?-6:6)));renderScene();}},7000);
 setInterval(function(){if(!S||$('gameScr').style.display==='none')return;
  if(Math.random()<0.75){var npcs=LOCS[S.loc].npcs;if(npcs.length){var n=npcs[Math.floor(Math.random()*npcs.length)];
   var t=CHAT_COMMON[Math.floor(Math.random()*CHAT_COMMON.length)];chatMsg(n.n,t);}}},12000);
