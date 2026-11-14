@@ -8,7 +8,7 @@
 <script>
 // Самообновление каталога: телефон Erik держал старую копию страницы
 // из кэша и не видел новые игры. Сверяемся с gversion.txt на сервере.
-var GAMES_VER = 10;
+var GAMES_VER = 11;
 fetch("gversion.txt?x=" + Date.now()).then(function(r){ return r.text(); }).then(function(t){
   var rv = parseInt(t, 10);
   if (rv && rv > GAMES_VER && sessionStorage.getItem("gamesUpd") !== String(rv)) {
@@ -90,6 +90,7 @@ fetch("gversion.txt?x=" + Date.now()).then(function(r){ return r.text(); }).then
   .c-tir   { background:linear-gradient(150deg,#e8a91c,#b34d00 60%,#331a00); }
   .c-arkanoid{ background:linear-gradient(150deg,#6a4fd0,#3a1f86 60%,#0d0024); }
   .c-pet   { background:linear-gradient(150deg,#f78fb0,#c2185b 60%,#33081e); }
+  .c-gorod { background:linear-gradient(150deg,#ffb3c8,#e75480 55%,#5c1030); }
   .c-neonrace{ background:linear-gradient(150deg,#e84e8a,#6236e8 55%,#0b0624); }
   .c-moto  { background:linear-gradient(150deg,#ef8f1f,#94406e 55%,#1d0f38); }
 
@@ -115,7 +116,7 @@ fetch("gversion.txt?x=" + Date.now()).then(function(r){ return r.text(); }).then
     <h1><span class="gold">E.Y.L</span> GAMES</h1>
     <p class="sub">Игровая империя президента <b>Erik Lebed</b> 🎮<br>Бесплатные игры прямо в браузере — без скачивания и регистрации.<br>Открыл — и играешь. Прогресс сохраняется в телефоне.</p>
     <div class="chips">
-      <span class="chip gold">👑 88 игр</span>
+      <span class="chip gold">👑 89 игр</span>
       <span class="chip">💸 Полностью бесплатно</span>
       <span class="chip">📱 С телефона и компьютера</span>
     </div>
@@ -131,6 +132,19 @@ fetch("gversion.txt?x=" + Date.now()).then(function(r){ return r.text(); }).then
       <h3>🚜 Ферма президента E.Y.L</h3>
       <p>Грядки и животные, живой рынок с ценами, заказы, переработка в сыр и варенье, погода и сезоны, пчёлы и свиньи, двор с прудом и рыбалкой, рейтинг фермеров и сторожевая Линда. Урожай растёт, даже пока тебя нет!</p>
       <div class="meta">🏡 Двор и постройки • ❄️ Сезоны • 🏆 Рейтинг фермеров</div>
+      <div class="play">Играть →</div>
+    </div>
+  </a>
+
+  <a class="game featured" href="gorod/">
+    <div class="cover c-gorod">
+      <span class="tag">Город • как «Любовь в городе»</span><span class="new">НОВОЕ</span>
+      <span class="main">💛</span>
+    </div>
+    <div class="gbody">
+      <h3>💛 Любовь в городе</h3>
+      <p>Та самая игра из ВКонтакте, которую закрыли, — теперь снова живая! Создай персонажа, гуляй по торговому центру, пляжу и лесу, лови рыбу, собирай грибы, обустраивай дом, устраивай вечеринки и болтай в чате города.</p>
+      <div class="meta">🏬 Торговый центр • 🏖️ Пляж • 🏠 Свой дом • 🎉 Вечеринки</div>
       <div class="play">Играть →</div>
     </div>
   </a>

@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="theme-color" content="#1b2a4a">
+<title>💛 Любовь в городе — наша версия | Игра от создателя E.Y.L</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#0d1526;color:#fff;overflow:hidden}
+button{font-family:inherit;cursor:pointer;border:none;border-radius:12px}
+input{font-family:inherit}
+/* ===== СОЗДАНИЕ ПЕРСОНАЖА ===== */
+#createScr{position:fixed;inset:0;background:linear-gradient(180deg,#2a4a7f 0%,#4a7ab5 55%,#e8c98a 100%);display:flex;flex-direction:column;align-items:center;padding:18px 14px;overflow-y:auto;z-index:30}
+#createScr h1{font-size:24px;text-align:center;text-shadow:0 2px 8px rgba(0,0,0,.4)}
+#createScr .sub{opacity:.92;font-size:13px;margin:4px 0 12px;text-align:center}
+.bigava{font-size:74px;line-height:1.05;text-align:center;filter:drop-shadow(0 6px 8px rgba(0,0,0,.35))}
+.bigava .bd{display:block;font-size:56px;margin-top:-24px}
+#nameInp{width:min(320px,90vw);padding:12px 14px;border-radius:12px;border:none;font-size:17px;text-align:center;margin:10px 0}
+.pickrow{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;max-width:360px;margin:4px 0 8px}
+.pick{width:52px;height:52px;font-size:30px;background:rgba(255,255,255,.18);border:2px solid transparent;border-radius:14px;display:flex;align-items:center;justify-content:center}
+.pick.sel{border-color:#ffd94d;background:rgba(255,217,77,.25)}
+.picklbl{font-size:12px;opacity:.9;margin-top:6px}
+#playBtn{background:#ffd94d;color:#402c00;font-size:19px;font-weight:800;padding:13px 42px;border-radius:16px;margin-top:12px;box-shadow:0 4px 14px rgba(0,0,0,.35)}
+#contBtn{background:rgba(255,255,255,.2);color:#fff;font-size:15px;font-weight:700;padding:11px 26px;border-radius:14px;margin-top:10px;border:2px solid rgba(255,255,255,.5)}
+#resetBtn{background:none;color:rgba(255,255,255,.75);font-size:12px;margin-top:14px;text-decoration:underline}
+/* ===== ИГРА ===== */
+#gameScr{position:fixed;inset:0;display:none;flex-direction:column;background:#0d1526}
+#topbar{background:#1b2a4a;padding:7px 10px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+#topbar .nm{font-weight:800;font-size:15px}
+#topbar .pill{background:rgba(255,255,255,.13);border-radius:999px;padding:3px 10px;font-size:13px;font-weight:700}
+#topbar .pill b{color:#ffd94d}
+#giftBtn{margin-left:auto;background:#ff5d8f;color:#fff;font-weight:800;font-size:13px;padding:6px 12px;border-radius:999px}
+#giftBtn:disabled{background:#5a6a8a;color:#c8d2e8}
+#scene{position:relative;height:252px;flex:none;overflow:hidden;transition:background .4s}
+#questBubble{position:absolute;top:8px;left:50%;transform:translateX(-50%);width:min(430px,94%);background:#fff3a6;color:#4a3200;border-radius:14px;padding:8px 12px;font-size:13px;box-shadow:0 4px 12px rgba(0,0,0,.3);z-index:5;border:2px solid #ffd94d}
+#questBubble b{color:#8a5a00}
+#questBubble .qp{font-weight:800;color:#b3001b}
+.deco{position:absolute;pointer-events:none;line-height:1}
+.person{position:absolute;bottom:26px;transform:translateX(-50%);text-align:center;z-index:3;transition:left .25s}
+.person .av{font-size:40px;line-height:.95;filter:drop-shadow(0 3px 3px rgba(0,0,0,.35))}
+.person .av .bd{display:block;font-size:31px;margin-top:-13px}
+.person .pn{font-size:11px;font-weight:700;background:rgba(0,0,0,.45);border-radius:999px;padding:1px 7px;margin-top:1px;white-space:nowrap}
+.person.me .pn{background:#ffd94d;color:#402c00}
+.person .say{position:absolute;bottom:100%;left:50%;transform:translateX(-50%);background:#fff;color:#222;font-size:11px;border-radius:10px;padding:3px 8px;width:max-content;max-width:150px;box-shadow:0 2px 6px rgba(0,0,0,.25);margin-bottom:2px}
+.slot{position:absolute;bottom:24px;transform:translateX(-50%);font-size:34px;z-index:2;text-align:center}
+.slot.empty{opacity:.28;font-size:22px}
+@keyframes dance{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(-9px) rotate(-3deg)}}
+.dancing{animation:dance .5s infinite}
+/* Панель действий — ВЫШЕ вкладок локаций (урок телефона Erik) */
+#actions{display:flex;gap:7px;padding:8px;background:#14213d;flex-wrap:wrap;justify-content:center}
+#actions button{background:#2a4a7f;color:#fff;font-size:14px;font-weight:700;padding:10px 13px;border-radius:12px}
+#actions button:active{background:#3a5f9e}
+#actions button.gold{background:#ffd94d;color:#402c00}
+#locs{display:flex;gap:7px;padding:0 8px 8px;background:#14213d;justify-content:center}
+#locs button{flex:1;max-width:110px;background:rgba(255,255,255,.1);color:#c8d2e8;font-size:13px;font-weight:700;padding:9px 4px;border-radius:12px;border:2px solid transparent}
+#locs button.sel{background:#2a4a7f;color:#fff;border-color:#ffd94d}
+/* Чат */
+#chat{flex:1;display:flex;flex-direction:column;background:#0a1120;min-height:86px}
+#chatLog{flex:1;overflow-y:auto;padding:6px 10px;font-size:13px;line-height:1.45}
+#chatLog .sys{color:#ffd94d}
+#chatRow{display:flex;gap:7px;padding:7px;background:#14213d}
+#chatInp{flex:1;padding:11px 12px;border-radius:12px;border:none;font-size:15px;background:#fff;color:#111}
+#chatSend{background:#ffd94d;color:#402c00;font-weight:800;font-size:15px;padding:11px 18px;border-radius:12px}
+/* Модалки */
+#modalWrap{position:fixed;inset:0;background:rgba(4,8,18,.72);display:none;align-items:center;justify-content:center;z-index:50;padding:12px}
+#modal{background:#fff;color:#16233f;width:min(430px,96vw);max-height:88vh;overflow-y:auto;border-radius:18px;padding:16px}
+#modal h3{font-size:18px;margin-bottom:8px}
+#modal .x{float:right;background:#eef2fa;font-size:15px;width:34px;height:34px;border-radius:10px}
+.shopGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-top:8px}
+.shopIt{background:#f2f5fb;border:2px solid #dfe7f5;border-radius:14px;padding:9px 4px;text-align:center}
+.shopIt .e{font-size:34px;line-height:1.1}
+.shopIt .n{font-size:12px;font-weight:700;margin:2px 0}
+.shopIt .p{font-size:12px;color:#0a7a42;font-weight:800}
+.shopIt button{margin-top:5px;background:#2a4a7f;color:#fff;font-size:12px;font-weight:700;padding:7px 10px;border-radius:9px;width:100%}
+.shopIt button.own{background:#0a7a42}
+.shopIt button:disabled{background:#aab6cc}
+#fishTrack{position:relative;height:54px;background:linear-gradient(180deg,#7ec8e3,#2a7ab5);border-radius:12px;margin:12px 0;overflow:hidden}
+#fishZone{position:absolute;top:0;bottom:0;left:42%;width:16%;background:rgba(80,255,140,.45);border-left:2px dashed #0a7a42;border-right:2px dashed #0a7a42}
+#fish{position:absolute;top:9px;font-size:34px;left:0}
+.bigAct{background:#ffd94d;color:#402c00;font-size:17px;font-weight:800;padding:13px;border-radius:14px;width:100%;margin-top:6px}
+.bushGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:10px}
+.bush{font-size:44px;background:#eef7ee;border-radius:14px;padding:10px 0;border:2px solid #d5e8d5}
+.msg{font-size:13px;margin-top:8px;min-height:18px;color:#40506e;text-align:center;font-weight:600}
+</style>
+</head>
+<body>
+
+<!-- СОЗДАНИЕ ПЕРСОНАЖА -->
+<div id="createScr">
+  <h1>💛 Любовь в городе</h1>
+  <div class="sub">наша версия любимой игры — от создателя E.Y.L<br>Создай свой неповторимый образ! Приглашай друзей на вечеринки!</div>
+  <div class="bigava"><span id="prevHead">🧑</span><span class="bd" id="prevBody">👕</span></div>
+  <input id="nameInp" maxlength="16" placeholder="Имя твоего человека">
+  <div class="picklbl">Лицо и причёска</div>
+  <div class="pickrow" id="headPick"></div>
+  <div class="picklbl">Одежда</div>
+  <div class="pickrow" id="bodyPick"></div>
+  <button id="playBtn">▶ ИГРАТЬ</button>
+  <button id="contBtn" style="display:none">Продолжить: <span id="contName"></span></button>
+  <button id="resetBtn" style="display:none">начать совсем заново (сбросить всё)</button>
+</div>
+
+<!-- ИГРА -->
+<div id="gameScr">
+  <div id="topbar">
+    <span class="nm" id="tbName">Игрок</span>
+    <span class="pill">ур. <b id="tbLvl">1</b></span>
+    <span class="pill">💰 <b id="tbCred">0</b></span>
+    <span class="pill">⭐ <b id="tbRep">0</b></span>
+    <button id="giftBtn">🎁 Подарок дня</button>
+  </div>
+  <div id="scene">
+    <div id="questBubble"></div>
+    <div id="sceneInner"></div>
+  </div>
+  <div id="actions"></div>
+  <div id="locs"></div>
+  <div id="chat">
+    <div id="chatLog"></div>
+    <div id="chatRow">
+      <input id="chatInp" maxlength="120" placeholder="Написать в чат города…">
+      <button id="chatSend">➤</button>
+    </div>
+  </div>
+</div>
+
+<!-- МОДАЛКА -->
+<div id="modalWrap"><div id="modal"></div></div>
+
+<script>
+"use strict";
+/* ================= ДАННЫЕ ================= */
+var HEADS=[
+ {id:'h0',e:'🧑',n:'Обычная',p:0},{id:'h1',e:'👦',n:'Школьник',p:39},
+ {id:'h2',e:'👱‍♂️',n:'Блондин',p:25},{id:'h3',e:'🧔‍♂️',n:'Бородач',p:45},
+ {id:'h4',e:'🧑‍🦱',n:'Кудри',p:43},{id:'h5',e:'👩‍🦰',n:'Рыжая',p:51},
+ {id:'h6',e:'👱‍♀️',n:'Блондинка',p:35},{id:'h7',e:'👩‍🎤',n:'Фиолетовая',p:60},
+ {id:'h8',e:'🧑‍🎓',n:'Студент',p:30},{id:'h9',e:'👧',n:'Милашка',p:0}];
+var BODIES=[
+ {id:'b0',e:'👕',n:'Майка',p:0},{id:'b1',e:'👔',n:'Рубашка',p:49},
+ {id:'b2',e:'👗',n:'Платье',p:55},{id:'b3',e:'🧥',n:'Куртка',p:70},
+ {id:'b4',e:'🎽',n:'Спортивная',p:30},{id:'b5',e:'👘',n:'Кимоно',p:80},
+ {id:'b6',e:'🦺',n:'Жилет',p:40},{id:'b7',e:'👚',n:'Блузка',p:0}];
+var FURS=[
+ {id:'f1',e:'🛋️',n:'Диван',p:90},{id:'f2',e:'🪑',n:'Стул',p:35},
+ {id:'f3',e:'🌱',n:'Цветок',p:25},{id:'f4',e:'📺',n:'Телевизор',p:120},
+ {id:'f5',e:'🛏️',n:'Кровать',p:110},{id:'f6',e:'💡',n:'Лампа',p:45},
+ {id:'f7',e:'🐈',n:'Котик',p:150}];
+var LOCS={
+ mall:{n:'Торговый центр',bg:'linear-gradient(180deg,#f7c8d8 0%,#f7c8d8 55%,#8a8a3a 56%,#a8a04a 100%)',
+   deco:[['🏬',6,4,44],['💇',30,3,30],['👗',72,3,30],['🪑',90,4,28]],
+   npcs:[{n:'Парикмахер',e:'💇‍♂️',x:20},{n:'Продавец',e:'👩‍💼',x:42},{n:'Лера',e:'👩‍🎤',x:64},{n:'Аня',e:'👱‍♀️',x:84}]},
+ beach:{n:'Пляж',bg:'linear-gradient(180deg,#8fd4f2 0%,#8fd4f2 34%,#3a9bd8 35%,#57b5e8 58%,#f2dc9b 59%,#ecd28a 100%)',
+   deco:[['🌴',4,6,46],['🌴',88,4,40],['🪑',55,52,24],['🐢',70,66,22],['⛱️',30,44,30]],
+   npcs:[{n:'Рыбак',e:'👴',x:88},{n:'Сёрфер',e:'🏄‍♂️',x:66},{n:'Катя',e:'👩',x:40},{n:'Миёки',e:'👧',x:18}]},
+ forest:{n:'Лес',bg:'linear-gradient(180deg,#a8d8a8 0%,#7ab87a 55%,#5d9455 56%,#4c7d45 100%)',
+   deco:[['🌲',2,2,52],['🌲',88,2,56],['🌳',65,4,44],['🍄',20,64,22],['🌿',45,68,24]],
+   npcs:[{n:'Грибник',e:'🧑‍🌾',x:22},{n:'Оля',e:'👩',x:48},{n:'Вика',e:'👧',x:72}]},
+ home:{n:'Мой дом',bg:'linear-gradient(180deg,#c9a186 0%,#c9a186 58%,#8a6844 59%,#a37c50 100%)',
+   deco:[['🖼️',8,6,30],['🪟',84,4,36]],
+   npcs:[{n:'Мита',e:'👩‍🦰',x:80}]}
+};
+var QUESTS=[
+ {npc:'Парикмахер',loc:'mall',text:'Привет! Я Парикмахер. Смени образ — купи любую причёску в салоне!',reward:50,test:function(s){return s.owned.filter(function(i){return i[0]==='h';}).length>2;}},
+ {npc:'Продавец',loc:'mall',text:'Купи любую одежду — и будешь самым модным в Городе!',reward:50,test:function(s){return s.owned.filter(function(i){return i[0]==='b';}).length>2;}},
+ {npc:'Рыбак',loc:'beach',text:'На пляже отличная рыбалка! Наведи курсор на линию моря и поймай 3 рыбы.',reward:60,prog:function(s){return s.fishQuest;},need:3},
+ {npc:'Грибник',loc:'forest',text:'В лесу грибы пошли! Собери 5 грибов по кустам.',reward:60,prog:function(s){return s.mushQuest;},need:5},
+ {npc:'Мита',loc:'home',text:'Купи любую мебель в торговом центре и поставь её у себя дома!',reward:80,test:function(s){return s.placed.some(function(x){return x;});}},
+ {npc:'Мита',loc:'home',text:'А теперь позови друзей на вечеринку дома! Кнопка «Вечеринка» 🎉',reward:100,test:function(s){return s.parties>0;}}
+];
+var CHAT_COMMON=['ищу парня 😊','ищу девушку?','а у меня есть парень, хаха','кто хочет поиграть?','да давай!','смешно то как 😂','привет всем!','какая сегодня погода в Городе?','я вчера такую рыбу поймала!','заходите на вечеринку ко мне 🎉','люблю этот город 💛','кто в лес за грибами?'];
+var CHAT_REPLY=['привет! 😊','давай дружить!','а ты где сейчас? на пляже?','хаха, точно','💛','пошли на пляж!','ты уже был в торговом центре? там причёски новые','ок, договорились!'];
+var NPC_LINES={'Парикмахер':'Могу помочь с выбором прически! 💇','Продавец':'Загляни в отдел одежды, там новинки!','Рыбак':'На пляже отличная рыбалка, сынок.','Сёрфер':'Волна сегодня — огонь! 🏄','Катя':'Ищу парня, хаха 😊','Миёки':'А у меня есть парень!','Грибник':'Кликни на куст — там грибы.','Оля':'В лесу столько людей сегодня!','Вика':'Я уже три гриба нашла!','Мита':'Я всегда рядом, зай 💛','Лера':'Фиолетовый — мой цвет!','Аня':'Кто на вечеринку?'};
+/* ================= СОСТОЯНИЕ ================= */
+var KEY='eyl-gorod-v1';
+var S=null;
+function defState(name,head,body){return {name:name,head:head,body:body,credits:282,rep:0,
+ owned:['h0','h9','b0','b7'],loc:'mall',x:50,quest:0,fish:0,mush:0,fishQuest:0,mushQuest:0,
+ parties:0,placed:[null,null,null,null],giftDate:'',shellCd:0,partyUntil:0};}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
+function load(){try{var t=localStorage.getItem(KEY);return t?JSON.parse(t):null;}catch(e){return null;}}
+function lvl(){return Math.floor(S.rep/100)+1;}
+function itemById(id){var all=HEADS.concat(BODIES,FURS);for(var i=0;i<all.length;i++)if(all[i].id===id)return all[i];return null;}
+function headE(id){var it=itemById(id);return it?it.e:'🧑';}
+/* ================= УТИЛИТЫ ================= */
+function $(id){return document.getElementById(id);}
+function esc(t){return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;');}
+var NCOLORS=['#ff8fb2','#8fd4ff','#b2ff9e','#ffd94d','#d3a6ff','#ffb27a','#8affd1'];
+function ncolor(n){var h=0;for(var i=0;i<n.length;i++)h+=n.charCodeAt(i);return NCOLORS[h%NCOLORS.length];}
+function chatMsg(who,text,sys){var log=$('chatLog');var d=document.createElement('div');
+ if(sys)d.innerHTML='<span class="sys">★ '+esc(text)+'</span>';
+ else d.innerHTML='<b style="color:'+ncolor(who)+'">'+esc(who)+':</b> '+esc(text);
+ log.appendChild(d);while(log.children.length>40)log.removeChild(log.firstChild);log.scrollTop=log.scrollHeight;}
+function sysChat(t){chatMsg('',t,true);}
+/* ================= РЕНДЕР ================= */
+var SAY={};
+function personHTML(npc,isMe,avHTML){var say=SAY[npc.n]&&Date.now()<SAY[npc.n].until?'<div class="say">'+esc(SAY[npc.n].text)+'</div>':'';
+ return '<div class="person'+(isMe?' me':'')+'" data-npc="'+esc(npc.n)+'" style="left:'+npc.x+'%">'+say+
+ '<div class="av">'+avHTML+'</div><div class="pn">'+esc(npc.n)+'</div></div>';}
+function renderTop(){$('tbName').textContent=S.name+' ['+LOCS[S.loc].n+']';$('tbLvl').textContent=lvl();
+ $('tbCred').textContent=S.credits;$('tbRep').textContent=S.rep;
+ var today=new Date().toDateString();$('giftBtn').disabled=(S.giftDate===today);
+ $('giftBtn').textContent=(S.giftDate===today)?'🎁 Уже получен':'🎁 Подарок дня';}
+function renderScene(){var L=LOCS[S.loc];var sc=$('scene');sc.style.background=L.bg;
+ var h='';
+ L.deco.forEach(function(d){h+='<div class="deco" style="left:'+d[1]+'%;top:'+d[2]+'%;font-size:'+d[3]+'px">'+d[0]+'</div>';});
+ if(S.loc==='home'){var pos=[16,38,62,84];for(var i=0;i<4;i++){var f=S.placed[i];
+   h+='<div class="slot'+(f?'':' empty')+'" data-slot="'+i+'" style="left:'+pos[i]+'%">'+(f?itemById(f).e:'·')+'</div>';}}
+ L.npcs.forEach(function(npc){h+=personHTML(npc,false,npc.e);});
+ if(S.loc==='home'&&Date.now()<S.partyUntil){[['Гость', '🕺',24],['Гостья','💃',38],['Друг','🧑',56],['Подруга','👱‍♀️',68]].forEach(function(g){
+   h+='<div class="person dancing" style="left:'+g[2]+'%"><div class="av">'+g[1]+'</div><div class="pn">'+g[0]+'</div></div>';});}
+ h+=personHTML({n:S.name,x:S.x},true,'<span>'+headE(S.head)+'</span><span class="bd">'+headE(S.body)+'</span>');
+ $('sceneInner').innerHTML=h;
+ Array.prototype.forEach.call(document.querySelectorAll('.person'),function(el){
+   el.addEventListener('click',function(){var n=el.getAttribute('data-npc');if(n&&n!==S.name)talkTo(n);});});
+ Array.prototype.forEach.call(document.querySelectorAll('.slot'),function(el){
+   el.addEventListener('click',function(){placeAt(parseInt(el.getAttribute('data-slot'),10));});});
+ renderQuest();}
+function renderQuest(){var qb=$('questBubble');
+ if(S.quest>=QUESTS.length){qb.innerHTML='💛 <b>Город твой!</b> Все задания выполнены. Живи, общайся, зови вечеринки!';return;}
+ var q=QUESTS[S.quest];var prog=q.prog?(' <span class="qp">'+Math.min(q.prog(S),q.need)+'/'+q.need+'</span>'):'';
+ qb.innerHTML='📋 <b>Задание — '+esc(q.npc)+':</b> '+esc(q.text)+prog+' <span class="qp">+'+q.reward+'💰</span>';}
+function renderActions(){var a=$('actions');var btns='';
+ btns+='<button id="mvL">◀</button>';
+ if(S.loc==='mall')btns+='<button data-a="hair">💇 Причёски</button><button data-a="cloth">👕 Одежда</button><button data-a="fur">🪑 Мебель</button>';
+ if(S.loc==='beach')btns+='<button data-a="fish" class="gold">🎣 Рыбачить</button><button data-a="shell">🐚 Ракушки +5💰</button>';
+ if(S.loc==='forest')btns+='<button data-a="mush" class="gold">🍄 Собирать грибы</button>';
+ if(S.loc==='home')btns+='<button data-a="party" class="gold">🎉 Вечеринка 10💰</button><button data-a="place">🛋️ Поставить мебель</button>';
+ btns+='<button data-a="talk">💬 Поговорить</button><button data-a="look">👤 Образ</button>';
+ btns+='<button id="mvR">▶</button>';
+ a.innerHTML=btns;
+ $('mvL').addEventListener('click',function(){move(-9);});
+ $('mvR').addEventListener('click',function(){move(9);});
+ Array.prototype.forEach.call(a.querySelectorAll('[data-a]'),function(b){b.addEventListener('click',function(){doAction(b.getAttribute('data-a'));});});}
+function renderLocs(){var l=$('locs');var h='';Object.keys(LOCS).forEach(function(k){
+ h+='<button data-l="'+k+'" class="'+(S.loc===k?'sel':'')+'">'+LOCS[k].n+'</button>';});
+ l.innerHTML=h;Array.prototype.forEach.call(l.querySelectorAll('[data-l]'),function(b){
+ b.addEventListener('click',function(){go(b.getAttribute('data-l'));});});}
+function renderAll(){renderTop();renderScene();renderActions();renderLocs();}
+/* ================= ДЕЙСТВИЯ ================= */
+function move(d){S.x=Math.max(6,Math.min(94,S.x+d));save();renderScene();}
+function go(loc){if(S.loc===loc)return;S.loc=loc;save();renderAll();
+ var npcs=LOCS[loc].npcs;if(npcs.length){var n=npcs[Math.floor(Math.random()*npcs.length)];
+  setTimeout(function(){chatMsg(n.n,'о, '+S.name+' пришёл! 😊');},400);}}
+function say(npc,text){SAY[npc]={text:text,until:Date.now()+4200};renderScene();
+ setTimeout(function(){if(SAY[npc]&&Date.now()>=SAY[npc].until)renderScene();},4300);}
+function talkTo(n){var line=NPC_LINES[n]||'Привет!';say(n,line);chatMsg(n,line);
+ var q=QUESTS[S.quest];if(q&&q.npc===n&&q.loc===S.loc)say(n,q.text);}
+function doAction(a){
+ if(a==='hair')openShop(HEADS,'💇 Причёски');
+ if(a==='cloth')openShop(BODIES,'👕 Одежда');
+ if(a==='fur')openShop(FURS,'🪑 Мебель для дома');
+ if(a==='fish')openFish();
+ if(a==='mush')openMush();
+ if(a==='shell')doShell();
+ if(a==='party')doParty();
+ if(a==='place')openPlace();
+ if(a==='talk'){var npcs=LOCS[S.loc].npcs;if(npcs.length){var best=npcs[0],bd=999;
+   npcs.forEach(function(n){var d=Math.abs(n.x-S.x);if(d<bd){bd=d;best=n;}});talkTo(best.n);}}
+ if(a==='look')openLook();}
+function doShell(){var now=Date.now();if(S.shellCd&&now<S.shellCd){sysChat('Ракушки на этом месте кончились, подожди немного 🐚');return;}
+ S.shellCd=now+20000;S.credits+=5;save();renderTop();sysChat('Ты нашёл ракушку и продал её за 5💰');checkQuest();}
+function doParty(){if(Date.now()<S.partyUntil){sysChat('Вечеринка уже идёт! 🎉');return;}
+ if(S.credits<10){sysChat('Не хватает кредитов на угощения. Порыбачь или собери грибы!');return;}
+ S.credits-=10;S.parties++;S.rep+=15;S.partyUntil=Date.now()+25000;save();renderAll();
+ sysChat('Вечеринка началась! Друзья пришли к тебе домой 🎉 +15⭐');
+ chatMsg('Мита','какая классная вечеринка, '+S.name+'! 💛');chatMsg('Катя','танцуем! 💃');
+ setTimeout(function(){renderScene();},25100);checkQuest();}
+/* ================= ЗАДАНИЯ ================= */
+function checkQuest(){var changed=true;
+ while(changed&&S.quest<QUESTS.length){changed=false;var q=QUESTS[S.quest];
+  var done=q.prog?(q.prog(S)>=q.need):q.test(S);
+  if(done){S.credits+=q.reward;S.rep+=20;S.quest++;
+   if(S.quest===2)S.fishQuest=0; if(S.quest===3)S.mushQuest=0;
+   sysChat('Задание выполнено! +'+q.reward+'💰 +20⭐');changed=true;}}
+ save();renderTop();renderQuest();}
+/* ================= МАГАЗИНЫ ================= */
+function openModal(html){$('modal').innerHTML='<button class="x" id="mX">✕</button>'+html;$('modalWrap').style.display='flex';
+ $('mX').addEventListener('click',closeModal);}
+function closeModal(){$('modalWrap').style.display='none';stopFish();}
+function openShop(items,title){var h='<h3>'+title+'</h3><div style="font-size:13px">У тебя: <b>'+S.credits+'💰</b></div><div class="shopGrid">';
+ items.forEach(function(it){var own=S.owned.indexOf(it.id)>=0;var eq=(S.head===it.id||S.body===it.id);
+  h+='<div class="shopIt"><div class="e">'+it.e+'</div><div class="n">'+it.n+'</div><div class="p">'+(own?'куплено':it.p+'💰')+'</div>'+
+  (own?'<button class="own" data-eq="'+it.id+'">'+(eq?'✓ надето':'Надеть')+'</button>'
+      :'<button data-buy="'+it.id+'" '+(S.credits<it.p?'disabled':'')+'>Купить</button>')+'</div>';});
+ h+='</div><div class="msg" id="shopMsg"></div>';openModal(h);
+ Array.prototype.forEach.call(document.querySelectorAll('[data-buy]'),function(b){b.addEventListener('click',function(){buyItem(b.getAttribute('data-buy'));openShop(items,title);});});
+ Array.prototype.forEach.call(document.querySelectorAll('[data-eq]'),function(b){b.addEventListener('click',function(){equipItem(b.getAttribute('data-eq'));openShop(items,title);});});}
+function buyItem(id){var it=itemById(id);if(!it||S.owned.indexOf(id)>=0)return false;
+ if(S.credits<it.p)return false;S.credits-=it.p;S.owned.push(id);
+ if(id[0]==='h')S.head=id; if(id[0]==='b')S.body=id;
+ save();renderAll();sysChat('Куплено: '+it.n+' '+it.e);checkQuest();return true;}
+function equipItem(id){if(S.owned.indexOf(id)<0)return;if(id[0]==='h')S.head=id;if(id[0]==='b')S.body=id;save();renderAll();}
+function openLook(){var h='<h3>👤 Твой образ</h3><div style="font-size:13px">Выбери из купленного:</div><div class="shopGrid">';
+ HEADS.concat(BODIES).forEach(function(it){if(S.owned.indexOf(it.id)<0)return;var eq=(S.head===it.id||S.body===it.id);
+  h+='<div class="shopIt"><div class="e">'+it.e+'</div><div class="n">'+it.n+'</div><button class="'+(eq?'own':'')+'" data-eq="'+it.id+'">'+(eq?'✓ надето':'Надеть')+'</button></div>';});
+ h+='</div>';openModal(h);
+ Array.prototype.forEach.call(document.querySelectorAll('[data-eq]'),function(b){b.addEventListener('click',function(){equipItem(b.getAttribute('data-eq'));openLook();});});}
+var pendingFur=null;
+function openPlace(){var own=FURS.filter(function(f){return S.owned.indexOf(f.id)>=0;});
+ if(!own.length){openModal('<h3>🛋️ Мебель</h3><div class="msg">У тебя пока нет мебели. Купи её в Торговом центре, отдел «Мебель».</div>');return;}
+ var h='<h3>🛋️ Поставить мебель</h3><div style="font-size:13px">Выбери вещь, потом тапни по месту в комнате:</div><div class="shopGrid">';
+ own.forEach(function(f){h+='<div class="shopIt"><div class="e">'+f.e+'</div><div class="n">'+f.n+'</div><button data-pf="'+f.id+'">Сюда</button></div>';});
+ h+='</div>';openModal(h);
+ Array.prototype.forEach.call(document.querySelectorAll('[data-pf]'),function(b){b.addEventListener('click',function(){pendingFur=b.getAttribute('data-pf');closeModal();sysChat('Теперь тапни по месту в комнате 🛋️');});});}
+function placeAt(i){if(S.loc!=='home')return;
+ if(pendingFur){var old=S.placed.indexOf(pendingFur);if(old>=0)S.placed[old]=null;
+  S.placed[i]=pendingFur;pendingFur=null;save();renderScene();sysChat('Поставлено! Дом всё уютнее 🏠');checkQuest();}}
+/* ================= РЫБАЛКА ================= */
+var fishTimer=null,fishPos=0,fishDir=1;
+function stopFish(){if(fishTimer){clearInterval(fishTimer);fishTimer=null;}}
+function openFish(){openModal('<h3>🎣 Рыбалка</h3><div style="font-size:13px">Рыба плавает туда-сюда. Жми «Тяни!», когда рыба в <b>зелёной зоне</b>. Пойманная рыба — сразу +15💰.</div><div id="fishTrack"><div id="fishZone"></div><div id="fish">🐟</div></div><button class="bigAct" id="pullBtn">🎣 Тяни!</button><div class="msg" id="fishMsg">У тебя рыбы: '+S.fish+'</div>');
+ fishPos=0;fishDir=1;stopFish();
+ fishTimer=setInterval(function(){fishPos+=fishDir*2.2;if(fishPos>88){fishPos=88;fishDir=-1;}if(fishPos<0){fishPos=0;fishDir=1;}
+  var f=$('fish');if(f)f.style.left=fishPos+'%';},30);
+ $('pullBtn').addEventListener('click',function(){var m=$('fishMsg');if(!m)return;
+  if(fishPos>=40&&fishPos<=56){S.fish++;if(S.quest===2)S.fishQuest++;S.credits+=15;save();renderTop();
+   m.textContent='Поймал! 🐟 +15💰 Всего рыбы: '+S.fish;checkQuest();}
+  else m.textContent='Мимо! Рыба была не в зелёной зоне.';});}
+function catchOk(){S.fish++;if(S.quest===2)S.fishQuest++;S.credits+=15;save();checkQuest();return true;}
+/* ================= ГРИБЫ ================= */
+function openMush(){var vals=[];for(var i=0;i<6;i++)vals.push(Math.random()<0.55?(Math.random()<0.3?2:1):0);
+ var h='<h3>🍄 Лесная поляна</h3><div style="font-size:13px">Тапай по кустам! Гриб — +8💰.</div><div class="bushGrid">';
+ vals.forEach(function(v,i){h+='<button class="bush" data-bush="'+i+'" data-v="'+v+'">🌿</button>';});
+ h+='</div><div class="msg" id="mushMsg">У тебя грибов: '+S.mush+'</div><button class="bigAct" id="mushMore">Ещё поляна</button>';
+ openModal(h);
+ Array.prototype.forEach.call(document.querySelectorAll('[data-bush]'),function(b){b.addEventListener('click',function(){
+  if(b.getAttribute('data-done'))return;b.setAttribute('data-done','1');var v=parseInt(b.getAttribute('data-v'),10);
+  if(v>0){b.textContent='🍄';S.mush+=v;if(S.quest===3)S.mushQuest+=v;S.credits+=8*v;save();renderTop();
+   $('mushMsg').textContent='Нашёл грибов: '+v+'! +'+(8*v)+'💰 Всего: '+S.mush;checkQuest();}
+  else{b.textContent='🍃';$('mushMsg').textContent='Тут пусто, ищи дальше!';}});});
+ $('mushMore').addEventListener('click',openMush);}
+function mushAdd(v){S.mush+=v;if(S.quest===3)S.mushQuest+=v;S.credits+=8*v;save();checkQuest();return true;}
+/* ================= ЧАТ ================= */
+function sendChat(){var inp=$('chatInp');var t=inp.value.trim();if(!t)return;inp.value='';
+ chatMsg(S.name,t);
+ var low=t.toLowerCase();var npcs=LOCS[S.loc].npcs;if(!npcs.length)return;
+ var n=npcs[Math.floor(Math.random()*npcs.length)];var reply=null;
+ if(low.indexOf('привет')>=0)reply='привет, '+S.name+'! 😊';
+ else if(low.indexOf('ищу')>=0)reply='удачи! в Городе все кого-то ищут, хаха';
+ else if(low.indexOf('люблю')>=0)reply='💛';
+ else if(Math.random()<0.6)reply=CHAT_REPLY[Math.floor(Math.random()*CHAT_REPLY.length)];
+ if(reply)setTimeout(function(){chatMsg(n.n,reply);say(n.n,reply);},800);}
+setInterval(function(){if(!S||$('gameScr').style.display==='none')return;
+ if(Math.random()<0.75){var npcs=LOCS[S.loc].npcs;if(npcs.length){var n=npcs[Math.floor(Math.random()*npcs.length)];
+  var t=CHAT_COMMON[Math.floor(Math.random()*CHAT_COMMON.length)];chatMsg(n.n,t);}}},12000);
+/* ================= СОЗДАНИЕ ================= */
+var selHead='h0',selBody='b0',newArm=false;
+function buildPickers(){var hp=$('headPick'),bp=$('bodyPick');hp.innerHTML='';bp.innerHTML='';
+ HEADS.filter(function(i){return i.p===0;}).forEach(function(it){var b=document.createElement('button');b.className='pick'+(selHead===it.id?' sel':'');b.textContent=it.e;
+  b.addEventListener('click',function(){selHead=it.id;buildPickers();updPreview();});hp.appendChild(b);});
+ BODIES.filter(function(i){return i.p===0;}).forEach(function(it){var b=document.createElement('button');b.className='pick'+(selBody===it.id?' sel':'');b.textContent=it.e;
+  b.addEventListener('click',function(){selBody=it.id;buildPickers();updPreview();});bp.appendChild(b);});}
+function updPreview(){$('prevHead').textContent=headE(selHead);$('prevBody').textContent=headE(selBody);}
+function enterGame(){$('createScr').style.display='none';$('gameScr').style.display='flex';renderAll();
+ sysChat('Добро пожаловать в Город, '+S.name+'! 💛');chatMsg('Мита','я тут, в твоём доме живу по соседству 😊');checkQuest();}
+$('playBtn').addEventListener('click',function(){
+ var nm=$('nameInp').value.trim()||'Игрок';
+ if(load()&&!newArm){newArm=true;$('playBtn').textContent='Точно начать заново? Нажми ещё раз';return;}
+ S=defState(nm,selHead,selBody);save();enterGame();});
+$('contBtn').addEventListener('click',function(){var s=load();if(s){S=s;enterGame();}});
+$('resetBtn').addEventListener('click',function(){if(!newArm){newArm=true;$('resetBtn').textContent='точно сбросить всё? нажми ещё раз';return;}
+ try{localStorage.removeItem(KEY);}catch(e){}location.reload();});
+$('giftBtn').addEventListener('click',function(){var today=new Date().toDateString();
+ if(S.giftDate===today){sysChat('Подарок дня уже получен 🎁 Приходи завтра!');return;}
+ S.giftDate=today;S.credits+=30;save();renderTop();sysChat('Подарок дня: +30💰 🎁');});
+$('chatSend').addEventListener('click',sendChat);
+$('chatInp').addEventListener('keydown',function(e){if(e.key==='Enter')sendChat();});
+$('modalWrap').addEventListener('click',function(e){if(e.target===$('modalWrap'))closeModal();});
+(function init(){buildPickers();updPreview();var s=load();
+ if(s){$('contBtn').style.display='block';$('contName').textContent=s.name;$('resetBtn').style.display='block';
+  $('nameInp').value=s.name;selHead=s.head;selBody=s.body;buildPickers();updPreview();}})();
+/* API для проверок */
+window.G={get state(){return S;},newGame:function(n){S=defState(n||'Тест','h0','b0');save();return S;},
+ buy:buyItem,equip:equipItem,catchOk:catchOk,mushAdd:mushAdd,party:doParty,place:placeAt,
+ placeItem:function(id,i){pendingFur=id;placeAt(i);},
+ setLoc:function(l){S.loc=l;},check:checkQuest,quests:QUESTS};
+</script>
+</body>
+</html>
