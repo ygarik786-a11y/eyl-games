@@ -115,7 +115,7 @@ input{font-family:inherit}
 .shopIt button.own{background:#0a7a42}
 .shopIt button:disabled{background:#aab6cc}
 #fishTrack{position:relative;height:54px;background:linear-gradient(180deg,#7ec8e3,#2a7ab5);border-radius:12px;margin:12px 0;overflow:hidden}
-#fishZone{position:absolute;top:0;bottom:0;left:42%;width:16%;background:rgba(80,255,140,.45);border-left:2px dashed #0a7a42;border-right:2px dashed #0a7a42}
+#fishZone{position:absolute;top:0;bottom:0;left:38%;width:24%;background:rgba(80,255,140,.45);border-left:2px dashed #0a7a42;border-right:2px dashed #0a7a42}
 #fish{position:absolute;top:9px;font-size:34px;left:0}
 .bigAct{background:#ffd94d;color:#402c00;font-size:17px;font-weight:800;padding:13px;border-radius:14px;width:100%;margin-top:6px}
 .bushGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:10px}
@@ -468,10 +468,10 @@ var fishTimer=null,fishPos=0,fishDir=1;
 function stopFish(){if(fishTimer){clearInterval(fishTimer);fishTimer=null;}}
 function openFish(){openModal('<h3>🎣 Рыбалка</h3><div style="font-size:13px">Рыба плавает туда-сюда. Жми «Тяни!», когда рыба в <b>зелёной зоне</b>. Пойманная рыба — сразу +15💰.</div><div id="fishTrack"><div id="fishZone"></div><div id="fish">🐟</div></div><button class="bigAct" id="pullBtn">🎣 Тяни!</button><div class="msg" id="fishMsg">У тебя рыбы: '+S.fish+'</div>');
  fishPos=0;fishDir=1;stopFish();
- fishTimer=setInterval(function(){fishPos+=fishDir*2.2;if(fishPos>88){fishPos=88;fishDir=-1;}if(fishPos<0){fishPos=0;fishDir=1;}
-  var f=$('fish');if(f)f.style.left=fishPos+'%';},30);
+ fishTimer=setInterval(function(){fishPos+=fishDir*1.1;if(fishPos>88){fishPos=88;fishDir=-1;}if(fishPos<0){fishPos=0;fishDir=1;}
+  var f=$('fish');if(f){f.style.left=fishPos+'%';f.style.transform=(fishDir>0?'scaleX(-1)':'scaleX(1)');}},30);
  $('pullBtn').addEventListener('click',function(){var m=$('fishMsg');if(!m)return;
-  if(fishPos>=40&&fishPos<=56){S.fish++;if(S.quest===2)S.fishQuest++;S.credits+=15;save();renderTop();
+  if(fishPos>=36&&fishPos<=62){S.fish++;if(S.quest===2)S.fishQuest++;S.credits+=15;save();renderTop();
    m.textContent='Поймал! 🐟 +15💰 Всего рыбы: '+S.fish;checkQuest();}
   else m.textContent='Мимо! Рыба была не в зелёной зоне.';});}
 function catchOk(){S.fish++;if(S.quest===2)S.fishQuest++;S.credits+=15;save();checkQuest();return true;}
