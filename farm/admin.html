@@ -66,6 +66,25 @@ function show(v){
 function loadSave(){
   try { return JSON.parse(localStorage.getItem(GAME_KEY)); } catch(e){ return null; }
 }
+function freshSave(){
+  return {
+    coins: 60, xp: 0, level: 1, plots: 6, seed: "carrot",
+    beds: [], stock: {}, prices: {}, marketAt: 0,
+    animals: { chicken:0, duck:0, bees:0, sheep:0, goat:0, rabbit:0, cow:0, pig:0, horse:0 }, acc: { chicken:0, duck:0, bees:0, sheep:0, goat:0, rabbit:0, cow:0, pig:0, horse:0 },
+    fed: {}, young: {}, gold: {}, decor: {}, questIdx: 0,
+    upg: { fert:0, barn:0, market:0, linda:false, tractor:false },
+    buildings: {}, season: null, lastFish: 0,
+    order: null, orderSkipUntil: 0,
+    ws: [], weather: null, rivals: null, rivalTick: 0,
+    stats: { harvested:0, earned:0, sold:0, orders:0, crafted:0, fished:0, byGood: {} },
+    achGot: {}, lastBonusDay: "", lastTick: Date.now()
+  };
+}
+function loadOrCreate(){
+  const S = loadSave();
+  if (S) return { S, created:false };
+  return { S: freshSave(), created:true };
+}
 function refreshBal(){
   const S = loadSave();
   $("balCoins").textContent = S ? Number(S.coins || 0).toLocaleString("ru-RU") : 0;
@@ -88,22 +107,20 @@ $("btnEnter").addEventListener("click", () => {
   } else msg("Неверный пароль 🚫");
 });
 $("btnAdd").addEventListener("click", () => {
-  const S = loadSave();
-  if (!S) { msg("Сначала зайди в игру на этом телефоне, чтобы появился сейв 🌱"); return; }
   const n = Math.floor(Number($("amount").value) || 0);
   if (n <= 0) { msg("Впиши сумму побольше нуля 🪙"); return; }
+  const { S, created } = loadOrCreate();
   S.coins = (S.coins || 0) + n;
   localStorage.setItem(GAME_KEY, JSON.stringify(S));
   $("balCoins").textContent = Number(S.coins).toLocaleString("ru-RU");
-  msg("👑 Выдано " + n + " 🪙! Заходи в игру — монеты уже там.");
+  msg("👑 Выдано " + n + " 🪙! Заходи в игру — монеты уже там." + (created ? " (Ферма создана заново, монеты на месте.)" : ""));
 });
 $("btnRich").addEventListener("click", () => {
-  const S = loadSave();
-  if (!S) { msg("Сначала зайди в игру на этом телефоне, чтобы появился сейв 🌱"); return; }
+  const { S, created } = loadOrCreate();
   S.coins = (S.coins || 0) + 1e55;
   localStorage.setItem(GAME_KEY, JSON.stringify(S));
   $("balCoins").textContent = Number(S.coins).toLocaleString("ru-RU");
-  msg("👑 Готово, куча выдана! Заходи в игру — монеты уже там. Потратишь — приходи ещё 😉");
+  msg("👑 Готово, куча выдана! Заходи в игру — монеты уже там. Потратишь — приходи ещё 😉" + (created ? " (Ферма создана заново, монеты на месте.)" : ""));
 });
 </script>
 </body>
