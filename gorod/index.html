@@ -56,6 +56,9 @@ input{font-family:inherit}
 .person .pn{font-size:11px;font-weight:700;background:rgba(0,0,0,.45);border-radius:999px;padding:1px 7px;margin-top:1px;white-space:nowrap}
 .person.me .pn{background:#ffd94d;color:#402c00}
 .person .say{position:absolute;bottom:100%;left:50%;transform:translateX(-50%);background:#fff;color:#222;font-size:11px;border-radius:10px;padding:3px 8px;width:max-content;max-width:150px;box-shadow:0 2px 6px rgba(0,0,0,.25);margin-bottom:2px}
+.person .fxb{position:absolute;bottom:100%;left:50%;transform:translateX(-50%);margin-bottom:32px;background:#fff;font-size:17px;line-height:1;padding:5px 8px;border-radius:50%;box-shadow:0 3px 8px rgba(0,0,0,.3);z-index:4}
+.person .fxb:after{content:'';position:absolute;left:50%;bottom:-5px;width:9px;height:9px;background:#fff;border-radius:50%;transform:translateX(-50%)}
+.person .pet{position:absolute;bottom:-4px;left:-25px;font-size:19px;filter:drop-shadow(0 2px 2px rgba(0,0,0,.35))}
 .slot{position:absolute;bottom:24px;transform:translateX(-50%);font-size:34px;z-index:2;text-align:center}
 .slot.empty{opacity:.28;font-size:22px}
 @keyframes dance{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(-9px) rotate(-3deg)}}
@@ -167,35 +170,47 @@ var LOCS={
    npcs:[{n:'Парикмахер',h:'h2',b:'b1',x:20},{n:'Продавец',h:'h6',b:'b7',x:42},{n:'Лера',h:'h7',b:'b2',x:64},{n:'Аня',h:'h6',b:'b0',x:84}]},
  beach:{n:'Пляж',bg:'linear-gradient(180deg,#8fd4f2 0%,#8fd4f2 34%,#3a9bd8 35%,#57b5e8 58%,#f2dc9b 59%,#ecd28a 100%)',
    deco:[['🌴',4,6,46],['🌴',88,4,40],['🪑',55,52,24],['🐢',70,66,22],['⛱️',30,44,30]],
-   npcs:[{n:'Рыбак',h:'h3',b:'b6',x:88},{n:'Сёрфер',h:'h1',b:'b4',x:66},{n:'Катя',h:'h5',b:'b7',x:40},{n:'Миёки',h:'h9',b:'b2',x:18}]},
+   npcs:[{n:'Рыбак',h:'h3',b:'b6',x:88},{n:'Сёрфер',h:'h1',b:'b4',x:66},{n:'Катя',h:'h5',b:'b7',x:40},{n:'Миёки',h:'h9',b:'b2',fx:'🎈',x:18}]},
  forest:{n:'Лес',bg:'linear-gradient(180deg,#a8d8a8 0%,#7ab87a 55%,#5d9455 56%,#4c7d45 100%)',
    deco:[['🌲',2,2,52],['🌲',88,2,56],['🌳',65,4,44],['🍄',20,64,22],['🌿',45,68,24]],
-   npcs:[{n:'Грибник',h:'h3',b:'b3',x:22},{n:'Оля',h:'h6',b:'b0',x:48},{n:'Вика',h:'h9',b:'b7',x:72}]},
+   npcs:[{n:'Грибник',h:'h3',b:'b3',x:22},{n:'Оля',h:'h6',b:'b0',x:48},{n:'Вика',h:'h9',b:'b7',fx:'❤️',x:72}]},
  home:{n:'Мой дом',bg:'linear-gradient(180deg,#c9a186 0%,#c9a186 58%,#8a6844 59%,#a37c50 100%)',
    deco:[['🖼️',8,6,30],['🪟',84,4,36]],
-   npcs:[{n:'Мита',h:'h5',b:'b3',cc:'#d23b3b',x:80}]}
+   npcs:[{n:'Мита',h:'h5',b:'b3',cc:'#d23b3b',x:80}]},
+ club:{n:'Клуб Star',bg:'linear-gradient(180deg,#241040 0%,#3a1660 55%,#170a2e 56%,#241040 100%)',
+   deco:[['🪩',50,3,40],['✨',16,10,20],['✨',84,8,20],['🎧',8,4,28],['🍸',93,4,26]],
+   npcs:[{n:'Бармен',h:'h3',b:'b1',x:16},{n:'Диджей',h:'h4',b:'b4',x:50},{n:'Рита',h:'h6',b:'b2',x:82}]}
 };
+var PETS=[
+ {id:'p1',e:'🐢',n:'Черепашка',p:60},{id:'p2',e:'🐦',n:'Птичка',p:70},
+ {id:'p3',e:'🐰',n:'Зайчик',p:90},{id:'p4',e:'🐶',n:'Собачка',p:120}];
+var DRINKS=[
+ {e:'🍺',n:'Пиво',p:8,face:'drunk',say:'Ты пьёшь пиво. Над головой — облачко с бутылкой, лицо — 🥴'},
+ {e:'🍸',n:'Коктейль',p:15,face:'love',say:'Коктейль! Глаза сердечками 💛'},
+ {e:'🍰',n:'Торт',p:12,face:'yum',say:'Ты съел торт! Торт над головой — как в оригинале 🍰'},
+ {e:'🥤',n:'Лимонад',p:5,face:'',say:'Лимонад освежает! 🥤'}];
 var QUESTS=[
  {npc:'Парикмахер',loc:'mall',text:'Привет! Я Парикмахер. Смени образ — купи любую причёску в салоне!',reward:50,test:function(s){return s.owned.filter(function(i){return i[0]==='h';}).length>2;}},
  {npc:'Продавец',loc:'mall',text:'Купи любую одежду — и будешь самым модным в Городе!',reward:50,test:function(s){return s.owned.filter(function(i){return i[0]==='b';}).length>2;}},
  {npc:'Рыбак',loc:'beach',text:'На пляже отличная рыбалка! Наведи курсор на линию моря и поймай 3 рыбы.',reward:60,prog:function(s){return s.fishQuest;},need:3},
  {npc:'Грибник',loc:'forest',text:'В лесу грибы пошли! Собери 5 грибов по кустам.',reward:60,prog:function(s){return s.mushQuest;},need:5},
  {npc:'Мита',loc:'home',text:'Купи любую мебель в торговом центре и поставь её у себя дома!',reward:80,test:function(s){return s.placed.some(function(x){return x;});}},
- {npc:'Мита',loc:'home',text:'А теперь позови друзей на вечеринку дома! Кнопка «Вечеринка» 🎉',reward:100,test:function(s){return s.parties>0;}}
+ {npc:'Мита',loc:'home',text:'А теперь позови друзей на вечеринку дома! Кнопка «Вечеринка» 🎉',reward:100,test:function(s){return s.parties>0;}},
+ {npc:'Бармен',loc:'club',text:'Загляни в клуб Star! Закажи что-нибудь в баре и потанцуй 💃',reward:120,test:function(s){return (s.drank||0)>0&&(s.danced||0)>0;}}
 ];
 var CHAT_COMMON=['ищу парня 😊','ищу девушку?','а у меня есть парень, хаха','кто хочет поиграть?','да давай!','смешно то как 😂','привет всем!','какая сегодня погода в Городе?','я вчера такую рыбу поймала!','заходите на вечеринку ко мне 🎉','люблю этот город 💛','кто в лес за грибами?'];
 var CHAT_REPLY=['привет! 😊','давай дружить!','а ты где сейчас? на пляже?','хаха, точно','💛','пошли на пляж!','ты уже был в торговом центре? там причёски новые','ок, договорились!'];
-var NPC_LINES={'Парикмахер':'Могу помочь с выбором прически! 💇','Продавец':'Загляни в отдел одежды, там новинки!','Рыбак':'На пляже отличная рыбалка, сынок.','Сёрфер':'Волна сегодня — огонь! 🏄','Катя':'Ищу парня, хаха 😊','Миёки':'А у меня есть парень!','Грибник':'Кликни на куст — там грибы.','Оля':'В лесу столько людей сегодня!','Вика':'Я уже три гриба нашла!','Мита':'Я всегда рядом, зай 💛','Лера':'Фиолетовый — мой цвет!','Аня':'Кто на вечеринку?'};
+var NPC_LINES={'Парикмахер':'Могу помочь с выбором прически! 💇','Продавец':'Загляни в отдел одежды, там новинки!','Рыбак':'На пляже отличная рыбалка, сынок.','Сёрфер':'Волна сегодня — огонь! 🏄','Катя':'Ищу парня, хаха 😊','Миёки':'А у меня есть парень!','Грибник':'Кликни на куст — там грибы.','Оля':'В лесу столько людей сегодня!','Вика':'Я уже три гриба нашла!','Мита':'Я всегда рядом, зай 💛','Лера':'Фиолетовый — мой цвет!','Аня':'Кто на вечеринку?','Бармен':'Привет! Я бармен, нужна помощь в выборе выпивки?','Диджей':'Сегодня дискотека до утра! 🪩','Рита':'Потанцуем? 💃'};
 /* ================= СОСТОЯНИЕ ================= */
 var KEY='eyl-gorod-v1';
 var S=null;
 function defState(name,head,body){return {name:name,head:head,body:body,credits:282,rep:0,
  owned:['h0','h9','b0','b7'],loc:'mall',x:50,quest:0,fish:0,mush:0,fishQuest:0,mushQuest:0,
- parties:0,mess:0,placed:[null,null,null,null],giftDate:'',shellCd:0,partyUntil:0};}
+ parties:0,mess:0,placed:[null,null,null,null],giftDate:'',shellCd:0,partyUntil:0,fx:null,pet:null,drank:0,danced:0,danceUntil:0};}
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
 function load(){try{var t=localStorage.getItem(KEY);return t?JSON.parse(t):null;}catch(e){return null;}}
 function lvl(){return Math.floor(S.rep/100)+1;}
-function itemById(id){var all=HEADS.concat(BODIES,FURS);for(var i=0;i<all.length;i++)if(all[i].id===id)return all[i];return null;}
+function itemById(id){var all=HEADS.concat(BODIES,FURS,PETS);for(var i=0;i<all.length;i++)if(all[i].id===id)return all[i];return null;}
 function headE(id){var it=itemById(id);return it?it.e:'🧑';}
 /* ===== РИСОВАННЫЕ ЧЕЛОВЕЧКИ (как в оригинале: голова, руки, ноги) ===== */
 var HSTY={
@@ -208,7 +223,7 @@ var BSTY={
  b0:{c:'#7ec8e3',t:'tee'},b1:{c:'#f4f4f4',t:'shirt'},b2:{c:'#ff5d8f',t:'dress'},
  b3:{c:'#4a6fa5',t:'jacket'},b4:{c:'#57b84a',t:'tank'},b5:{c:'#b5526a',t:'kimono'},
  b6:{c:'#8a6844',t:'vest'},b7:{c:'#f2a7c3',t:'tee'}};
-function personSVG(hid,bid,cc){var H=HSTY[hid]||HSTY.h0;var B=BSTY[bid]||BSTY.b0;var col=cc||B.c;
+function personSVG(hid,bid,cc,face){var H=HSTY[hid]||HSTY.h0;var B=BSTY[bid]||BSTY.b0;var col=cc||B.c;
  var dress=(B.t==='dress');var legC=dress?H.skin:'#3c4c6e';var slv=(B.t==='tank')?H.skin:col;
  var s='<svg viewBox="0 0 60 100" xmlns="http://www.w3.org/2000/svg">';
  if(H.style==='long')s+='<rect x="15" y="8" width="30" height="42" rx="13" fill="'+H.hair+'"/>';
@@ -230,8 +245,13 @@ function personSVG(hid,bid,cc){var H=HSTY[hid]||HSTY.h0;var B=BSTY[bid]||BSTY.b0
   if(H.style==='long')s+='<path d="M17.5 21 a12.5 12.5 0 0 1 25 0 l0 -1 a12.5 11 0 0 0 -25 0 z" fill="'+H.hair+'"/>';
   if(H.style==='buns'){s+='<circle cx="17" cy="11" r="5.4" fill="'+H.hair+'"/><circle cx="43" cy="11" r="5.4" fill="'+H.hair+'"/><path d="M17.5 21 a12.5 12.5 0 0 1 25 0 z" fill="'+H.hair+'"/>';}
   if(H.style==='cap'){s+='<path d="M17.5 20 a12.5 12.5 0 0 1 25 0 z" fill="'+H.hair+'"/><rect x="15" y="17.5" width="30" height="4" rx="2" fill="#14181f"/>';}}
- s+='<circle cx="25" cy="21" r="1.7" fill="#26221f"/><circle cx="35" cy="21" r="1.7" fill="#26221f"/>';
- s+='<path d="M26 25.5 q4 3.2 8 0" stroke="#26221f" stroke-width="1.4" fill="none" stroke-linecap="round"/>';
+ if(face==='drunk'){s+='<path d="M22.5 21 q2.5 -2.4 5 0" stroke="#26221f" stroke-width="1.5" fill="none" stroke-linecap="round"/><path d="M32.5 21 q2.5 -2.4 5 0" stroke="#26221f" stroke-width="1.5" fill="none" stroke-linecap="round"/>';
+  s+='<path d="M26.5 25 q3.5 2.6 7 0" stroke="#26221f" stroke-width="1.4" fill="none" stroke-linecap="round"/><rect x="28.4" y="27.6" width="3.4" height="4.6" rx="1.7" fill="#ff7d9c"/>';}
+ else if(face==='love'){s+='<text x="25" y="23.5" font-size="7" text-anchor="middle" fill="#e0245e">♥</text><text x="35" y="23.5" font-size="7" text-anchor="middle" fill="#e0245e">♥</text>';
+  s+='<path d="M26 25.5 q4 3.4 8 0" stroke="#26221f" stroke-width="1.4" fill="none" stroke-linecap="round"/>';}
+ else{s+='<circle cx="25" cy="21" r="1.7" fill="#26221f"/><circle cx="35" cy="21" r="1.7" fill="#26221f"/>';
+  s+='<path d="M26 25.5 q4 3.2 8 0" stroke="#26221f" stroke-width="1.4" fill="none" stroke-linecap="round"/>';}
+ if(face==='yum')s+='<circle cx="20.6" cy="24.6" r="2.3" fill="#ff9eb0" opacity=".8"/><circle cx="39.4" cy="24.6" r="2.3" fill="#ff9eb0" opacity=".8"/>';
  if(H.style==='long'||H.style==='buns')s+='<circle cx="20.6" cy="24.6" r="2.1" fill="#ff9eb0" opacity=".65"/><circle cx="39.4" cy="24.6" r="2.1" fill="#ff9eb0" opacity=".65"/>';
  s+='</svg>';return s;}
 /* ================= УТИЛИТЫ ================= */
@@ -247,7 +267,11 @@ function sysChat(t){chatMsg('',t,true);}
 /* ================= РЕНДЕР ================= */
 var SAY={};
 function personHTML(npc,isMe,avHTML){var say=SAY[npc.n]&&Date.now()<SAY[npc.n].until?'<div class="say">'+esc(SAY[npc.n].text)+'</div>':'';
- return '<div class="person'+(isMe?' me':'')+'" data-npc="'+esc(npc.n)+'" style="left:'+npc.x+'%">'+say+
+ var fx='';if(npc.fx)fx='<div class="fxb">'+npc.fx+'</div>';
+ if(isMe&&S.fx&&Date.now()<S.fx.until)fx='<div class="fxb">'+S.fx.icon+'</div>';
+ var pet='';if(isMe&&S.pet){var pi=itemById(S.pet);if(pi)pet='<div class="pet">'+pi.e+'</div>';}
+ var dc=(isMe&&S.danceUntil&&Date.now()<S.danceUntil)?' dancing':'';
+ return '<div class="person'+(isMe?' me':'')+dc+'" data-npc="'+esc(npc.n)+'" style="left:'+npc.x+'%">'+say+fx+pet+
  '<div class="av">'+avHTML+'</div><div class="pn">'+esc(npc.n)+'</div></div>';}
 function renderTop(){$('tbName').textContent=S.name+' ['+LOCS[S.loc].n+']';$('tbLvl').textContent=lvl();
  $('tbCred').textContent=S.credits;$('tbRep').textContent=S.rep;
@@ -263,7 +287,8 @@ function renderScene(){var L=LOCS[S.loc];var sc=$('scene');sc.style.background=L
  L.npcs.forEach(function(npc){h+=personHTML(npc,false,personSVG(npc.h,npc.b,npc.cc));});
  if(S.loc==='home'&&Date.now()<S.partyUntil){[['Гость','h1','b0',24],['Гостья','h6','b2',38],['Друг','h2','b4',56],['Подруга','h9','b7',68]].forEach(function(g){
    h+='<div class="person dancing" style="left:'+g[3]+'%"><div class="av">'+personSVG(g[1],g[2])+'</div><div class="pn">'+g[0]+'</div></div>';});}
- h+=personHTML({n:S.name,x:S.x},true,personSVG(S.head,S.body));
+ var myFace=(S.fx&&Date.now()<S.fx.until)?S.fx.face:'';
+ h+=personHTML({n:S.name,x:S.x},true,personSVG(S.head,S.body,null,myFace));
  $('sceneInner').innerHTML=h;
  Array.prototype.forEach.call(document.querySelectorAll('.person'),function(el){
    el.addEventListener('click',function(){var n=el.getAttribute('data-npc');if(n&&n!==S.name)talkTo(n);});});
@@ -276,7 +301,8 @@ function renderQuest(){var qb=$('questBubble');
  qb.innerHTML='📋 <b>Задание — '+esc(q.npc)+':</b> '+esc(q.text)+prog+' <span class="qp">+'+q.reward+'💰</span>';}
 function renderActions(){var a=$('actions');var btns='';
  btns+='<button id="mvL">◀</button>';
- if(S.loc==='mall')btns+='<button data-a="hair">💇 Причёски</button><button data-a="cloth">👕 Одежда</button><button data-a="fur">🪑 Мебель</button>';
+ if(S.loc==='mall')btns+='<button data-a="hair">💇 Причёски</button><button data-a="cloth">👕 Одежда</button><button data-a="fur">🪑 Мебель</button><button data-a="pets">🐾 Питомцы</button>';
+ if(S.loc==='club')btns+='<button data-a="bar" class="gold">🍸 Бар</button><button data-a="dance">💃 Танцевать 6💰</button>';
  if(S.loc==='beach')btns+='<button data-a="fish" class="gold">🎣 Рыбачить</button><button data-a="shell">🐚 Ракушки +5💰</button>';
  if(S.loc==='forest')btns+='<button data-a="mush" class="gold">🍄 Собирать грибы</button>';
  if(S.loc==='home')btns+='<button data-a="party" class="gold">🎉 Вечеринка 10💰</button><button data-a="place">🛋️ Поставить мебель</button><button data-a="clean">🧹 Убрать · бардак '+(S.mess||0)+'/100</button>';
@@ -309,6 +335,9 @@ function doAction(a){
  if(a==='shell')doShell();
  if(a==='party')doParty();
  if(a==='clean')doClean();
+ if(a==='pets')openShop(PETS,'🐾 Питомцы');
+ if(a==='bar')openBar();
+ if(a==='dance')doDance();
  if(a==='place')openPlace();
  if(a==='talk'){var npcs=LOCS[S.loc].npcs;if(npcs.length){var best=npcs[0],bd=999;
    npcs.forEach(function(n){var d=Math.abs(n.x-S.x);if(d<bd){bd=d;best=n;}});talkTo(best.n);}}
@@ -338,7 +367,7 @@ function openModal(html){$('modal').innerHTML='<button class="x" id="mX">✕</bu
  $('mX').addEventListener('click',closeModal);}
 function closeModal(){$('modalWrap').style.display='none';stopFish();}
 function openShop(items,title){var h='<h3>'+title+'</h3><div style="font-size:13px">У тебя: <b>'+S.credits+'💰</b></div><div class="shopGrid">';
- items.forEach(function(it){var own=S.owned.indexOf(it.id)>=0;var eq=(S.head===it.id||S.body===it.id);
+ items.forEach(function(it){var own=S.owned.indexOf(it.id)>=0;var eq=(S.head===it.id||S.body===it.id||S.pet===it.id);
   var vis=(it.id[0]==='h')?personSVG(it.id,S.body):(it.id[0]==='b'?personSVG(S.head,it.id):it.e);
   h+='<div class="shopIt"><div class="e">'+vis+'</div><div class="n">'+it.n+'</div><div class="p">'+(own?'куплено':it.p+'💰')+'</div>'+
   (own?'<button class="own" data-eq="'+it.id+'">'+(eq?'✓ надето':'Надеть')+'</button>'
@@ -348,9 +377,25 @@ function openShop(items,title){var h='<h3>'+title+'</h3><div style="font-size:13
  Array.prototype.forEach.call(document.querySelectorAll('[data-eq]'),function(b){b.addEventListener('click',function(){equipItem(b.getAttribute('data-eq'));openShop(items,title);});});}
 function buyItem(id){var it=itemById(id);if(!it||S.owned.indexOf(id)>=0)return false;
  if(S.credits<it.p)return false;S.credits-=it.p;S.owned.push(id);
- if(id[0]==='h')S.head=id; if(id[0]==='b')S.body=id;
+ if(id[0]==='h')S.head=id; if(id[0]==='b')S.body=id; if(id[0]==='p')S.pet=id;
  save();renderAll();sysChat('Куплено: '+it.n+' '+it.e);checkQuest();return true;}
-function equipItem(id){if(S.owned.indexOf(id)<0)return;if(id[0]==='h')S.head=id;if(id[0]==='b')S.body=id;save();renderAll();}
+function equipItem(id){if(S.owned.indexOf(id)<0)return;if(id[0]==='h')S.head=id;if(id[0]==='b')S.body=id;if(id[0]==='p')S.pet=id;save();renderAll();}
+/* ================= КЛУБ: БАР И ТАНЦЫ ================= */
+function openBar(){var h='<h3>🍸 Бар клуба Star</h3><div style="font-size:13px">Бармен: «Привет! Нужна помощь в выборе выпивки?» У тебя: <b>'+S.credits+'💰</b><br>Всё, что выпьешь или съешь, минуту висит облачком над головой — как в оригинале!</div><div class="shopGrid">';
+ DRINKS.forEach(function(d,i){h+='<div class="shopIt"><div class="e">'+d.e+'</div><div class="n">'+d.n+'</div><div class="p">'+d.p+'💰</div><button data-drink="'+i+'" '+(S.credits<d.p?'disabled':'')+'>Заказать</button></div>';});
+ h+='</div>';openModal(h);
+ Array.prototype.forEach.call(document.querySelectorAll('[data-drink]'),function(b){b.addEventListener('click',function(){doDrink(parseInt(b.getAttribute('data-drink'),10));});});}
+function doDrink(i){var d=DRINKS[i];if(!d||S.credits<d.p)return false;
+ S.credits-=d.p;S.drank=(S.drank||0)+1;S.fx={icon:d.e,face:d.face,until:Date.now()+60000};
+ save();closeModal();renderAll();sysChat(d.say+' (эффект на минуту)');
+ chatMsg('Бармен','хороший выбор! 🍸');
+ setTimeout(function(){renderScene();},60500);checkQuest();return true;}
+function doDance(){if(S.danceUntil&&Date.now()<S.danceUntil){sysChat('Ты уже танцуешь! 💃');return false;}
+ if(S.credits<6){sysChat('Не хватает кредитов на танец. Порыбачь или собери грибы!');return false;}
+ S.credits-=6;S.danced=(S.danced||0)+1;S.rep+=10;S.danceUntil=Date.now()+20000;
+ save();renderAll();sysChat('Ты танцуешь на танцполе! 🪩 +10⭐');
+ chatMsg('Рита','как ты танцуешь! 💃');chatMsg('Диджей','отличный ритм! 🎧');
+ setTimeout(function(){renderScene();},20500);checkQuest();return true;}
 function openLook(){var h='<h3>👤 Твой образ</h3><div style="font-size:13px">Выбери из купленного:</div><div class="shopGrid">';
  HEADS.concat(BODIES).forEach(function(it){if(S.owned.indexOf(it.id)<0)return;var eq=(S.head===it.id||S.body===it.id);
   var vis=(it.id[0]==='h')?personSVG(it.id,S.body):personSVG(S.head,it.id);
@@ -433,7 +478,7 @@ $('modalWrap').addEventListener('click',function(e){if(e.target===$('modalWrap')
   $('nameInp').value=s.name;selHead=s.head;selBody=s.body;buildPickers();updPreview();}})();
 /* API для проверок */
 window.G={get state(){return S;},newGame:function(n){S=defState(n||'Тест','h0','b0');save();return S;},
- buy:buyItem,equip:equipItem,catchOk:catchOk,mushAdd:mushAdd,party:doParty,clean:doClean,place:placeAt,
+ buy:buyItem,equip:equipItem,catchOk:catchOk,mushAdd:mushAdd,party:doParty,clean:doClean,drink:doDrink,dance:doDance,place:placeAt,
  placeItem:function(id,i){pendingFur=id;placeAt(i);},
  setLoc:function(l){S.loc=l;},check:checkQuest,quests:QUESTS};
 </script>
