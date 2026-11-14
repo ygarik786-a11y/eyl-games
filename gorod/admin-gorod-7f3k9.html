@@ -52,7 +52,7 @@ $('go').addEventListener('click',function(){var v=$('pw').value;if(!v)return;
 function withS(fn){var s=loadS()||defS();fn(s);saveS(s);stat();}
 $('bCred').addEventListener('click',function(){withS(function(s){s.credits+=10000;});$('pmsg').textContent='+10 000 кредитов! 💰';});
 $('bRep').addEventListener('click',function(){withS(function(s){s.rep+=1000;});$('pmsg').textContent='+1 000 репутации! ⭐';});
-$('bAll').addEventListener('click',function(){withS(function(s){['h0','h1','h2','h3','h4','h5','h6','h7','h8','h9','b0','b1','b2','b3','b4','b5','b6','b7','f1','f2','f3','f4','f5','f6','f7'].forEach(function(id){if(s.owned.indexOf(id)<0)s.owned.push(id);});});$('pmsg').textContent='Всё открыто! Загляни в магазины и домой 🎁';});
+$('bAll').addEventListener('click',function(){withS(function(s){['h0','h1','h2','h3','h4','h5','h6','h7','h8','h9','h10','h11','b0','b1','b2','b3','b4','b5','b6','b7','b8','b9','f1','f2','f3','f4','f5','f6','f7'].forEach(function(id){if(s.owned.indexOf(id)<0)s.owned.push(id);});});$('pmsg').textContent='Всё открыто! Загляни в магазины и домой 🎁';});
 var arm=false;
 $('bReset').addEventListener('click',function(){if(!arm){arm=true;$('bReset').textContent='Точно сбросить? Нажми ещё раз';return;}
  try{localStorage.removeItem(KEY);}catch(e){}$('pmsg').textContent='Прогресс сброшен.';stat();});

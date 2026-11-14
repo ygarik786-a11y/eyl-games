@@ -21,11 +21,11 @@ input{font-family:inherit}
 .logo .orn{font-size:14px;letter-spacing:8px;opacity:.95;text-shadow:0 2px 6px rgba(0,0,0,.4)}
 #createScr .sub{opacity:.92;font-size:13px;margin:4px 0 12px;text-align:center}
 .bigava{text-align:center;filter:drop-shadow(0 6px 8px rgba(0,0,0,.35));min-height:152px}
-.bigava svg{height:152px;width:92px}
+.bigava svg{height:152px;width:auto}
 #nameInp{width:min(320px,90vw);padding:12px 14px;border-radius:12px;border:none;font-size:17px;text-align:center;margin:10px 0}
 .pickrow{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;max-width:360px;margin:4px 0 8px}
 .pick{width:54px;height:64px;font-size:30px;background:rgba(255,255,255,.18);border:2px solid transparent;border-radius:14px;display:flex;align-items:center;justify-content:center}
-.pick svg{height:54px;width:34px}
+.pick svg{height:54px;width:auto}
 .pick.sel{border-color:#ffd94d;background:rgba(255,217,77,.25)}
 .picklbl{font-size:12px;opacity:.9;margin-top:6px}
 #playBtn{background:#ffd94d;color:#402c00;font-size:19px;font-weight:800;padding:13px 42px;border-radius:16px;margin-top:12px;box-shadow:0 4px 14px rgba(0,0,0,.35)}
@@ -46,7 +46,7 @@ input{font-family:inherit}
 .deco{position:absolute;pointer-events:none;line-height:1}
 .person{position:absolute;bottom:26px;transform:translateX(-50%);text-align:center;z-index:3;transition:left .25s}
 .person .av{line-height:.95;filter:drop-shadow(0 3px 3px rgba(0,0,0,.35))}
-.person .av svg{height:64px;width:40px;display:block;margin:0 auto}
+.person .av svg{height:66px;width:auto;display:block;margin:0 auto}
 @keyframes legSwing{0%,100%{transform:rotate(8deg)}50%{transform:rotate(-8deg)}}
 @keyframes armSwing{0%,100%{transform:rotate(-6deg)}50%{transform:rotate(6deg)}}
 .pl,.pa{transform-box:fill-box;transform-origin:50% 0;animation:legSwing .72s ease-in-out infinite}
@@ -86,7 +86,7 @@ input{font-family:inherit}
 .shopGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-top:8px}
 .shopIt{background:#f2f5fb;border:2px solid #dfe7f5;border-radius:14px;padding:9px 4px;text-align:center}
 .shopIt .e{font-size:34px;line-height:1.1}
-.shopIt .e svg{height:54px;width:34px}
+.shopIt .e svg{height:54px;width:auto}
 .shopIt .n{font-size:12px;font-weight:700;margin:2px 0}
 .shopIt .p{font-size:12px;color:#0a7a42;font-weight:800}
 .shopIt button{margin-top:5px;background:#2a4a7f;color:#fff;font-size:12px;font-weight:700;padding:7px 10px;border-radius:9px;width:100%}
@@ -153,12 +153,12 @@ var HEADS=[
  {id:'h2',e:'👱‍♂️',n:'Блондин',p:25},{id:'h3',e:'🧔‍♂️',n:'Бородач',p:45},
  {id:'h4',e:'🧑‍🦱',n:'Кудри',p:43},{id:'h5',e:'👩‍🦰',n:'Рыжая',p:51},
  {id:'h6',e:'👱‍♀️',n:'Блондинка',p:35},{id:'h7',e:'👩‍🎤',n:'Фиолетовая',p:60},
- {id:'h8',e:'🧑‍🎓',n:'Студент',p:30},{id:'h9',e:'👧',n:'Милашка',p:0}];
+ {id:'h8',e:'🧑‍🎓',n:'Студент',p:30},{id:'h9',e:'👧',n:'Милашка',p:0},{id:'h10',e:'💇‍♀️',n:'Каре',p:45},{id:'h11',e:'🌸',n:'Розовая',p:65}];
 var BODIES=[
  {id:'b0',e:'👕',n:'Майка',p:0},{id:'b1',e:'👔',n:'Рубашка',p:49},
  {id:'b2',e:'👗',n:'Платье',p:55},{id:'b3',e:'🧥',n:'Куртка',p:70},
  {id:'b4',e:'🎽',n:'Спортивная',p:30},{id:'b5',e:'👘',n:'Кимоно',p:80},
- {id:'b6',e:'🦺',n:'Жилет',p:40},{id:'b7',e:'👚',n:'Блузка',p:0}];
+ {id:'b6',e:'🦺',n:'Жилет',p:40},{id:'b7',e:'👚',n:'Блузка',p:0},{id:'b8',e:'🌻',n:'Сарафан',p:60},{id:'b9',e:'🏃',n:'Спорт. костюм',p:65}];
 var FURS=[
  {id:'f1',e:'🛋️',n:'Диван',p:90},{id:'f2',e:'🪑',n:'Стул',p:35},
  {id:'f3',e:'🌱',n:'Цветок',p:25},{id:'f4',e:'📺',n:'Телевизор',p:120},
@@ -218,41 +218,46 @@ var HSTY={
  h2:{hair:'#f2d06b',style:'short',skin:'#ffd9ae'},h3:{hair:'#4a3220',style:'short',skin:'#ffcf9e',beard:1},
  h4:{hair:'#2e2018',style:'curly',skin:'#e8b48c'},h5:{hair:'#e06a2d',style:'long',skin:'#ffd9ae'},
  h6:{hair:'#f7dc7a',style:'long',skin:'#ffe3c2'},h7:{hair:'#9b59d0',style:'long',skin:'#ffd9ae'},
- h8:{hair:'#20242c',style:'cap',skin:'#ffcf9e'},h9:{hair:'#7a4a21',style:'buns',skin:'#ffe3c2'}};
+ h8:{hair:'#20242c',style:'cap',skin:'#ffcf9e'},h9:{hair:'#7a4a21',style:'buns',skin:'#ffe3c2'},
+ h10:{hair:'#4a2c14',style:'bob',skin:'#ffd9ae'},h11:{hair:'#ff7d9c',style:'long',skin:'#ffe3c2'}};
 var BSTY={
  b0:{c:'#7ec8e3',t:'tee'},b1:{c:'#f4f4f4',t:'shirt'},b2:{c:'#ff5d8f',t:'dress'},
  b3:{c:'#4a6fa5',t:'jacket'},b4:{c:'#57b84a',t:'tank'},b5:{c:'#b5526a',t:'kimono'},
- b6:{c:'#8a6844',t:'vest'},b7:{c:'#f2a7c3',t:'tee'}};
+ b6:{c:'#8a6844',t:'vest'},b7:{c:'#f2a7c3',t:'tee'},b8:{c:'#ffd94d',t:'dress'},b9:{c:'#6a5acd',t:'jacket'}};
 function personSVG(hid,bid,cc,face){var H=HSTY[hid]||HSTY.h0;var B=BSTY[bid]||BSTY.b0;var col=cc||B.c;
- var dress=(B.t==='dress');var legC=dress?H.skin:'#3c4c6e';var slv=(B.t==='tank')?H.skin:col;
- var s='<svg viewBox="0 0 60 100" xmlns="http://www.w3.org/2000/svg">';
- if(H.style==='long')s+='<rect x="15" y="8" width="30" height="42" rx="13" fill="'+H.hair+'"/>';
- s+='<g class="pl"><rect x="22" y="63" width="6.5" height="25" rx="3" fill="'+legC+'"/><ellipse cx="24.5" cy="90" rx="5.5" ry="3" fill="#333"/></g>';
- s+='<g class="pl r"><rect x="31.5" y="63" width="6.5" height="25" rx="3" fill="'+legC+'"/><ellipse cx="34" cy="90" rx="5.5" ry="3" fill="#333"/></g>';
- s+='<g class="pa"><rect x="10.5" y="37" width="6" height="23" rx="3" fill="'+slv+'"/><circle cx="13.5" cy="62" r="3.4" fill="'+H.skin+'"/></g>';
- s+='<g class="pa r"><rect x="43.5" y="37" width="6" height="23" rx="3" fill="'+slv+'"/><circle cx="46.5" cy="62" r="3.4" fill="'+H.skin+'"/></g>';
- if(dress)s+='<path d="M21 36 L39 36 L47 68 L13 68 Z" fill="'+col+'"/>';
- else s+='<rect x="17" y="36" width="26" height="30" rx="6" fill="'+col+'"/>';
+ var dress=(B.t==='dress');var legC=dress?H.skin:'#44557a';var slv=(B.t==='tank')?H.skin:col;
+ var s='<svg viewBox="0 0 60 104" xmlns="http://www.w3.org/2000/svg">';
+ s+='<ellipse cx="30" cy="99" rx="13" ry="3" fill="rgba(0,0,0,.20)"/>';
+ if(H.style==='long')s+='<rect x="14" y="6" width="32" height="47" rx="14" fill="'+H.hair+'"/>';
+ if(H.style==='bob')s+='<rect x="14.5" y="6" width="31" height="39" rx="13" fill="'+H.hair+'"/>';
+ s+='<g class="pl"><rect x="23.5" y="60" width="6" height="28" rx="3" fill="'+legC+'"/><rect x="21.7" y="86" width="9.6" height="6.5" rx="3.2" fill="#2e2a33"/></g>';
+ s+='<g class="pl r"><rect x="30.5" y="60" width="6" height="28" rx="3" fill="'+legC+'"/><rect x="28.7" y="86" width="9.6" height="6.5" rx="3.2" fill="#2e2a33"/></g>';
+ s+='<g class="pa"><rect x="13.5" y="36.5" width="6" height="23" rx="3" fill="'+slv+'"/><circle cx="16.5" cy="61.5" r="3.4" fill="'+H.skin+'"/></g>';
+ s+='<g class="pa r"><rect x="40.5" y="36.5" width="6" height="23" rx="3" fill="'+slv+'"/><circle cx="43.5" cy="61.5" r="3.4" fill="'+H.skin+'"/></g>';
+ if(dress){s+='<path d="M22 36 L38 36 L41 51 L45.5 68 L14.5 68 L19 51 Z" fill="'+col+'"/><rect x="20.5" y="49" width="19" height="3.4" fill="rgba(0,0,0,.18)"/>';}
+ else s+='<rect x="18.5" y="36" width="23" height="28" rx="7" fill="'+col+'"/>';
+ if(B.t==='tee'||B.t==='jacket')s+='<ellipse cx="30" cy="36.8" rx="5.6" ry="2.8" fill="rgba(0,0,0,.16)"/>';
  if(B.t==='shirt')s+='<path d="M27 36 L30 42 L33 36 L31 52 L29 52 Z" fill="#7a1f2b"/>';
- if(B.t==='vest')s+='<rect x="26" y="36" width="8" height="30" fill="#f4f4f4"/>';
- if(B.t==='kimono')s+='<rect x="17" y="50" width="26" height="5" fill="#ffd94d"/>';
- if(B.t==='jacket')s+='<rect x="28.6" y="36" width="2.8" height="30" fill="rgba(0,0,0,.25)"/>';
- s+='<rect x="26" y="29" width="8" height="9" fill="'+H.skin+'"/>';
- if(H.beard){s+='<circle cx="30" cy="23" r="12.5" fill="'+H.hair+'"/><circle cx="30" cy="19.5" r="10.5" fill="'+H.skin+'"/><path d="M19.5 19.5 a10.5 10.5 0 0 1 21 0 z" fill="'+H.hair+'"/>';}
- else{s+='<circle cx="30" cy="21" r="12.5" fill="'+H.skin+'"/>';
-  if(H.style==='short')s+='<path d="M18.5 18.5 A11.5 9 0 0 1 41.5 18.5 Z" fill="'+H.hair+'"/>';
-  if(H.style==='curly'){s+='<path d="M18.5 18.5 A11.5 9 0 0 1 41.5 18.5 Z" fill="'+H.hair+'"/><circle cx="21" cy="11" r="4.4" fill="'+H.hair+'"/><circle cx="27" cy="8.6" r="4.8" fill="'+H.hair+'"/><circle cx="33.5" cy="8.8" r="4.8" fill="'+H.hair+'"/><circle cx="39.5" cy="11.4" r="4.4" fill="'+H.hair+'"/>';}
-  if(H.style==='long')s+='<path d="M18.5 18.5 A11.5 9 0 0 1 41.5 18.5 Z" fill="'+H.hair+'"/>';
-  if(H.style==='buns'){s+='<circle cx="17" cy="11" r="5.4" fill="'+H.hair+'"/><circle cx="43" cy="11" r="5.4" fill="'+H.hair+'"/><path d="M18.5 18.5 A11.5 9 0 0 1 41.5 18.5 Z" fill="'+H.hair+'"/>';}
-  if(H.style==='cap'){s+='<path d="M18.5 18.5 A11.5 9 0 0 1 41.5 18.5 Z" fill="'+H.hair+'"/><rect x="15" y="16.5" width="30" height="4" rx="2" fill="#14181f"/>';}}
- if(face==='drunk'){s+='<path d="M22.5 21 q2.5 -2.4 5 0" stroke="#26221f" stroke-width="1.5" fill="none" stroke-linecap="round"/><path d="M32.5 21 q2.5 -2.4 5 0" stroke="#26221f" stroke-width="1.5" fill="none" stroke-linecap="round"/>';
-  s+='<path d="M26.5 25 q3.5 2.6 7 0" stroke="#26221f" stroke-width="1.4" fill="none" stroke-linecap="round"/><rect x="28.4" y="27.6" width="3.4" height="4.6" rx="1.7" fill="#ff7d9c"/>';}
- else if(face==='love'){s+='<text x="25" y="23.5" font-size="7" text-anchor="middle" fill="#e0245e">♥</text><text x="35" y="23.5" font-size="7" text-anchor="middle" fill="#e0245e">♥</text>';
-  s+='<path d="M26 25.5 q4 3.4 8 0" stroke="#26221f" stroke-width="1.4" fill="none" stroke-linecap="round"/>';}
- else{s+='<circle cx="25" cy="21" r="1.7" fill="#26221f"/><circle cx="35" cy="21" r="1.7" fill="#26221f"/>';
-  s+='<path d="M26 25.5 q4 3.2 8 0" stroke="#26221f" stroke-width="1.4" fill="none" stroke-linecap="round"/>';}
- if(face==='yum')s+='<circle cx="20.6" cy="24.6" r="2.3" fill="#ff9eb0" opacity=".8"/><circle cx="39.4" cy="24.6" r="2.3" fill="#ff9eb0" opacity=".8"/>';
- if(H.style==='long'||H.style==='buns')s+='<circle cx="20.6" cy="24.6" r="2.1" fill="#ff9eb0" opacity=".65"/><circle cx="39.4" cy="24.6" r="2.1" fill="#ff9eb0" opacity=".65"/>';
+ if(B.t==='vest')s+='<rect x="26" y="36" width="8" height="28" fill="#f4f4f4"/>';
+ if(B.t==='kimono')s+='<rect x="18.5" y="50" width="23" height="5" fill="#ffd94d"/>';
+ if(B.t==='jacket')s+='<rect x="28.6" y="36" width="2.8" height="28" fill="rgba(0,0,0,.25)"/>';
+ s+='<rect x="26.5" y="29" width="7" height="9" fill="'+H.skin+'"/><ellipse cx="30" cy="34.5" rx="6" ry="2.4" fill="rgba(0,0,0,.07)"/>';
+ s+='<circle cx="17.7" cy="22" r="2.6" fill="'+H.skin+'"/><circle cx="42.3" cy="22" r="2.6" fill="'+H.skin+'"/>';
+ var fringe='<path d="M18 18.5 A12 9.5 0 0 1 42 18.5 L39.6 16.7 Q37.2 19.9 34.6 17.1 Q32.2 20.1 30 17.3 Q27.8 20.1 25.4 17.1 Q22.8 19.9 20.4 16.7 Z" fill="'+H.hair+'"/><path d="M22.5 12.8 A10.5 8 0 0 1 31 9.9" stroke="rgba(255,255,255,.38)" stroke-width="2" fill="none" stroke-linecap="round"/>';
+ if(H.beard){s+='<circle cx="30" cy="23.5" r="13" fill="'+H.hair+'"/><circle cx="30" cy="19.5" r="11" fill="'+H.skin+'"/><path d="M20 16.5 A10 7.5 0 0 1 40 16.5 Z" fill="'+H.hair+'"/>';}
+ else{s+='<circle cx="30" cy="21" r="12.2" fill="'+H.skin+'"/>';
+  if(H.style==='curly'){s+=fringe.replace(H.hair,H.hair)+'<circle cx="20.5" cy="11" r="4.6" fill="'+H.hair+'"/><circle cx="26.5" cy="8.2" r="5" fill="'+H.hair+'"/><circle cx="33" cy="8.4" r="5" fill="'+H.hair+'"/><circle cx="39" cy="11.2" r="4.6" fill="'+H.hair+'"/>';}
+  else if(H.style==='buns'){s+='<circle cx="16.5" cy="10.5" r="5.6" fill="'+H.hair+'"/><circle cx="43.5" cy="10.5" r="5.6" fill="'+H.hair+'"/>'+fringe;}
+  else if(H.style==='cap'){s+=fringe+'<rect x="14.5" y="15" width="31" height="4.6" rx="2.3" fill="#14181f"/><circle cx="30" cy="9.5" r="2.2" fill="#14181f"/>';}
+  else s+=fringe;}
+ s+='<path d="M22.6 17.6 q2.3 -1.7 4.6 0" stroke="rgba(60,35,15,.45)" stroke-width="1.1" fill="none" stroke-linecap="round"/><path d="M32.8 17.6 q2.3 -1.7 4.6 0" stroke="rgba(60,35,15,.45)" stroke-width="1.1" fill="none" stroke-linecap="round"/>';
+ if(face==='drunk'){s+='<path d="M22.5 21.2 q2.5 -2.4 5 0" stroke="#26221f" stroke-width="1.5" fill="none" stroke-linecap="round"/><path d="M32.5 21.2 q2.5 -2.4 5 0" stroke="#26221f" stroke-width="1.5" fill="none" stroke-linecap="round"/>';
+  s+='<path d="M26.5 25.4 q3.5 2.6 7 0" stroke="#26221f" stroke-width="1.4" fill="none" stroke-linecap="round"/><rect x="28.4" y="27.8" width="3.4" height="4.6" rx="1.7" fill="#ff7d9c"/>';}
+ else if(face==='love'){s+='<text x="25" y="23.8" font-size="7.5" text-anchor="middle" fill="#e0245e">♥</text><text x="35" y="23.8" font-size="7.5" text-anchor="middle" fill="#e0245e">♥</text>';
+  s+='<path d="M26 25.6 q4 3.4 8 0" stroke="#26221f" stroke-width="1.4" fill="none" stroke-linecap="round"/>';}
+ else{s+='<circle cx="25" cy="21.2" r="1.9" fill="#2a2320"/><circle cx="35" cy="21.2" r="1.9" fill="#2a2320"/><circle cx="24.4" cy="20.5" r="0.65" fill="#fff"/><circle cx="34.4" cy="20.5" r="0.65" fill="#fff"/>';
+  s+='<path d="M26 25.6 q4 3.4 8 0" stroke="#26221f" stroke-width="1.4" fill="none" stroke-linecap="round"/>';}
+ s+='<circle cx="20.3" cy="25" r="2.3" fill="#ff9eb0" opacity=".55"/><circle cx="39.7" cy="25" r="2.3" fill="#ff9eb0" opacity=".55"/>';
  s+='</svg>';return s;}
 /* ================= УТИЛИТЫ ================= */
 function $(id){return document.getElementById(id);}
