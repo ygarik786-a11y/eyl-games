@@ -8,7 +8,7 @@
 <script>
 // Самообновление каталога: телефон Erik держал старую копию страницы
 // из кэша и не видел новые игры. Сверяемся с gversion.txt на сервере.
-var GAMES_VER = 5;
+var GAMES_VER = 6;
 fetch("gversion.txt?x=" + Date.now()).then(function(r){ return r.text(); }).then(function(t){
   var rv = parseInt(t, 10);
   if (rv && rv > GAMES_VER && sessionStorage.getItem("gamesUpd") !== String(rv)) {
@@ -133,7 +133,7 @@ fetch("gversion.txt?x=" + Date.now()).then(function(r){ return r.text(); }).then
     <h1><span class="gold">E.Y.L</span> GAMES</h1>
     <p class="sub">Игровая империя президента <b>Erik Lebed</b> 🎮<br>Бесплатные игры прямо в браузере — без скачивания и регистрации.<br>Открыл — и играешь. Прогресс сохраняется в телефоне.</p>
     <div class="chips">
-      <span class="chip gold">👑 13 игр</span>
+      <span class="chip gold">👑 14 игр</span>
       <span class="chip">💸 Полностью бесплатно</span>
       <span class="chip">📱 С телефона и компьютера</span>
     </div>
@@ -287,6 +287,21 @@ fetch("gversion.txt?x=" + Date.now()).then(function(r){ return r.text(); }).then
       </div>
     </a>
   </div>
+
+  <h2 class="sec">🕹️ Ретро-приставка</h2>
+  <a class="game featured" href="brick/">
+    <div class="cover" style="background:linear-gradient(150deg,#cfd8dc,#78909c 60%,#37474f)">
+      <span class="tag">Приставка • как в детстве</span><span class="new">НОВОЕ</span>
+      <span class="sat s1">🧱</span><span class="sat s2">🚀</span><span class="sat s3">🏎️</span><span class="sat s4">🔨</span>
+      <span class="main">🕹️</span>
+    </div>
+    <div class="gbody">
+      <h3>🕹️ Brick Game 9999-in-1</h3>
+      <p>Та самая серая приставка из детства — с экранчиком-табло и кнопками! Внутри 23 игры: классические блоки и их варианты, космический бой, гонки, отбивалка, стрельба, пинбол, «Ударь крота» и целая серия перевёртышей, где фигуры летят вверх. У каждой игры свой рекорд!</p>
+      <div class="meta">🎮 23 игры • ⏩ Скорость и уровень • 🏆 Рекорды</div>
+      <div class="play">Играть →</div>
+    </div>
+  </a>
 
   <h2 class="sec">🧠 Мини-игры • Emoji Arcade</h2>
   <div class="grid">
