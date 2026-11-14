@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Уличные гонки — E.Y.L Games</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  body { background:linear-gradient(180deg,#141432,#1d2b53); color:#fff; min-height:100vh;
+    font-family:'Segoe UI', Verdana, Arial, sans-serif; padding:14px 12px 30px; }
+  .back { display:inline-block; color:#aef; text-decoration:none; font-size:16px; font-weight:700;
+    background:#23234a; border:2px solid #4a4a8a; border-radius:12px; padding:9px 16px; }
+  .back:active { transform:translateY(2px); }
+  h1 { text-align:center; font-size:30px; color:#ffd23f; text-shadow:2px 2px 0 #b8860b; margin:12px 0 4px; }
+  .sub { text-align:center; color:#aef; font-size:14px; margin-bottom:14px; }
+  #wrap { max-width:520px; margin:0 auto; }
+  /* --- верхняя панель игрока --- */
+  #stats { display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin-bottom:12px; }
+  .stat { background:#23234a; border:2px solid #4a4a8a; border-radius:12px; padding:8px 14px;
+    font-size:18px; font-weight:800; }
+  .stat b { color:#ffd23f; }
+  /* --- витрина машины --- */
+  #carshow { background:#23234a; border:3px solid #ffd23f; border-radius:18px; padding:14px;
+    text-align:center; box-shadow:0 6px 0 #0a0a22; margin-bottom:14px; }
+  #carshow .who { color:#aef; font-size:15px; font-weight:700; letter-spacing:1px; }
+  #carEm { font-size:96px; line-height:1.15; display:inline-block; transform:scaleX(-1);
+    filter:drop-shadow(0 8px 10px rgba(0,0,0,.5)); }
+  #carName { font-size:25px; font-weight:900; margin-top:2px; }
+  #carHp { font-size:19px; color:#ffd23f; font-weight:800; margin-top:2px; }
+  #carHp .tune { color:#7Cfc9a; font-size:15px; }
+  /* --- вкладки --- */
+  .tabs { display:flex; gap:8px; margin-bottom:14px; }
+  .tab { flex:1; font-size:19px; font-weight:800; padding:13px 4px; border-radius:14px; cursor:pointer;
+    border:3px solid #4a4a8a; background:#23234a; color:#bbc; }
+  .tab.on { border-color:#ffd23f; color:#ffd23f; background:#2c2c58; box-shadow:0 4px 0 #0a0a22; }
+  .tab:active { transform:translateY(2px); }
+  /* --- карточки --- */
+  .card { display:flex; align-items:center; gap:12px; background:#23234a; border:3px solid #4a4a8a;
+    border-radius:16px; padding:12px; margin-bottom:11px; text-align:left; }
+  .card.boss { border-color:#ffd23f; background:#2c2c58; }
+  .card .em { font-size:52px; line-height:1; display:inline-block; transform:scaleX(-1);
+    width:74px; height:74px; text-align:center; border-radius:12px; padding-top:8px; flex:none; }
+  .card .inf { flex:1; min-width:0; }
+  .card .nm { font-size:20px; font-weight:900; }
+  .card .car { font-size:15px; color:#dde; margin-top:1px; }
+  .card .hp { font-size:15px; color:#ffd23f; font-weight:800; margin-top:1px; }
+  .card .chance { font-size:13px; color:#9fb3c8; margin-top:1px; }
+  .btn { font-size:18px; font-weight:800; padding:13px 18px; border:none; border-radius:13px;
+    background:#e5322d; color:#fff; cursor:pointer; box-shadow:0 4px 0 #9e1b16; flex:none; }
+  .btn:active { transform:translateY(3px); box-shadow:0 1px 0 #9e1b16; }
+  .btn.gold { background:#f5b81d; color:#231a00; box-shadow:0 4px 0 #9a6d00; }
+  .btn.blue { background:#2470c2; box-shadow:0 4px 0 #144a82; }
+  .btn:disabled { background:#556; box-shadow:0 4px 0 #334; color:#aab; cursor:default; }
+  .btn:disabled:active { transform:none; }
+  .bigbtn { display:block; width:100%; font-size:21px; padding:16px; margin-top:10px; }
+  .note { text-align:center; color:#9fb3c8; font-size:14px; line-height:1.5; margin:10px 2px; }
+  .note b { color:#ffd23f; }
+  .reset { display:block; margin:16px auto 0; background:none; border:none; color:#778;
+    font-size:13px; text-decoration:underline; cursor:pointer; padding:8px; }
+  /* --- гонка --- */
+  #race { background:#191930; border:3px solid #ffd23f; border-radius:18px; padding:14px 12px;
+    box-shadow:0 6px 0 #0a0a22; }
+  #raceTitle { text-align:center; font-size:22px; font-weight:900; color:#ffd23f; margin-bottom:4px; }
+  #raceMsg { text-align:center; font-size:17px; min-height:24px; margin-bottom:8px; font-weight:700; }
+  .lane { position:relative; height:86px; background:#2e2e3d; border-radius:10px; margin-bottom:10px;
+    overflow:hidden; border-bottom:4px dashed #8a8a6a; }
+  .lane .lname { position:absolute; left:8px; top:4px; font-size:13px; font-weight:800; color:#dde;
+    text-shadow:1px 1px 0 #000; z-index:3; }
+  .lane .flag { position:absolute; right:4px; top:20px; font-size:30px; z-index:1; }
+  .racer { position:absolute; bottom:6px; left:0; font-size:54px; line-height:1; z-index:2;
+    display:inline-block; transform:scaleX(-1); will-change:left; }
+  #raceBtns { display:none; gap:10px; margin-top:6px; }
+  #raceBtns .btn { flex:1; }
+  .hidden { display:none !important; }
+</style>
+</head>
+<body>
+<div id="wrap">
+  <a class="back" href="../">← Все игры</a>
+  <h1>🏎️ УЛИЧНЫЕ ГОНКИ</h1>
+  <div class="sub">Гараж, автосалон и гонки за деньги — как в старые добрые времена!</div>
+
+  <div id="stats">
+    <span class="stat" id="creatorTap">👑 Erik</span>
+    <span class="stat">💰 <b id="stMoney">500</b></span>
+    <span class="stat">⭐ <b id="stStars">0</b></span>
+  </div>
+
+  <div id="carshow">
+    <div class="who">ТВОЯ МАШИНА</div>
+    <span id="carEm">🚗</span>
+    <div id="carName">ВАЗ 2106</div>
+    <div id="carHp">75 л.с.</div>
+  </div>
+
+  <!-- ГОНКА -->
+  <div id="race" class="hidden">
+    <div id="raceTitle">ГОНКА!</div>
+    <div id="raceMsg">Приготовься…</div>
+    <div class="lane">
+      <span class="lname" id="lnMe">Erik</span><span class="flag">🏁</span>
+      <span class="racer" id="rcMe">🚗</span>
+    </div>
+    <div class="lane">
+      <span class="lname" id="lnOpp">Соперник</span><span class="flag">🏁</span>
+      <span class="racer" id="rcOpp">🚗</span>
+    </div>
+    <div id="raceBtns">
+      <button class="btn gold" id="btnAgain">🏁 К гонкам</button>
+      <button class="btn blue" id="btnGarage2">🔧 В гараж</button>
+    </div>
+  </div>
+
+  <div id="main">
+    <div class="tabs">
+      <button class="tab on" id="tabB-garage" onclick="showTab('garage')">🔧 Гараж</button>
+      <button class="tab" id="tabB-salon" onclick="showTab('salon')">🚘 Автосалон</button>
+      <button class="tab" id="tabB-races" onclick="showTab('races')">🏁 Гонки</button>
+    </div>
+
+    <div id="tab-garage">
+      <div class="note">Тюнинг добавляет <b>+10 л.с.</b> твоей машине.<br>
+      Чем сильнее машина — тем круче соперников можно побеждать!</div>
+      <button class="btn gold bigbtn" id="btnTune" onclick="doTune()">🔧 Тюнинг +10 л.с. — 300 💰</button>
+      <div class="note" id="garageStat"></div>
+      <button class="btn bigbtn hidden" id="btnAdmin" onclick="toggleAdmin()">⚙️ Админка создателя</button>
+      <div id="adminPanel" class="hidden">
+        <div class="note">👑 Панель создателя: выдавай себе всё сам</div>
+        <button class="btn" onclick="admMoney(1000)">+1 000 💰</button>
+        <button class="btn" onclick="admMoney(10000)">+10 000 💰</button>
+        <button class="btn" onclick="admMoney(50000)">+50 000 💰</button>
+        <button class="btn" onclick="admStars()">+10 ⭐</button>
+        <button class="btn" onclick="admTune()">+50 л.с. бесплатно</button>
+        <div class="note">Поставить себе машину:</div>
+        <div id="admCars"></div>
+      </div>
+      <button class="reset" onclick="doReset()">Сбросить игру и начать заново</button>
+    </div>
+
+    <div id="tab-salon" class="hidden"></div>
+    <div id="tab-races" class="hidden"></div>
+  </div>
+
+  <div class="note">Победа над соперником: деньги = его мощность × 2 💰 и +1 ⭐<br>
+  Проигрыш: утешительные +30 💰</div>
+</div>
+
+<script>
+"use strict";
+// ---------- Данные ----------
+const CARS = {
+  zaz:    { name:'ЗАЗ 965',              hp:27,  em:'🚗', col:'#5d7a2a' },
+  vaz2106:{ name:'ВАЗ 2106',             hp:75,  em:'🚗', col:'#a02723' },
+  vaz2109:{ name:'ВАЗ 2109',             hp:85,  em:'🚗', col:'#20548f' },
+  sedan:  { name:'Иномарка Седан',       hp:150, em:'🚙', col:'#546e7a' },
+  bmw:    { name:'BMW M3',               hp:240, em:'🚙', col:'#14406e' },
+  sport:  { name:'Спорткар',             hp:320, em:'🏎️', col:'#6a1b9a' },
+  lambo:  { name:'Lamborghini Gallardo', hp:652, em:'🏎️', col:'#8f7200' },
+  gelik:  { name:'Гелик (Mercedes G-Class)', hp:585, em:'🚙', col:'#1d2126' }
+};
+const PRICES = { vaz2109:800, sedan:2500, bmw:5000, sport:8000, lambo:30000 };
+const OPPS = [
+  { name:'Юлия',   car:'zaz' },
+  { name:'Жанна',  car:'zaz' },
+  { name:'Адель',  car:'vaz2106' },
+  { name:'Сергей', car:'vaz2109' },
+  { name:'Максим', car:'sedan' },
+  { name:'Юрка',   car:'sport' },
+  { name:'Дамир',  car:'lambo', boss:true }
+];
+
+// ---------- Состояние ----------
+const KEY = 'eyl_gonki';
+let S = { money:500, stars:0, car:'vaz2106', tune:0, wins:0, races:0 };
+try {
+  const raw = localStorage.getItem(KEY);
+  if(raw){ const p = JSON.parse(raw); if(p && CARS[p.car]) S = Object.assign(S, p); }
+} catch(e){}
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} }
+const myCar = () => CARS[S.car];
+const myPower = () => myCar().hp + S.tune * 10;
+const tunePrice = () => 300 + S.tune * 100;
+
+// ---------- Звук ----------
+let AC = null;
+function beep(f, d, type, v, delay){
+  try{
+    AC = AC || new (window.AudioContext || window.webkitAudioContext)();
+    const t0 = AC.currentTime + (delay || 0);
+    const o = AC.createOscillator(), g = AC.createGain();
+    o.type = type || 'square'; o.frequency.value = f; g.gain.value = v || 0.04;
+    o.connect(g); g.connect(AC.destination); o.start(t0);
+    g.gain.exponentialRampToValueAtTime(0.0001, t0 + (d || 0.12)); o.stop(t0 + (d || 0.12));
+  }catch(e){}
+}
+const sClick = () => beep(660, .06, 'square', .03);
+const sBuy   = () => { beep(880,.09); beep(1174,.15,'square',.04,.08); };
+const sWin   = () => [523,659,784,1046].forEach((f,i)=>beep(f,.2,'square',.05,i*.12));
+const sLose  = () => { beep(220,.25,'sawtooth',.05); beep(160,.35,'sawtooth',.05,.15); };
+const sGo    = () => beep(980, .25, 'square', .06);
+
+// ---------- Отрисовка ----------
+const $ = id => document.getElementById(id);
+function render(){
+  $('stMoney').textContent = S.money;
+  $('stStars').textContent = S.stars;
+  $('carEm').textContent = myCar().em;
+  $('carEm').style.filter = 'drop-shadow(0 8px 10px rgba(0,0,0,.5))';
+  $('carName').textContent = myCar().name;
+  $('carName').style.color = '#fff';
+  $('carshow').style.background = 'linear-gradient(180deg,' + myCar().col + '55,#23234a)';
+  $('carHp').innerHTML = myPower() + ' л.с.' +
+    (S.tune ? ' <span class="tune">(тюнинг +' + (S.tune*10) + ')</span>' : '');
+  const tb = $('btnTune');
+  tb.textContent = '🔧 Тюнинг +10 л.с. — ' + tunePrice() + ' 💰';
+  tb.disabled = S.money < tunePrice();
+  $('garageStat').innerHTML = 'Гонок: <b>' + S.races + '</b> • Побед: <b>' + S.wins + '</b>' +
+    (S.tune ? '<br>Уровень тюнинга: <b>' + S.tune + '</b>' : '');
+  renderSalon(); renderRaces();
+}
+function renderSalon(){
+  let h = '';
+  for(const id in PRICES){
+    const c = CARS[id], price = PRICES[id];
+    let btn;
+    if(S.car === id) btn = '<button class="btn" disabled>Твоя машина ✔</button>';
+    else if(c.hp <= myCar().hp) btn = '<button class="btn" disabled>Слабее твоей</button>';
+    else if(S.money < price) btn = '<button class="btn" disabled>Не хватает 💰</button>';
+    else btn = '<button class="btn gold" onclick="buyCar(\'' + id + '\')">Купить</button>';
+    h += '<div class="card"><span class="em" style="background:' + c.col + '">' + c.em + '</span>' +
+      '<div class="inf"><div class="nm">' + c.name + '</div>' +
+      '<div class="hp">⚡ ' + c.hp + ' л.с.</div>' +
+      '<div class="car">Цена: ' + price + ' 💰</div></div>' + btn + '</div>';
+  }
+  $('tab-salon').innerHTML = h;
+}
+function chance(oppHp){
+  let p = myPower() / (myPower() + oppHp);
+  return Math.round(Math.max(0.05, Math.min(0.95, p)) * 100);
+}
+function renderRaces(){
+  let h = '';
+  OPPS.forEach((o, i) => {
+    const c = CARS[o.car];
+    h += '<div class="card' + (o.boss ? ' boss' : '') + '"><span class="em" style="background:' + c.col + '">' + c.em + '</span>' +
+      '<div class="inf"><div class="nm">' + (o.boss ? '👑 ' : '') + o.name + '</div>' +
+      '<div class="car">' + c.name + '</div>' +
+      '<div class="hp">⚡ ' + c.hp + ' л.с. • награда ' + (c.hp * 2) + ' 💰</div>' +
+      '<div class="chance">Твой шанс победы: ~' + chance(c.hp) + '%</div></div>' +
+      '<button class="btn" onclick="startRace(' + i + ')">Гонка</button></div>';
+  });
+  $('tab-races').innerHTML = h;
+}
+function showTab(t){
+  sClick();
+  ['garage','salon','races'].forEach(x => {
+    $('tab-' + x).classList.toggle('hidden', x !== t);
+    $('tabB-' + x).classList.toggle('on', x === t);
+  });
+}
+
+// ---------- Действия ----------
+function doTune(){
+  if(S.money < tunePrice()) return;
+  S.money -= tunePrice(); S.tune++; save(); render(); sBuy();
+}
+function buyCar(id){
+  const c = CARS[id];
+  if(S.money < PRICES[id] || c.hp <= myCar().hp || S.car === id) return;
+  S.money -= PRICES[id]; S.car = id; save(); render(); sBuy();
+  showTab('garage');
+}
+function doReset(){
+  S = { money:500, stars:0, car:'vaz2106', tune:0, wins:0, races:0 };
+  save(); render(); sClick();
+}
+
+// ---------- Гонка ----------
+let racing = false;
+function startRace(i){
+  if(racing) return;
+  racing = true;
+  const opp = OPPS[i], oc = CARS[opp.car];
+  const p = Math.max(0.05, Math.min(0.95, myPower() / (myPower() + oc.hp)));
+  const win = Math.random() < p;
+  const tW = 2.5 + Math.random() * 0.4;          // время победителя, сек
+  const tL = tW + 0.25 + Math.random() * 0.45;   // время проигравшего
+  const tMe = win ? tW : tL, tOpp = win ? tL : tW;
+  const phMe = Math.random() * 7, phOpp = Math.random() * 7;
+
+  $('main').classList.add('hidden');
+  $('race').classList.remove('hidden');
+  $('raceBtns').style.display = 'none';
+  $('raceTitle').textContent = 'Erik против ' + opp.name + '!';
+  $('lnMe').textContent = 'Erik • ' + myCar().name + ' (' + myPower() + ' л.с.)';
+  $('lnOpp').textContent = opp.name + ' • ' + oc.name + ' (' + oc.hp + ' л.с.)';
+  $('rcMe').textContent = myCar().em;
+  $('rcOpp').textContent = oc.em;
+  $('rcMe').style.left = '0px'; $('rcOpp').style.left = '0px';
+  $('raceMsg').textContent = 'Приготовься…';
+  window.scrollTo({ top:0, behavior:'smooth' });
+
+  const trackW = () => $('rcMe').parentElement.clientWidth - 78;
+  const pos = (t, T, ph) => {
+    if(t <= 0) return 0;
+    const b = Math.min(1, t / T);
+    const jit = 0.014 * Math.sin(t * 9 + ph) * b * (1 - b) * 4;
+    return Math.max(0, Math.min(1, Math.pow(b, 0.88) + jit));
+  };
+  const t0 = performance.now();
+  const CD = 800; // обратный отсчёт, мс
+  function frame(now){
+    const el = (now - t0) / 1000;
+    if(el < CD / 1000){
+      const n = 3 - Math.floor(el / (CD / 3000));
+      $('raceMsg').textContent = 'На старт… ' + Math.max(1, n);
+      requestAnimationFrame(frame); return;
+    }
+    if(el < CD / 1000 + 0.05 && $('raceMsg').textContent.indexOf('СТАРТ') < 0){
+      $('raceMsg').textContent = '💨 СТАРТ!'; sGo();
+    }
+    const t = el - CD / 1000, w = trackW();
+    $('rcMe').style.left  = (pos(t, tMe, phMe) * w) + 'px';
+    $('rcOpp').style.left = (pos(t, tOpp, phOpp) * w) + 'px';
+    $('rcMe').style.bottom  = (6 + Math.abs(Math.sin(t * 22)) * 2.5) + 'px';
+    $('rcOpp').style.bottom = (6 + Math.abs(Math.sin(t * 24 + 2)) * 2.5) + 'px';
+    if(t < Math.max(tMe, tOpp) + 0.15){ requestAnimationFrame(frame); return; }
+    // финиш
+    S.races++;
+    if(win){
+      const reward = oc.hp * 2;
+      S.money += reward; S.stars += 1; S.wins++;
+      $('raceMsg').innerHTML = '🏆 ПОБЕДА! +' + reward + ' 💰 и +1 ⭐';
+      sWin();
+    } else {
+      S.money += 30;
+      $('raceMsg').innerHTML = '😢 ' + opp.name + ' приходит к финишу раньше! Утешительные +30 💰';
+      sLose();
+    }
+    save(); render();
+    $('raceBtns').style.display = 'flex';
+    racing = false;
+  }
+  requestAnimationFrame(frame);
+}
+$('btnAgain').addEventListener('click', () => {
+  $('race').classList.add('hidden'); $('main').classList.remove('hidden'); showTab('races');
+});
+$('btnGarage2').addEventListener('click', () => {
+  $('race').classList.add('hidden'); $('main').classList.remove('hidden'); showTab('garage');
+});
+
+// ---------- Админка создателя ----------
+function toggleAdmin(){
+  $('adminPanel').classList.toggle('hidden');
+  if(!$('admCars').children.length){
+    for(const id in CARS){
+      const b = document.createElement('button');
+      b.className = 'btn'; b.textContent = CARS[id].em + ' ' + CARS[id].name;
+      b.onclick = () => admCar(id);
+      $('admCars').appendChild(b);
+    }
+  }
+}
+function admMoney(n){ S.money += n; save(); render(); }
+function admStars(){ S.stars += 10; save(); render(); }
+function admTune(){ S.tune += 5; save(); render(); }
+function admCar(id){ S.car = id; save(); render(); }
+
+// ---------- Секрет создателя: 5 нажатий на корону за 2,5 сек ----------
+let taps = 0, tapTimer = null;
+$('creatorTap').addEventListener('click', () => {
+  taps++;
+  clearTimeout(tapTimer); tapTimer = setTimeout(() => { taps = 0; }, 2500);
+  if(taps >= 5){
+    taps = 0;
+    S.car = 'gelik'; S.money += 50000; save(); render();
+    $('btnAdmin').classList.remove('hidden');
+    alert('👑 Режим создателя! Твой Гелик уже в гараже + 50 000 💰. В гараже появилась твоя админка — она только для тебя.');
+  }
+});
+
+render();
+// отладочный доступ для автотеста
+window.GS = { S:() => S, startRace:startRace, buyCar:buyCar, myPower:myPower };
+</script>
+</body>
+</html>
