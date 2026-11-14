@@ -89,7 +89,6 @@
       <div class="stat">🏠 Амбар: <span id="barnInfo">0/50</span></div>
       <div class="stat" id="seasonStat">🌱 Весна</div>
       <div class="stat" id="lindaStat" style="display:none">🐕 Линда на страже</div>
-      <a class="stat" href="admin.html" style="text-decoration:none;background:#f9a825;color:#3e2723;font-weight:800">👑 Админка монет</a>
     </div>
     <div class="xpbar"><i id="xpfill" style="width:0%"></i></div>
     <div class="weather" id="weatherBox">☁️ Погода…</div>
@@ -908,6 +907,17 @@ $("resetBtn").onclick = ()=>{
 // ---------- Тик ----------
 function tick(){
   const t = now();
+  // Монеты из админки: если админка выдала монеты в другой вкладке,
+  // открытая ферма каждую секунду перезаписывала сейв своими старыми
+  // монетами, и выдача пропадала. Подхватываем чужие монеты до сохранения.
+  try {
+    const ext = JSON.parse(localStorage.getItem(KEY));
+    if (ext && Number(ext.coins) > Number(S.coins || 0)) {
+      const diff = Number(ext.coins) - Number(S.coins || 0);
+      S.coins = Number(ext.coins);
+      setTimeout(()=>toast("\uD83D\uDC51 Монеты пришли! +" + diff.toLocaleString("ru-RU") + " \uD83E\uDE99"), 300);
+    }
+  } catch(e){}
   let dt = t - (S.lastTick || t);
   S.lastTick = t;
   if (dt > 1000 * 60 * 60 * 6) dt = 1000 * 60 * 60 * 6;
@@ -960,6 +970,19 @@ function tick(){
   save();
   render();
 }
+
+// Админка в другой вкладке выдала монеты — подхватить сразу, без обновления.
+window.addEventListener("storage", function(e){
+  if (e.key !== KEY || !e.newValue) return;
+  try {
+    const ext = JSON.parse(e.newValue);
+    if (ext && Number(ext.coins) > Number(S.coins || 0)) {
+      S.coins = Number(ext.coins);
+      save(); render();
+      toast("\uD83D\uDC51 Монеты пришли! \uD83E\uDE99");
+    }
+  } catch(err){}
+});
 
 // ---------- Старт ----------
 (function init(){
