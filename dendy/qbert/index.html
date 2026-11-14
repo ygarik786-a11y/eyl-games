@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="ru"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>🟠 Q*bert — E.Y.L Dendy</title>
+<link rel="stylesheet" href="../style.css">
+</head><body>
+<a class="back" href="../">← Коллекция Dendy</a> • <a class="back" href="../../">E.Y.L Games</a>
+<h1>🟠 Q*bert</h1>
+<div class="sub">Кьюберт прыгает по пирамиде и перекрашивает кубы! Остерегайся шариков и змеи Койли — и не прыгни мимо пирамиды.</div>
+<div class="hud" id="hud"></div>
+<canvas id="cv" width="480" height="320"></canvas>
+<div id="msg"></div>
+<div class="pad">
+  <div class="grp"><button id="btnL">↙️</button><button id="btnU">↖️</button><button id="btnR">↘️</button></div>
+  <div class="grp"><button id="btnA" class="act">↗️</button></div>
+</div>
+<div style="font-size:12.5px;color:#9ab;margin-top:6px">Кнопки со стрелками — прыжок по диагонали в ту сторону</div>
+<button class="big" id="restart">↻ Заново</button>
+<div class="hint">Клавиатура: стрелки работают как повёрнутый джойстик аркады: ↑ — ↖, → — ↗, ↓ — ↘, ← — ↙ (или клавиши Q, E, Z, C по углам)</div>
+<script>
+window.GAMECFG={ slug:'qbert', bg:'#101024', colors:['#38618c','#f2b234','#59c135'] };
+</script>
+<script src="../qbert.js"></script>
+</body></html>

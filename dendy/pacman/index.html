@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="ru"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>🟡 Pac-Man — E.Y.L Dendy</title>
+<link rel="stylesheet" href="../style.css">
+</head><body>
+<a class="back" href="../">← Коллекция Dendy</a> • <a class="back" href="../../">E.Y.L Games</a>
+<h1>🟡 Pac-Man</h1>
+<div class="sub">Легенда аркад! Ешь точки, хватай энерджайзеры и охоться на призраков сам. Блинки и компания уже выехали.</div>
+<div class="hud" id="hud"></div>
+<canvas id="cv" width="480" height="320"></canvas>
+<div id="msg"></div>
+<div class="pad">
+  <div class="grp"><button id="btnL">⬅️</button><button id="btnU">⬆️</button><button id="btnD">⬇️</button><button id="btnR">➡️</button></div>
+  <div class="grp"><button id="btnA" class="act">⏸</button></div>
+</div>
+<div style="font-size:12.5px;color:#9ab;margin-top:6px">Стрелки или кнопки — движение • ⏸ — пауза</div>
+<button class="big" id="restart">↻ Заново</button>
+<div class="hint">Клавиатура: стрелки — движение, P / пробел — пауза • Собери все точки и не попадись!</div>
+<script>
+window.GAMECFG={
+slug:'pacman',hero:'🟡',ghosts:['👻','👻','👻','👻'],fruit:'🍒',special:'maze',dotEmoji:'•',
+theme:{bg:'#050510',wall:'#2430a8',dot:'#ffd9a0',dirt:'#6d4c41'},
+levels:[
+[
+"########################",
+"#..........##..........#",
+"#.####.###.##.###.####.#",
+"#o####.###.##.###.####o#",
+"#......................#",
+"#.####.##.######.##.####",
+"#......##...##...##....#",
+"####.#.####..####.#.####",
+"####.#....GGGG....#.####",
+"#......##.######.##....#",
+"#.####.##.######.##.####",
+"#o...#......P.....#...o#",
+"####.#.##########.#.####",
+"#....#.....##.....#....#",
+"#..........##..........#",
+"########################"
+],
+[
+"########################",
+"#..........##..........#",
+"#....#.....##.....#....#",
+"####.#.##########.#.####",
+"#o...#.....P......#...o#",
+"####.##.######.##.####.#",
+"#....##.######.##......#",
+"####.#....GGGG....#.####",
+"####.#.####..####.#.####",
+"#....##...##...##......#",
+"####.##.######.##.####.#",
+"#......................#",
+"#o####.###.##.###.####o#",
+"#.####.###.##.###.####.#",
+"#..........##..........#",
+"########################"
+]
+]};
+</script>
+<script src="../maze.js"></script>
+</body></html>

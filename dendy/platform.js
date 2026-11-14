@@ -163,7 +163,16 @@ function draw(){
   proj.forEach(function(p){ctx.font='16px serif';ctx.textAlign='center';ctx.fillText(CFG.projEmoji||'⭐',p.x+6,p.y+12);});
   if(!(invuln>0&&(invuln>>2)%2===0)){
     ctx.font='27px serif';ctx.textAlign='center';
-    ctx.fillText(CFG.hero,player.x+12,player.y+24);
+    if(CFG.hero==='🦆'||CFG.hero==='🐿️'){
+      // эти эмодзи сами смотрят влево — разворачиваем по ходу движения
+      ctx.save();
+      ctx.translate(player.x+12,0);
+      ctx.scale(player.face>0?-1:1,1);
+      ctx.fillText(CFG.hero,0,player.y+24);
+      ctx.restore();
+    } else {
+      ctx.fillText(CFG.hero,player.x+12,player.y+24);
+    }
     if(superT>0){ctx.font='15px serif';ctx.fillText('✨',player.x+12,player.y-2);}
     if(carrying){ctx.font='20px serif';ctx.fillText('📦',player.x+12,player.y-16);}
   }
@@ -215,7 +224,7 @@ function doAct(){
   }
   if(CFG.special==='attack'||CFG.special==='shoot'){
     if(CFG.special==='shoot'){proj.push({x:player.x+player.w/2-6,y:player.y+8,w:12,h:12,vx:player.face*7});return;}
-    var zone={x:player.face>0?player.x+player.w:player.x-26,y:player.y,w:26,h:28};
+    var zone={x:player.face>0?player.x+player.w:player.x-36,y:player.y,w:36,h:28};
     enemies.forEach(function(en){if(!en.dead&&rectHit(zone,en)){en.dead=true;score+=30;setMsg('💥 Удар! +30');hud();}});
     return;
   }

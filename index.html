@@ -8,7 +8,7 @@
 <script>
 // Самообновление каталога: телефон Erik держал старую копию страницы
 // из кэша и не видел новые игры. Сверяемся с gversion.txt на сервере.
-var GAMES_VER = 8;
+var GAMES_VER = 10;
 fetch("gversion.txt?x=" + Date.now()).then(function(r){ return r.text(); }).then(function(t){
   var rv = parseInt(t, 10);
   if (rv && rv > GAMES_VER && sessionStorage.getItem("gamesUpd") !== String(rv)) {
@@ -59,7 +59,7 @@ fetch("gversion.txt?x=" + Date.now()).then(function(r){ return r.text(); }).then
 
   /* Карточки игр: чистые тёмные панели, иконка-плитка по центру обложки */
   .grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
-  @media (max-width:480px){ .grid { grid-template-columns:1fr; } }
+  @media (max-width:480px){ .grid { grid-template-columns:1fr 1fr; gap:12px; } .cover { height:118px; } .cover .main { width:76px; height:76px; font-size:44px; border-radius:22px; } .gbody { padding:12px 13px 13px; } .gbody h3 { font-size:15.5px; min-height:38px; } .gbody p { font-size:12.8px; min-height:60px; } .play { padding:10px; font-size:14px; } }
   .game { background:#101018; border:1px solid rgba(255,255,255,.08); border-radius:24px; overflow:hidden; text-decoration:none; color:inherit; display:flex; flex-direction:column; box-shadow:0 10px 28px rgba(0,0,0,.35); transition:transform .18s, border-color .18s, box-shadow .18s; animation:rise .55s both; }
   .game:hover { border-color:rgba(125,211,252,.45); transform:translateY(-3px); box-shadow:0 18px 40px rgba(0,0,0,.5); }
   .game:active { transform:scale(.985); }
@@ -69,20 +69,15 @@ fetch("gversion.txt?x=" + Date.now()).then(function(r){ return r.text(); }).then
   .game:nth-child(6){ animation-delay:.25s } .game:nth-child(7){ animation-delay:.3s }
   .game:nth-child(8){ animation-delay:.35s }
 
-  .cover { height:158px; position:relative; overflow:hidden; display:flex; align-items:center; justify-content:center; }
+  .cover { height:132px; position:relative; overflow:hidden; display:flex; align-items:center; justify-content:center; }
   .cover::before { content:""; position:absolute; inset:0; background:radial-gradient(420px 190px at 50% -20%, rgba(255,255,255,.28), transparent 65%), linear-gradient(180deg, transparent 55%, rgba(0,0,0,.28)); }
   .cover::after { content:""; position:absolute; inset:0; background:linear-gradient(115deg, transparent 32%, rgba(255,255,255,.16) 48%, transparent 60%); transform:translateX(-130%); }
   .game:hover .cover::after { transform:translateX(130%); transition:transform .8s ease; }
-  .cover .main { position:relative; z-index:1; width:102px; height:102px; border-radius:27px; display:flex; align-items:center; justify-content:center; font-size:58px;
+  .cover .main { position:relative; z-index:1; width:88px; height:88px; border-radius:24px; display:flex; align-items:center; justify-content:center; font-size:50px;
     background:linear-gradient(160deg, rgba(255,255,255,.30), rgba(255,255,255,.08));
     border:1px solid rgba(255,255,255,.35);
     box-shadow:0 16px 32px rgba(0,0,0,.40), inset 0 1px 0 rgba(255,255,255,.45);
     backdrop-filter:blur(3px); animation:floaty 4s ease-in-out infinite; }
-  .cover .sat { position:absolute; z-index:1; opacity:.55; filter:blur(.2px) drop-shadow(0 4px 8px rgba(0,0,0,.35)); }
-  .cover .s1 { left:11%; top:15%; font-size:24px; transform:rotate(-10deg); }
-  .cover .s2 { right:12%; top:20%; font-size:21px; transform:rotate(8deg); }
-  .cover .s3 { right:19%; bottom:12%; font-size:18px; }
-  .cover .s4 { left:19%; bottom:15%; font-size:16px; }
   .tag { position:absolute; left:10px; top:10px; z-index:2; background:rgba(5,5,12,.5); border:1px solid rgba(255,255,255,.18); color:#eeeef4; font-size:11px; font-weight:600; padding:4px 10px; border-radius:999px; backdrop-filter:blur(4px); }
   .new { position:absolute; top:10px; right:10px; z-index:2; background:linear-gradient(92deg,#56c8f5,#2f9be8); color:#fff; font-size:11px; font-weight:700; padding:4px 11px; border-radius:999px; letter-spacing:.8px; box-shadow:0 6px 16px rgba(47,155,232,.45); }
 
@@ -99,14 +94,12 @@ fetch("gversion.txt?x=" + Date.now()).then(function(r){ return r.text(); }).then
   .c-moto  { background:linear-gradient(150deg,#ef8f1f,#94406e 55%,#1d0f38); }
 
   .gbody { padding:15px 17px 17px; display:flex; flex-direction:column; gap:7px; flex:1; }
-  .gbody h3 { font-size:18px; font-weight:700; letter-spacing:-.2px; }
-  .gbody p { color:#a7a7ba; font-size:13.8px; line-height:1.55; flex:1; }
-  .meta { font-size:12.3px; color:#7c7c92; }
-  .play { margin-top:9px; background:linear-gradient(92deg,#37aee2,#2b7de0); color:#fff; font-weight:700; text-align:center; padding:12px; border-radius:14px; font-size:15.5px; letter-spacing:.2px; box-shadow:0 8px 20px rgba(43,125,224,.35); }
+  .gbody h3 { font-size:18px; font-weight:700; letter-spacing:-.2px; min-height:44px; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+  .gbody p { color:#a7a7ba; font-size:13.8px; line-height:1.55; flex:1; min-height:64px; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
+  .meta { font-size:12.3px; color:#7c7c92; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .play { margin-top:auto; background:linear-gradient(92deg,#37aee2,#2b7de0); color:#fff; font-weight:700; text-align:center; padding:12px; border-radius:14px; font-size:15.5px; letter-spacing:.2px; box-shadow:0 8px 20px rgba(43,125,224,.35); }
 
   .featured { margin-bottom:2px; }
-  .featured .cover { height:186px; }
-  .featured .cover .main { width:124px; height:124px; border-radius:32px; font-size:70px; }
   .featured .gbody h3 { font-size:20px; }
 
   footer { text-align:center; color:#71718a; font-size:13.5px; margin-top:38px; line-height:1.7; }
@@ -122,7 +115,7 @@ fetch("gversion.txt?x=" + Date.now()).then(function(r){ return r.text(); }).then
     <h1><span class="gold">E.Y.L</span> GAMES</h1>
     <p class="sub">Игровая империя президента <b>Erik Lebed</b> 🎮<br>Бесплатные игры прямо в браузере — без скачивания и регистрации.<br>Открыл — и играешь. Прогресс сохраняется в телефоне.</p>
     <div class="chips">
-      <span class="chip gold">👑 41 игра</span>
+      <span class="chip gold">👑 88 игр</span>
       <span class="chip">💸 Полностью бесплатно</span>
       <span class="chip">📱 С телефона и компьютера</span>
     </div>
@@ -132,7 +125,6 @@ fetch("gversion.txt?x=" + Date.now()).then(function(r){ return r.text(); }).then
   <a class="game featured" href="farm/">
     <div class="cover c-farm">
       <span class="tag">Ферма • хозяйство</span><span class="new">ОБНОВЛЕНО</span>
-      <span class="sat s1">🌻</span><span class="sat s2">🐄</span><span class="sat s3">🥕</span><span class="sat s4">🐝</span>
       <span class="main">🚜</span>
     </div>
     <div class="gbody">
@@ -148,7 +140,6 @@ fetch("gversion.txt?x=" + Date.now()).then(function(r){ return r.text(); }).then
     <a class="game" href="pet/">
       <div class="cover c-pet">
         <span class="tag">Питомец • как Pou</span><span class="new">НОВОЕ</span>
-        <span class="sat s1">🍔</span><span class="sat s2">🚿</span><span class="sat s3">🛏️</span><span class="sat s4">👑</span>
         <span class="main">🐾</span>
       </div>
       <div class="gbody">
@@ -161,7 +152,6 @@ fetch("gversion.txt?x=" + Date.now()).then(function(r){ return r.text(); }).then
     <a class="game" href="motocross/">
       <div class="cover c-moto">
         <span class="tag">Мотокросс • как на Денди</span><span class="new">НОВОЕ</span>
-        <span class="sat s1">🕊️</span><span class="sat s2">⛽</span><span class="sat s3">🟤</span><span class="sat s4">🏁</span>
         <span class="main">🏍️</span>
       </div>
       <div class="gbody">
@@ -174,7 +164,6 @@ fetch("gversion.txt?x=" + Date.now()).then(function(r){ return r.text(); }).then
     <a class="game" href="neonrace/">
       <div class="cover c-neonrace">
         <span class="tag">Гонки • неон и скорость</span>
-        <span class="sat s1">🌆</span><span class="sat s2">🔥</span><span class="sat s3">💨</span><span class="sat s4">🏁</span>
         <span class="main">🏎️</span>
       </div>
       <div class="gbody">
@@ -187,7 +176,6 @@ fetch("gversion.txt?x=" + Date.now()).then(function(r){ return r.text(); }).then
     <a class="game" href="mario/">
       <div class="cover c-mario">
         <span class="tag">Платформер • как на Денди</span>
-        <span class="sat s1">🪙</span><span class="sat s2">⭐</span><span class="sat s3">🧱</span><span class="sat s4">🍄</span>
         <span class="main">🏃</span>
       </div>
       <div class="gbody">
@@ -200,7 +188,6 @@ fetch("gversion.txt?x=" + Date.now()).then(function(r){ return r.text(); }).then
     <a class="game" href="kombat/?u=2">
       <div class="cover c-kombat">
         <span class="tag">Файтинг • как Мортал Комбат</span><span class="new">ОБНОВЛЕНО</span>
-        <span class="sat s1">🥊</span><span class="sat s2">💥</span><span class="sat s3">🔥</span><span class="sat s4">⚡</span>
         <span class="main">👊</span>
       </div>
       <div class="gbody">
@@ -213,7 +200,6 @@ fetch("gversion.txt?x=" + Date.now()).then(function(r){ return r.text(); }).then
     <a class="game" href="gonki/">
       <div class="cover c-gonki">
         <span class="tag">Гонки • скорость</span>
-        <span class="sat s1">🏁</span><span class="sat s2">🚥</span><span class="sat s3">🔥</span><span class="sat s4">💨</span>
         <span class="main">🏎️</span>
       </div>
       <div class="gbody">
@@ -226,7 +212,6 @@ fetch("gversion.txt?x=" + Date.now()).then(function(r){ return r.text(); }).then
     <a class="game" href="snake/">
       <div class="cover c-snake">
         <span class="tag">Классика • на рекорд</span>
-        <span class="sat s1">🍎</span><span class="sat s2">🍏</span><span class="sat s3">⭐</span><span class="sat s4">🌿</span>
         <span class="main">🐍</span>
       </div>
       <div class="gbody">
@@ -239,7 +224,6 @@ fetch("gversion.txt?x=" + Date.now()).then(function(r){ return r.text(); }).then
     <a class="game" href="tetris/">
       <div class="cover c-tetris">
         <span class="tag">Классика • на рекорд</span>
-        <span class="sat s1">🟪</span><span class="sat s2">🟦</span><span class="sat s3">🟨</span><span class="sat s4">🟩</span>
         <span class="main">🧱</span>
       </div>
       <div class="gbody">
@@ -252,7 +236,6 @@ fetch("gversion.txt?x=" + Date.now()).then(function(r){ return r.text(); }).then
     <a class="game" href="tir/">
       <div class="cover c-tir">
         <span class="tag">Стрелялка • волны бандитов</span><span class="new">НОВОЕ</span>
-        <span class="sat s1">🎯</span><span class="sat s2">💥</span><span class="sat s3">⭐</span><span class="sat s4">❤️</span>
         <span class="main">🔫</span>
       </div>
       <div class="gbody">
@@ -265,7 +248,6 @@ fetch("gversion.txt?x=" + Date.now()).then(function(r){ return r.text(); }).then
     <a class="game" href="arkanoid/">
       <div class="cover c-arkanoid">
         <span class="tag">Классика • кирпичи и бонусы</span><span class="new">НОВОЕ</span>
-        <span class="sat s1">🏓</span><span class="sat s2">💊</span><span class="sat s3">❤️</span><span class="sat s4">⭐</span>
         <span class="main">🧱</span>
       </div>
       <div class="gbody">
@@ -277,26 +259,24 @@ fetch("gversion.txt?x=" + Date.now()).then(function(r){ return r.text(); }).then
     </a>
   </div>
 
-  <h2 class="sec">📺 Коллекция Dendy</h2>
-  <a class="game featured" href="dendy/">
+  <h2 class="sec">📺 Коллекции</h2>
+  <div class="grid">
+  <a class="game" href="dendy/">
     <div class="cover" style="background:linear-gradient(150deg,#c73e54,#571b85 60%,#0d0624)">
       <span class="tag">Ретро • 8 бит</span><span class="new">НОВОЕ</span>
-      <span class="sat s1">🐿️</span><span class="sat s2">🦆</span><span class="sat s3">👻</span><span class="sat s4">⭐</span>
       <span class="main">📺</span>
     </div>
     <div class="gbody">
       <h3>📺 Коллекция Dendy</h3>
-      <p>Легенды Денди в лёгких эмодзи-версиях: Chip 'n Dale 1–2 с метанием ящиков, DuckTales 1–2 с пого-тростью Скруджа, Adventure Island с топорами — уже 5 игр, а всего будет 52! У каждой свой герой, враги и уровни.</p>
-      <div class="meta">🐿️ Бурундуки • 🦆 Скрудж • 🏝️ Остров • 🎮 Будет 52 игры</div>
+      <p>Легенды Денди в лёгких эмодзи-версиях: Chip 'n Dale 1–2, DuckTales 1–2, Adventure Island 1–3, Pac-Man, Lolo 1–3, Dr. Mario, Punch-Out, Lode Runner и ещё много классики — все 52 игры уже на месте! У каждой свой герой, враги и уровни.</p>
+      <div class="meta">🐿️ Бурундуки • 🦆 Скрудж • 🔵 Lolo • 💊 Dr. Mario • 🎮 52 игры</div>
       <div class="play">Играть →</div>
     </div>
   </a>
 
-  <h2 class="sec">🕹️ Ретро-приставка</h2>
-  <a class="game featured" href="brick/">
+  <a class="game" href="brick/">
     <div class="cover" style="background:linear-gradient(150deg,#9fb3bd,#546e7a 60%,#1d262b)">
       <span class="tag">Приставка • как в детстве</span><span class="new">НОВОЕ</span>
-      <span class="sat s1">🧱</span><span class="sat s2">🚀</span><span class="sat s3">🏎️</span><span class="sat s4">🔨</span>
       <span class="main">🕹️</span>
     </div>
     <div class="gbody">
@@ -306,13 +286,13 @@ fetch("gversion.txt?x=" + Date.now()).then(function(r){ return r.text(); }).then
       <div class="play">Играть →</div>
     </div>
   </a>
+  </div>
 
   <h2 class="sec">🧠 Мини-игры • Emoji Arcade</h2>
   <div class="grid">
     <a class="game" href="memory/">
       <div class="cover" style="background:linear-gradient(150deg,#1d9e8f,#065548 60%,#02231e)">
         <span class="tag">Мини-игра • память</span><span class="new">НОВОЕ</span>
-        <span class="sat s1">🍓</span><span class="sat s2">🦊</span><span class="sat s3">🍋</span><span class="sat s4">🐼</span>
         <span class="main">🧠</span>
       </div>
       <div class="gbody">
@@ -325,7 +305,6 @@ fetch("gversion.txt?x=" + Date.now()).then(function(r){ return r.text(); }).then
     <a class="game" href="coinflip/">
       <div class="cover" style="background:linear-gradient(150deg,#e8b93e,#b45f00 60%,#4d2700)">
         <span class="tag">Мини-игра • удача</span><span class="new">НОВОЕ</span>
-        <span class="sat s1">🦅</span><span class="sat s2">👑</span><span class="sat s3">🍀</span><span class="sat s4">🎲</span>
         <span class="main">🪙</span>
       </div>
       <div class="gbody">

@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="ru"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>🎈 Balloon Fight — E.Y.L Dendy</title>
+<link rel="stylesheet" href="../style.css">
+</head><body>
+<a class="back" href="../">← Коллекция Dendy</a> • <a class="back" href="../../">E.Y.L Games</a>
+<h1>🎈 Balloon Fight</h1>
+<div class="sub">Летай на шариках и лопай шарики птиц сверху! Сбитая птица спускается на парашюте — добей её, пока она не надула новый шарик. В воду не падай: там рыба.</div>
+<div class="hud" id="hud"></div>
+<canvas id="cv" width="480" height="320"></canvas>
+<div id="msg"></div>
+<div class="pad">
+  <div class="grp"><button id="btnL">⬅️</button><button id="btnR">➡️</button></div>
+  <div class="grp"><button id="btnA" class="act">🎈</button><button id="btnJ">🎈</button></div>
+</div>
+<div style="font-size:12.5px;color:#9ab;margin-top:6px">🎈 — махать (держи или жми часто) • ⬅️➡️ — лететь вбок • Края экрана соединены!</div>
+<button class="big" id="restart">↻ Заново</button>
+<div class="hint">Клавиатура: стрелки — движение, пробел / Z / X — махать • Заходи на птицу строго сверху, иначе лопнет твой шарик!</div>
+<script>
+window.GAMECFG={ slug:'balloon', levels:[{birds:3},{birds:4},{birds:5}] };
+</script>
+<script src="../balloon.js"></script>
+</body></html>

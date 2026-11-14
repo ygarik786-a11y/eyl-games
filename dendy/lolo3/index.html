@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="ru"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>🔵 Adventures of Lolo 3 — E.Y.L Dendy</title>
+<link rel="stylesheet" href="../style.css">
+</head><body>
+<a class="back" href="../">← Коллекция Dendy</a> • <a class="back" href="../../">E.Y.L Games</a>
+<h1>🔵 Adventures of Lolo 3</h1>
+<div class="sub">Финал трилогии! Медузы, призраки-патрули и самые хитрые комнаты замка. Лала ждёт, Лоло!</div>
+<div class="hud" id="hud"></div>
+<canvas id="cv" width="480" height="320"></canvas>
+<div id="msg"></div>
+<div class="pad">
+  <div class="grp"><button id="btnL">⬅️</button><button id="btnU">⬆️</button><button id="btnD">⬇️</button><button id="btnR">➡️</button></div>
+</div>
+<div style="font-size:12.5px;color:#9ab;margin-top:6px">Стрелки — шаг • Зелёные блоки можно толкать</div>
+<button class="big" id="restart">↻ Заново</button>
+<div class="hint">Клавиатура: стрелки — движение • Собери все сердечки, сундук откроется сам — и беги в дверь! 👻 Призраки патрулируют комнаты — пережди или обойди!</div>
+<script>
+window.GAMECFG={
+slug:'lolo3',hero:'🔵',medusa:true,patrol:true,
+theme:{bg:'#30101a',wall:'#8a2f4a',floor:'#42101f'},
+rooms:[
+[
+"###########",
+"#.......H.#",
+"#....M....#",
+"#..B...B..#",
+"#....C....#",
+"#.........#",
+"#..H.G.H..#",
+"#....S....#",
+"#...X.....#",
+"#P........#",
+"###########"
+],
+[
+"###########",
+"#....M....#",
+"#H.G.....H#",
+"#.##.B.##.#",
+"#....C....#",
+"#P.B.S.B.X#",
+"#....G....#",
+"#.##...##.#",
+"#..H...H..#",
+"#....M....#",
+"###########"
+],
+[
+"###########",
+"#M...G...M#",
+"#..H...H..#",
+"#..##.##..#",
+"#P.B.C.X.B#",
+"#..##.##..#",
+"#..H.S.H..#",
+"#..B.G.B..#",
+"#....H....#",
+"#.........#",
+"###########"
+],
+[
+"###########",
+"#M..H.....#",
+"#....#....#",
+"#..B.G.B..#",
+"#....#....#",
+"#P.H.CH.X.#",
+"#.........#",
+"#..B.S....#",
+"#....#....#",
+"#.H...H..M#",
+"###########"
+]
+]};
+</script>
+<script src="../lolo.js"></script>
+</body></html>

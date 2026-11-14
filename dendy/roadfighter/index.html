@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="ru"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>🚗 Road Fighter — E.Y.L Dendy</title>
+<link rel="stylesheet" href="../style.css">
+</head><body>
+<a class="back" href="../">← Коллекция Dendy</a> • <a class="back" href="../../">E.Y.L Games</a>
+<h1>🚗 Road Fighter</h1>
+<div class="sub">Гонка по шоссе! Обгоняй машины, лови канистры с бензином и не разбейся. Классика Konami в эмодзи.</div>
+<div class="hud" id="hud"></div>
+<canvas id="cv" width="480" height="320"></canvas>
+<div id="msg"></div>
+<div class="pad">
+  <div class="grp"><button id="btnL">⬅️</button><button id="btnU">⬆️</button><button id="btnR">➡️</button></div>
+  <div class="grp"><button id="btnA" class="act">⛽</button><button id="btnJ">🛑</button></div>
+</div>
+<div style="font-size:12.5px;color:#9ab;margin-top:6px">⬆️ или ⛽ — газ (держи) • 🛑 — тормоз • ⬅️➡️ — руль</div>
+<button class="big" id="restart">↻ Заново</button>
+<div class="hint">Клавиатура: стрелки — руль, газ и тормоз • Не врезайся в машины и доезжай до финиша этапа!</div>
+<script>
+window.GAMECFG={
+slug:'roadfighter',hero:'🚗',rivals:['🚙','🚚','🚕'],pickup:'⛽',
+theme:{bg:'#2e7d32',road:'#424242',edge:'#f5f5f5',line:'#ffd54f'},
+stages:[{dist:2600,traffic:0.4,rmax:1.3},{dist:3400,traffic:0.6,rmax:1.6},{dist:4200,traffic:0.8,rmax:1.9}]
+};
+</script>
+<script src="../race.js"></script>
+</body></html>

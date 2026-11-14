@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="ru"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>🔵 Adventures of Lolo 2 — E.Y.L Dendy</title>
+<link rel="stylesheet" href="../style.css">
+</head><body>
+<a class="back" href="../">← Коллекция Dendy</a> • <a class="back" href="../../">E.Y.L Games</a>
+<h1>🔵 Adventures of Lolo 2</h1>
+<div class="sub">Лоло вернулся! Теперь в замке Медузы: их взгляд смертелен на открытой линии — прячься за стены и блоки.</div>
+<div class="hud" id="hud"></div>
+<canvas id="cv" width="480" height="320"></canvas>
+<div id="msg"></div>
+<div class="pad">
+  <div class="grp"><button id="btnL">⬅️</button><button id="btnU">⬆️</button><button id="btnD">⬇️</button><button id="btnR">➡️</button></div>
+</div>
+<div style="font-size:12.5px;color:#9ab;margin-top:6px">Стрелки — шаг • Зелёные блоки можно толкать</div>
+<button class="big" id="restart">↻ Заново</button>
+<div class="hint">Клавиатура: стрелки — движение • Собери все сердечки, сундук откроется сам — и беги в дверь! 👁️ Медуза убивает взглядом по прямой — не стой с ней на одной линии без укрытия!</div>
+<script>
+window.GAMECFG={
+slug:'lolo2',hero:'🔵',medusa:true,patrol:false,
+theme:{bg:'#1d1030',wall:'#5b2f8a',floor:'#221242'},
+rooms:[
+[
+"###########",
+"#.......H.#",
+"#....M....#",
+"#..B...B..#",
+"#....C....#",
+"#.........#",
+"#..H...H..#",
+"#P........#",
+"#....X....#",
+"#.........#",
+"###########"
+],
+[
+"###########",
+"#....M....#",
+"#H.......H#",
+"#.##.B.##.#",
+"#....C....#",
+"#P.B...B.X#",
+"#....S....#",
+"#.##...##.#",
+"#..H...H..#",
+"#.M.......#",
+"###########"
+],
+[
+"###########",
+"#M.......M#",
+"#..H...H..#",
+"#..##.##..#",
+"#P.B.C.X.B#",
+"#..##.##..#",
+"#..H.S.H..#",
+"#..B...B..#",
+"#....H....#",
+"#.........#",
+"###########"
+],
+[
+"###########",
+"#M..H.....#",
+"#.........#",
+"#..B......#",
+"#.........#",
+"#P.H.C.H.X#",
+"#.........#",
+"#..B...B.H#",
+"#....M....#",
+"#.........#",
+"###########"
+]
+]};
+</script>
+<script src="../lolo.js"></script>
+</body></html>
