@@ -8,7 +8,7 @@
 <script>
 // Самообновление каталога: телефон Erik держал старую копию страницы
 // из кэша и не видел новые игры. Сверяемся с gversion.txt на сервере.
-var GAMES_VER = 6;
+var GAMES_VER = 7;
 fetch("gversion.txt?x=" + Date.now()).then(function(r){ return r.text(); }).then(function(t){
   var rv = parseInt(t, 10);
   if (rv && rv > GAMES_VER && sessionStorage.getItem("gamesUpd") !== String(rv)) {
@@ -133,7 +133,7 @@ fetch("gversion.txt?x=" + Date.now()).then(function(r){ return r.text(); }).then
     <h1><span class="gold">E.Y.L</span> GAMES</h1>
     <p class="sub">Игровая империя президента <b>Erik Lebed</b> 🎮<br>Бесплатные игры прямо в браузере — без скачивания и регистрации.<br>Открыл — и играешь. Прогресс сохраняется в телефоне.</p>
     <div class="chips">
-      <span class="chip gold">👑 14 игр</span>
+      <span class="chip gold">👑 38 игр</span>
       <span class="chip">💸 Полностью бесплатно</span>
       <span class="chip">📱 С телефона и компьютера</span>
     </div>
@@ -287,6 +287,21 @@ fetch("gversion.txt?x=" + Date.now()).then(function(r){ return r.text(); }).then
       </div>
     </a>
   </div>
+
+  <h2 class="sec">📺 Коллекция Dendy</h2>
+  <a class="game featured" href="dendy/">
+    <div class="cover" style="background:linear-gradient(150deg,#ef5350,#6a1b9a 60%,#1a0b33)">
+      <span class="tag">Ретро • 8 бит</span><span class="new">НОВОЕ</span>
+      <span class="sat s1">🐿️</span><span class="sat s2">🦆</span><span class="sat s3">👻</span><span class="sat s4">⭐</span>
+      <span class="main">📺</span>
+    </div>
+    <div class="gbody">
+      <h3>📺 Коллекция Dendy</h3>
+      <p>Легенды Денди в лёгких эмодзи-версиях: Chip 'n Dale с метанием ящиков, DuckTales с пого-тростью Скруджа — и это только начало, всего будет 52 игры! У каждой свой герой, враги и уровни.</p>
+      <div class="meta">🐿️ Бурундуки • 🦆 Скрудж • 🎮 Будет 52 игры</div>
+      <div class="play">Играть →</div>
+    </div>
+  </a>
 
   <h2 class="sec">🕹️ Ретро-приставка</h2>
   <a class="game featured" href="brick/">

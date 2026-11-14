@@ -1,0 +1,17 @@
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{background:linear-gradient(180deg,#141432,#1d2b53);color:#fff;font-family:Verdana,sans-serif;min-height:100vh;text-align:center;padding:12px 8px 22px}
+a.back{color:#aef;font-size:14px;text-decoration:none}
+h1{font-size:23px;color:#ffd23f;text-shadow:2px 2px 0 #b8860b;margin:8px 0 2px}
+.sub{color:#c9c9da;font-size:13.5px;margin-bottom:6px}
+.hud{font-size:16px;margin:6px 0}.hud b{color:#ffd23f}
+canvas{background:#87ceeb;border:3px solid #ffd23f;border-radius:12px;max-width:96vw;height:auto;touch-action:none}
+#msg{font-size:16.5px;min-height:24px;margin:8px 0;color:#ffd23f}
+.pad{display:flex;justify-content:space-between;max-width:480px;margin:8px auto 0;gap:8px}
+.pad .grp{display:flex;gap:8px}
+.pad button{width:62px;height:58px;border:0;border-radius:14px;background:#ffd23f;color:#1a1a2e;font-size:23px;font-weight:bold;cursor:pointer;box-shadow:0 4px 0 #b8860b;touch-action:none;user-select:none;-webkit-user-select:none}
+.pad button:active{transform:translateY(3px);box-shadow:0 1px 0 #b8860b}
+.pad button.act{background:#ef5350;color:#fff;box-shadow:0 4px 0 #7f0000}
+.pad button.act:active{box-shadow:0 1px 0 #7f0000}
+button.big{background:#ffd23f;color:#1a1a2e;border:0;border-radius:12px;padding:12px 24px;font-size:17px;font-weight:bold;cursor:pointer;box-shadow:0 4px 0 #b8860b;margin-top:6px}
+button.big:active{transform:translateY(3px);box-shadow:0 1px 0 #b8860b}
+.hint{color:#89a;font-size:12px;margin-top:12px}
