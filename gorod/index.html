@@ -50,9 +50,7 @@ input{font-family:inherit}
 #giftBtn:disabled{background:#5a6a8a;color:#c8d2e8}
 #scene{position:relative;height:252px;flex:none;overflow:hidden;transition:background .4s}
 #scenePersons{position:absolute;inset:0;z-index:6}
-#questBubble{position:absolute;top:8px;left:50%;transform:translateX(-50%);width:min(430px,94%);background:#fff3a6;color:#4a3200;border-radius:14px;padding:8px 12px;font-size:13px;box-shadow:0 4px 12px rgba(0,0,0,.3);z-index:5;border:2px solid #ffd94d}
-#questBubble b{color:#8a5a00}
-#questBubble .qp{font-weight:800;color:#b3001b}
+#questBtn{background:#fff3a6;color:#4a3200;font-weight:800;font-size:13px;padding:6px 12px;border-radius:999px;border:2px solid #ffd94d;box-shadow:0 1px 3px rgba(20,69,107,.2)}
 .deco{position:absolute;pointer-events:none;line-height:1}
 .person{position:absolute;bottom:26px;transform:translateX(-50%);text-align:center;z-index:3;transition:left .55s ease}
 .person .av{line-height:.95;filter:drop-shadow(0 3px 3px rgba(0,0,0,.35))}
@@ -148,10 +146,10 @@ input{font-family:inherit}
     <span class="pill">ур. <b id="tbLvl">1</b></span>
     <span class="pill">💰 <b id="tbCred">0</b></span>
     <span class="pill">⭐ <b id="tbRep">0</b></span>
+    <button id="questBtn">📋 Задание</button>
     <button id="giftBtn">🎁 Подарок дня</button>
   </div>
   <div id="scene">
-    <div id="questBubble"></div>
     <div id="sceneInner"></div>
   </div>
   <div id="actions"></div>
@@ -350,10 +348,11 @@ function renderScene(){var L=LOCS[S.loc];var sc=$('scene');sc.style.background=L
  Array.prototype.forEach.call(document.querySelectorAll('.slot'),function(el){
    el.addEventListener('click',function(){placeAt(parseInt(el.getAttribute('data-slot'),10));});});
  renderQuest();}
-function renderQuest(){var qb=$('questBubble');
- if(S.quest>=QUESTS.length){qb.innerHTML='💛 <b>Город твой!</b> Все задания выполнены. Живи, общайся, зови вечеринки!';return;}
- var q=QUESTS[S.quest];var prog=q.prog?(' <span class="qp">'+Math.min(q.prog(S),q.need)+'/'+q.need+'</span>'):'';
- qb.innerHTML='📋 <b>Задание — '+esc(q.npc)+':</b> '+esc(q.text)+prog+' <span class="qp">+'+q.reward+'💰</span>';}
+function renderQuest(){var qb=$('questBtn');if(!qb)return;
+ qb.textContent=(S.quest>=QUESTS.length)?'📋 Город твой 💛':'📋 Задание';}
+function showQuest(){if(S.quest>=QUESTS.length){openModal('<h3>📋 Задания</h3><p style="font-size:15px;line-height:1.45">💛 Все задания выполнены — город твой! Живи, общайся, зови вечеринки!</p>');return;}
+ var q=QUESTS[S.quest];var prog=q.prog?('<p style="font-size:15px">Прогресс: <b>'+Math.min(q.prog(S),q.need)+'/'+q.need+'</b></p>'):'';
+ openModal('<h3>📋 Задание — '+esc(q.npc)+'</h3><p style="font-size:15px;line-height:1.45">'+esc(q.text)+'</p>'+prog+'<p style="font-size:15px">Награда: <b>+'+q.reward+'💰 +20⭐</b></p>');}
 function renderActions(){var a=$('actions');var btns='';
  btns+='<button id="mvL">◀</button>';
  if(S.loc==='mall')btns+='<button data-a="looks">👗 Образы</button><button data-a="fur">🪑 Мебель</button><button data-a="pets">🐾 Питомцы</button>';
@@ -409,12 +408,13 @@ function doClean(){var m=S.mess||0;if(m<=0){sysChat('Дома и так чист
  sysChat('Ты убрался! Дома чисто и уютно ✨ +5⭐');
  chatMsg('Мита','вот теперь красота, зай 💛');}
 /* ================= ЗАДАНИЯ ================= */
-function checkQuest(){var changed=true;
+function checkQuest(){var qBefore=S.quest;var changed=true;
  while(changed&&S.quest<QUESTS.length){changed=false;var q=QUESTS[S.quest];
   var done=q.prog?(q.prog(S)>=q.need):q.test(S);
   if(done){S.credits+=q.reward;S.rep+=20;S.quest++;
    if(S.quest===2)S.fishQuest=0; if(S.quest===3)S.mushQuest=0;
    sysChat('Задание выполнено! +'+q.reward+'💰 +20⭐');changed=true;}}
+ if(S.quest>qBefore&&S.quest<QUESTS.length){var nq=QUESTS[S.quest];chatMsg(nq.npc,nq.text);}
  save();renderTop();renderQuest();}
 /* ================= МАГАЗИНЫ ================= */
 function openModal(html){$('modal').innerHTML='<button class="x" id="mX">✕</button>'+html;$('modalWrap').style.display='flex';
@@ -518,6 +518,7 @@ $('playBtn').addEventListener('click',function(){
 $('contBtn').addEventListener('click',function(){var s=load();if(s){S=s;enterGame();}});
 $('resetBtn').addEventListener('click',function(){if(!newArm){newArm=true;$('resetBtn').textContent='точно сбросить всё? нажми ещё раз';return;}
  try{localStorage.removeItem(KEY);}catch(e){}location.reload();});
+$('questBtn').addEventListener('click',showQuest);
 $('giftBtn').addEventListener('click',function(){var today=new Date().toDateString();
  if(S.giftDate===today){sysChat('Подарок дня уже получен 🎁 Приходи завтра!');return;}
  S.giftDate=today;S.credits+=30;save();renderTop();sysChat('Подарок дня: +30💰 🎁');});
