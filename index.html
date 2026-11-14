@@ -8,7 +8,7 @@
 <script>
 // Самообновление каталога: телефон Erik держал старую копию страницы
 // из кэша и не видел новые игры. Сверяемся с gversion.txt на сервере.
-var GAMES_VER = 4;
+var GAMES_VER = 5;
 fetch("gversion.txt?x=" + Date.now()).then(function(r){ return r.text(); }).then(function(t){
   var rv = parseInt(t, 10);
   if (rv && rv > GAMES_VER && sessionStorage.getItem("gamesUpd") !== String(rv)) {
@@ -133,7 +133,7 @@ fetch("gversion.txt?x=" + Date.now()).then(function(r){ return r.text(); }).then
     <h1><span class="gold">E.Y.L</span> GAMES</h1>
     <p class="sub">Игровая империя президента <b>Erik Lebed</b> 🎮<br>Бесплатные игры прямо в браузере — без скачивания и регистрации.<br>Открыл — и играешь. Прогресс сохраняется в телефоне.</p>
     <div class="chips">
-      <span class="chip gold">👑 11 игр</span>
+      <span class="chip gold">👑 13 игр</span>
       <span class="chip">💸 Полностью бесплатно</span>
       <span class="chip">📱 С телефона и компьютера</span>
     </div>
@@ -283,6 +283,36 @@ fetch("gversion.txt?x=" + Date.now()).then(function(r){ return r.text(); }).then
         <h3>🧱 Арканоид E.Y.L</h3>
         <p>Вечная классика: отбивай мяч, разбивай кирпичи, лови бонусы — широкая платформа, замедление и лишние жизни. Уровни всё быстрее!</p>
         <div class="meta">🎁 Бонусы • 🚀 Уровни • 🏆 Рекорд</div>
+        <div class="play">Играть →</div>
+      </div>
+    </a>
+  </div>
+
+  <h2 class="sec">🧠 Мини-игры • Emoji Arcade</h2>
+  <div class="grid">
+    <a class="game" href="memory/">
+      <div class="cover" style="background:linear-gradient(150deg,#26a69a,#00695c 60%,#00352e)">
+        <span class="tag">Мини-игра • память</span><span class="new">НОВОЕ</span>
+        <span class="sat s1">🍓</span><span class="sat s2">🦊</span><span class="sat s3">🍋</span><span class="sat s4">🐼</span>
+        <span class="main">🧠</span>
+      </div>
+      <div class="gbody">
+        <h3>🧠 Emoji Memory</h3>
+        <p>Карточки с эмодзи рубашкой вверх: переворачивай и ищи одинаковые пары! Три сложности — 6, 8 и 12 пар, счётчик ходов, таймер и рекорды каждого уровня.</p>
+        <div class="meta">🃏 Пары • ⏱️ Таймер • 🏆 Рекорды</div>
+        <div class="play">Играть →</div>
+      </div>
+    </a>
+    <a class="game" href="coinflip/">
+      <div class="cover" style="background:linear-gradient(150deg,#ffd54f,#ff8f00 60%,#7a3b00)">
+        <span class="tag">Мини-игра • удача</span><span class="new">НОВОЕ</span>
+        <span class="sat s1">🦅</span><span class="sat s2">👑</span><span class="sat s3">🍀</span><span class="sat s4">🎲</span>
+        <span class="main">🪙</span>
+      </div>
+      <div class="gbody">
+        <h3>🪙 Орёл или решка</h3>
+        <p>Выбирай сторону — 🦅 орёл или 👑 решка — и подбрасывай большую золотую монету! Победы, поражения, серии удачи и история последних бросков.</p>
+        <div class="meta">🪙 Монета • 🔥 Серии побед • 📜 История</div>
         <div class="play">Играть →</div>
       </div>
     </a>

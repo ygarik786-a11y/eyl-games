@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="ru"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>🧠 Emoji Memory — E.Y.L Games</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{background:linear-gradient(180deg,#141432,#1d2b53);color:#fff;font-family:Verdana,sans-serif;min-height:100vh;text-align:center;padding:14px 10px 24px}
+a.back{color:#aef;font-size:14px;text-decoration:none}
+h1{font-size:27px;color:#ffd23f;text-shadow:2px 2px 0 #b8860b;margin:10px 0 4px}
+.stats{font-size:16px;margin:8px 0 4px}.stats b{color:#ffd23f}
+.diff{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:10px 0 4px}
+.diff button{background:#2a2a55;color:#cfd8ff;border:2px solid #4a4a8a;border-radius:12px;padding:10px 14px;font-size:15px;font-weight:bold;cursor:pointer}
+.diff button.on{background:#ffd23f;color:#1a1a2e;border-color:#ffd23f;box-shadow:0 4px 0 #b8860b}
+#msg{font-size:17px;min-height:25px;margin:8px 0;color:#ffd23f}
+.grid{display:grid;gap:8px;justify-content:center;margin:6px auto 0;max-width:94vw}
+.grid.g3{grid-template-columns:repeat(4,72px)}
+.grid.g4{grid-template-columns:repeat(4,72px)}
+.grid.g6{grid-template-columns:repeat(6,54px)}
+@media(max-width:380px){.grid.g3,.grid.g4{grid-template-columns:repeat(4,64px)}.grid.g6{grid-template-columns:repeat(6,48px)}}
+.card{perspective:600px;cursor:pointer;aspect-ratio:1}
+.inner{position:relative;width:100%;height:100%;transform-style:preserve-3d;transition:transform .35s}
+.card.open .inner,.card.done .inner{transform:rotateY(180deg)}
+.face{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;border-radius:14px;backface-visibility:hidden;-webkit-backface-visibility:hidden}
+.front{background:linear-gradient(150deg,#3d3d7a,#26264f);border:2px solid #ffd23f;font-size:26px;color:#ffd23f}
+.back2{background:linear-gradient(150deg,#fff8e1,#ffe082);border:2px solid #ffb300;transform:rotateY(180deg)}
+.grid.g3 .back2,.grid.g4 .back2{font-size:36px}
+.grid.g6 .back2{font-size:27px}
+.card.done .back2{background:linear-gradient(150deg,#c8e6c9,#81c784);border-color:#4caf50;animation:pop .3s}
+@keyframes pop{50%{transform:rotateY(180deg) scale(1.15)}}
+button.big{background:#ffd23f;color:#1a1a2e;border:0;border-radius:12px;padding:13px 26px;font-size:18px;font-weight:bold;cursor:pointer;box-shadow:0 4px 0 #b8860b;margin-top:16px}
+button.big:active{transform:translateY(3px);box-shadow:0 1px 0 #b8860b}
+#win{display:none;background:rgba(255,210,63,.14);border:2px solid #ffd23f;border-radius:18px;padding:18px 14px;margin:16px auto 0;max-width:420px}
+#win .big2{font-size:24px;color:#ffd23f;font-weight:bold}
+.hint{color:#89a;font-size:12px;margin-top:14px}
+</style></head><body>
+<a class="back" href="../">← E.Y.L Games</a>
+<h1>🧠 EMOJI MEMORY</h1>
+<div class="diff">
+<button id="d3" onclick="setDiff(6,'g3',this)">😊 Легко • 6 пар</button>
+<button id="d4" class="on" onclick="setDiff(8,'g4',this)">🙂 Средне • 8 пар</button>
+<button id="d6" onclick="setDiff(12,'g6',this)">😎 Сложно • 12 пар</button>
+</div>
+<div class="stats">Пары: <b id="pairs">0/8</b> • Ходы: <b id="moves">0</b> • Время: <b id="time">0:00</b></div>
+<div class="stats" style="font-size:13px;color:#9ab">Рекорд уровня: <b id="best">—</b></div>
+<div id="msg">Открывай карточки и ищи одинаковые пары!</div>
+<div class="grid g4" id="grid"></div>
+<div id="win">
+<div class="big2">🎉 ПОБЕДА!</div>
+<div id="winText" style="margin-top:8px;font-size:16px"></div>
+<button class="big" onclick="newGame()">↻ Играть ещё</button>
+</div>
+<button class="big" id="restart" onclick="newGame()">↻ Новая игра</button>
+<div class="hint">Нажимай на карточки ⭐ — две одинаковые останутся открытыми. Чем меньше ходов и быстрее время — тем лучше!</div>
+<script>
+var POOL=['🍓','🍋','🍇','🍒','🍍','🥝','🐶','🐱','🐰','🦊','🐼','🦁','🐸','🦄','🐙','🦋','🌸','🌞','🍕','🚀','⚽','🎸','🍩','🦉'];
+var pairsTotal=8,gridCls='g4',first=null,lock=false,moves=0,found=0,timer=null,sec=0,started=false;
+function fmt(s){return Math.floor(s/60)+':'+('0'+(s%60)).slice(-2);}
+function bestKey(){return 'eyl_memory_best_'+pairsTotal;}
+function showBest(){
+  var b=localStorage.getItem(bestKey());
+  document.getElementById('best').textContent=b?b:'—';
+}
+function setDiff(p,cls,btn){
+  pairsTotal=p;gridCls=cls;
+  var bs=document.querySelectorAll('.diff button');for(var i=0;i<bs.length;i++)bs[i].classList.remove('on');
+  btn.classList.add('on');newGame();
+}
+function newGame(){
+  first=null;lock=false;moves=0;found=0;sec=0;started=false;
+  clearInterval(timer);timer=null;
+  document.getElementById('time').textContent='0:00';
+  document.getElementById('moves').textContent='0';
+  document.getElementById('pairs').textContent='0/'+pairsTotal;
+  document.getElementById('win').style.display='none';
+  document.getElementById('msg').textContent='Открывай карточки и ищи одинаковые пары!';
+  showBest();
+  var pool=POOL.slice();
+  // перемешать пул и взять нужное число эмодзи
+  for(var i=pool.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=pool[i];pool[i]=pool[j];pool[j]=t;}
+  var cards=pool.slice(0,pairsTotal);
+  cards=cards.concat(cards);
+  for(var i2=cards.length-1;i2>0;i2--){var j2=Math.floor(Math.random()*(i2+1));var t2=cards[i2];cards[i2]=cards[j2];cards[j2]=t2;}
+  var g=document.getElementById('grid');
+  g.className='grid '+gridCls;g.innerHTML='';
+  cards.forEach(function(em){
+    var d=document.createElement('div');d.className='card';d.dataset.em=em;
+    d.innerHTML='<div class="inner"><div class="face front">⭐</div><div class="face back2">'+em+'</div></div>';
+    d.onclick=function(){flip(d);};
+    g.appendChild(d);
+  });
+}
+function startTimer(){
+  if(started)return;started=true;
+  timer=setInterval(function(){sec++;document.getElementById('time').textContent=fmt(sec);},1000);
+}
+function flip(card){
+  if(lock||card.classList.contains('open')||card.classList.contains('done'))return;
+  startTimer();
+  card.classList.add('open');
+  if(!first){first=card;return;}
+  moves++;document.getElementById('moves').textContent=moves;
+  if(first.dataset.em===card.dataset.em){
+    first.classList.add('done');card.classList.add('done');
+    first=null;found++;
+    document.getElementById('pairs').textContent=found+'/'+pairsTotal;
+    if(found===pairsTotal)win();
+    else document.getElementById('msg').textContent='🎯 Пара найдена! Осталось: '+(pairsTotal-found);
+  }else{
+    lock=true;
+    var a=first;first=null;
+    document.getElementById('msg').textContent='Мимо! Запоминай 🙂';
+    setTimeout(function(){a.classList.remove('open');card.classList.remove('open');lock=false;},650);
+  }
+}
+function win(){
+  clearInterval(timer);
+  document.getElementById('msg').textContent='';
+  var rec=moves+' ходов • '+fmt(sec);
+  var old=localStorage.getItem(bestKey());
+  var isRec=false;
+  if(!old){isRec=true;}
+  else{
+    var parts=old.split(' • ');
+    var om=parseInt(parts[0],10);
+    var ot=parts[1].split(':');var osec=(+ot[0])*60+(+ot[1]);
+    if(moves<om||(moves===om&&sec<osec))isRec=true;
+  }
+  if(isRec)localStorage.setItem(bestKey(),rec);
+  showBest();
+  document.getElementById('winText').innerHTML='Все '+pairsTotal+' пар за <b style="color:#ffd23f">'+moves+' ходов</b> и <b style="color:#ffd23f">'+fmt(sec)+'</b>!'+(isRec?'<br>🏆 Новый рекорд уровня!':'');
+  document.getElementById('win').style.display='block';
+}
+newGame();
+</script></body></html>
