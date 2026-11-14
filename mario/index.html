@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Супер Ерик — платформер</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html,body { background:#1b2430; font-family:'Segoe UI', Arial, sans-serif; color:#fff;
+    overscroll-behavior:none; touch-action:none; }
+  #wrap { position:relative; max-width:960px; margin:0 auto; }
+  #hud { display:flex; justify-content:space-between; align-items:center;
+    padding:8px 12px; font-size:20px; font-weight:700; }
+  #hud .lives { letter-spacing:2px; }
+  canvas { display:block; width:100%; height:auto; background:#87ceeb; border-radius:6px; }
+  #ov { position:absolute; left:0; right:0; top:44px; bottom:0; display:flex;
+    flex-direction:column; align-items:center; justify-content:center; text-align:center;
+    background:rgba(10,16,28,.72); border-radius:6px; padding:16px; }
+  #ov h1 { font-size:42px; color:#ffd83d; text-shadow:2px 3px 0 #c0392b; margin-bottom:10px; }
+  #ov p { font-size:19px; line-height:1.45; max-width:520px; margin-bottom:18px; }
+  #btn { font-size:24px; font-weight:800; padding:14px 42px; border:none; border-radius:14px;
+    background:#e5322d; color:#fff; cursor:pointer; box-shadow:0 5px 0 #9e1b16; }
+  #btn:active { transform:translateY(3px); box-shadow:0 2px 0 #9e1b16; }
+  .hidden { display:none !important; }
+  #pad { max-width:960px; margin:6px auto 0; display:flex; justify-content:space-between;
+    padding:6px 10px 14px; user-select:none; }
+  .cluster { display:flex; gap:14px; }
+  .tbtn { width:76px; height:76px; border-radius:50%; border:3px solid rgba(255,255,255,.35);
+    background:rgba(255,255,255,.14); color:#fff; font-size:30px; font-weight:800;
+    display:flex; align-items:center; justify-content:center; touch-action:none; }
+  .tbtn.on { background:rgba(255,216,61,.55); }
+  #jumpBtn { width:92px; height:92px; font-size:17px; background:rgba(229,50,45,.5); }
+  .hint { text-align:center; color:#9fb3c8; font-size:14px; padding-bottom:10px; }
+</style>
+</head>
+<body>
+<div id="wrap">
+  <div id="hud">
+    <span class="lives" id="lives">❤️❤️❤️</span>
+    <span>🪙 <span id="coins">0</span></span>
+    <span>⭐ <span id="score">0</span></span>
+  </div>
+  <canvas id="cv" width="960" height="540"></canvas>
+  <div id="ov">
+    <h1 id="ovTitle">СУПЕР ЕРИК</h1>
+    <p id="ovText">Беги вправо, прыгай по платформам, собирай монеты 🪙<br>
+    На врага прыгай СВЕРХУ! Сбоку не трогай — больно.<br>
+    Не падай в ямы и дойди до флага 🏁</p>
+    <button id="btn">▶ Играть</button>
+  </div>
+</div>
+<div id="pad">
+  <div class="cluster">
+    <div class="tbtn" id="leftBtn">◀</div>
+    <div class="tbtn" id="rightBtn">▶</div>
+  </div>
+  <div class="tbtn" id="jumpBtn">ПРЫЖОК</div>
+</div>
+<div class="hint">На компьютере: стрелки ◀ ▶ и пробел — прыжок</div>
+
+<script>
+"use strict";
+const cv = document.getElementById('cv'), ctx = cv.getContext('2d');
+const VW = 960, VH = 540, GY = 452;           // GY — верх земли
+const WORLD = 4000, FLAGX = 3880;
+const SPEED = 3.9, GRAV = 0.62, JUMP = -14.4;
+
+let state = 'menu';                            // menu | play | win | over
+let keys = { l:false, r:false, j:false };
+let cam = 0, score = 0, coinN = 0, lives = 3, time = 0;
+let spawnX = 60, groundTimer = 0;
+
+const P = { x:60, y:GY-48, w:34, h:48, vx:0, vy:0, face:1, ground:false, anim:0 };
+
+// ---------- Уровень ----------
+const GSEG = [ [0,950],[1060,640],[1800,560],[2460,760],[3320,680] ];
+const PLAT = [ [300,338],[520,258],[1150,328],[1330,248],[1900,328],
+               [2150,248],[2600,318],[2900,238],[3450,318],[3650,238] ]
+             .map(a => ({x:a[0], y:a[1], w:118, h:24, type:'plat'}));
+const SOLIDS = GSEG.map(s => ({x:s[0], y:GY, w:s[1], h:VH-GY+300, type:'ground'})).concat(PLAT);
+const ENDEF = [ [600,520,880],[1250,1100,1650],[2050,1850,2300],
+                [2750,2500,3150],[3520,3360,3780] ];
+let enemies = [], coins = [];
+
+function buildCoins(){
+  coins = [];
+  const add = (x,y) => coins.push({x:x, y:y, taken:false});
+  [150,225,700,770,1200,2000,2700,3560].forEach(x => add(x, GY-34));
+  PLAT.forEach(p => { for(let i=0;i<3;i++) add(p.x+22+i*38, p.y-34); });
+  [[955,392],[1005,362],[1055,392],[1705,392],[1755,362],[1805,392],
+   [2365,392],[2415,362],[2465,392],[3225,392],[3275,362],[3325,392]
+  ].forEach(c => add(c[0], c[1]));
+}
+function resetEnemies(){
+  enemies = ENDEF.map(e => ({x:e[0], min:e[1], max:e[2], dir:1, y:GY-32, w:36, h:32, dead:0}));
+}
+buildCoins(); resetEnemies();
+
+// ---------- Звук (без файлов) ----------
+let AC = null;
+function beep(f, d, type, v, delay){
+  try{
+    AC = AC || new (window.AudioContext || window.webkitAudioContext)();
+    const t0 = AC.currentTime + (delay || 0);
+    const o = AC.createOscillator(), g = AC.createGain();
+    o.type = type || 'square'; o.frequency.value = f; g.gain.value = v || 0.045;
+    o.connect(g); g.connect(AC.destination); o.start(t0);
+    g.gain.exponentialRampToValueAtTime(0.0001, t0 + (d || 0.12)); o.stop(t0 + (d || 0.12));
+  }catch(e){}
+}
+const sCoin = () => { beep(990,.09); beep(1320,.16,'square',.045,.07); };
+const sJump = () => beep(280,.14,'square',.04);
+const sStomp = () => beep(150,.15,'square',.06);
+const sHurt = () => beep(110,.35,'sawtooth',.06);
+const sWin = () => [523,659,784,1046].forEach((f,i)=>beep(f,.22,'square',.05,i*.13));
+
+// ---------- Управление ----------
+function bindBtn(id, prop){
+  const el = document.getElementById(id);
+  const on  = e => { e.preventDefault(); keys[prop] = true;  el.classList.add('on'); };
+  const off = e => { e.preventDefault(); keys[prop] = false; el.classList.remove('on'); };
+  el.addEventListener('pointerdown', on);
+  el.addEventListener('pointerup', off);
+  el.addEventListener('pointerleave', off);
+  el.addEventListener('pointercancel', off);
+  el.addEventListener('touchstart', on, {passive:false});
+  el.addEventListener('touchend', off, {passive:false});
+}
+bindBtn('leftBtn','l'); bindBtn('rightBtn','r'); bindBtn('jumpBtn','j');
+const KEYMAP = { ArrowLeft:'l', KeyA:'l', ArrowRight:'r', KeyD:'r', ArrowUp:'j', Space:'j', KeyW:'j' };
+addEventListener('keydown', e => { const k = KEYMAP[e.code]; if(k){ keys[k] = true; e.preventDefault(); }});
+addEventListener('keyup',   e => { const k = KEYMAP[e.code]; if(k){ keys[k] = false; e.preventDefault(); }});
+
+// ---------- Игровая логика ----------
+const ov = document.getElementById('ov'), ovTitle = document.getElementById('ovTitle'),
+      ovText = document.getElementById('ovText'), btn = document.getElementById('btn');
+
+function hud(){
+  document.getElementById('lives').textContent = '❤️'.repeat(lives) + '🖤'.repeat(Math.max(0, 3 - lives));
+  document.getElementById('coins').textContent = coinN;
+  document.getElementById('score').textContent = score;
+}
+function startGame(){
+  lives = 3; score = 0; coinN = 0; spawnX = 60;
+  buildCoins(); resetEnemies(); respawn();
+  state = 'play'; ov.classList.add('hidden'); hud();
+}
+function respawn(){
+  P.x = spawnX; P.y = GY - P.h; P.vx = 0; P.vy = 0; resetEnemies();
+}
+function loseLife(){
+  lives--; hud(); sHurt();
+  if(lives <= 0){ state = 'over';
+    ovTitle.textContent = 'ИГРА ОКОНЧЕНА';
+    ovText.innerHTML = 'Ты собрал монет: ' + coinN + ' 🪙<br>Очков: ' + score + ' ⭐<br>Не сдавайся, Ерик!';
+    btn.textContent = '🔄 Играть снова'; ov.classList.remove('hidden');
+  } else respawn();
+}
+function winGame(){
+  state = 'win'; sWin(); score += lives * 100; hud();
+  ovTitle.textContent = '🎉 ТЫ ПОБЕДИЛ! 🎉';
+  ovText.innerHTML = 'Монет собрано: ' + coinN + ' 🪙<br>Итого очков: ' + score + ' ⭐<br>Президент доволен!';
+  btn.textContent = '🔄 Играть снова'; ov.classList.remove('hidden');
+}
+btn.addEventListener('click', startGame);
+
+function overlap(a, b){ return a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y; }
+
+function step(){
+  if(state !== 'play') return;
+  time++;
+  P.vx = (keys.r ? SPEED : 0) - (keys.l ? SPEED : 0);
+  if(P.vx) P.face = Math.sign(P.vx);
+  if(P.ground && P.vx) P.anim += Math.abs(P.vx) * 0.06;
+
+  // прыжок
+  if(keys.j && P.ground){ P.vy = JUMP; P.ground = false; sJump(); }
+  if(!keys.j && P.vy < -10.5) P.vy = -10.5;         // короткий прыжок — отпустил раньше (всё равно долетает через ямы)
+  P.vy += GRAV; if(P.vy > 16) P.vy = 16;
+
+  // по X
+  P.x += P.vx;
+  P.x = Math.max(0, Math.min(WORLD - P.w, P.x));
+  for(const s of SOLIDS) if(overlap(P, s)){
+    if(P.vx > 0) P.x = s.x - P.w; else if(P.vx < 0) P.x = s.x + s.w;
+  }
+  // по Y
+  P.y += P.vy; P.ground = false;
+  for(const s of SOLIDS) if(overlap(P, s)){
+    if(P.vy > 0){ P.y = s.y - P.h; P.vy = 0; P.ground = true;
+      if(s.type === 'ground'){ if(++groundTimer > 40){ spawnX = P.x; groundTimer = 0; } }
+    } else if(P.vy < 0){ P.y = s.y + s.h; P.vy = 0; }
+  }
+  // падение в яму
+  if(P.y > VH + 80){ loseLife(); return; }
+
+  // враги
+  for(const e of enemies){
+    if(e.dead) continue;
+    e.x += e.dir * 0.75;
+    if(e.x < e.min) { e.x = e.min; e.dir = 1; }
+    if(e.x > e.max) { e.x = e.max; e.dir = -1; }
+    if(overlap(P, e)){
+      if(P.vy > 0 && (P.y + P.h - e.y) < 22){ e.dead = 1; P.vy = -9; score += 100; hud(); sStomp(); }
+      else { loseLife(); return; }
+    }
+  }
+  // монеты
+  for(const c of coins){
+    if(c.taken) continue;
+    if(Math.abs(c.x - (P.x + P.w/2)) < 30 && Math.abs(c.y - (P.y + P.h/2)) < 36){
+      c.taken = true; coinN++; score += 50; hud(); sCoin();
+    }
+  }
+  // флаг
+  if(P.x + P.w >= FLAGX){ winGame(); return; }
+  cam = Math.max(0, Math.min(WORLD - VW, P.x - VW * 0.38));
+}
+
+// ---------- Рисование ----------
+function rr(x, y, w, h, r){ ctx.beginPath(); ctx.roundRect(x, y, w, h, r); }
+function drawBG(){
+  const g = ctx.createLinearGradient(0, 0, 0, VH);
+  g.addColorStop(0, '#6ec6f0'); g.addColorStop(1, '#cfeeff');
+  ctx.fillStyle = g; ctx.fillRect(0, 0, VW, VH);
+  ctx.fillStyle = '#ffe66d'; ctx.beginPath(); ctx.arc(880, 70, 34, 0, 7); ctx.fill();
+  ctx.fillStyle = 'rgba(255,255,255,.9)';
+  [[120,70],[420,40],[700,95],[1050,55],[1500,85],[2000,45],[2500,80],[3050,50],[3550,90]]
+    .forEach(c => { const x = c[0] - cam * 0.3; if(x < -140 || x > VW + 60) return;
+      ctx.beginPath(); ctx.arc(x, c[1], 22, 0, 7); ctx.arc(x + 24, c[1] + 4, 17, 0, 7);
+      ctx.arc(x - 25, c[1] + 5, 16, 0, 7); ctx.fill(); });
+  ctx.fillStyle = '#7ec850';
+  [[0,300],[520,260],[1250,310],[1950,265],[2700,305],[3350,270]].forEach(h => {
+    const x = h[0] - cam * 0.5; if(x < -420 || x > VW + 100) return;
+    ctx.beginPath(); ctx.arc(x + 160, GY + 60, 190, Math.PI, 0); ctx.fill(); });
+}
+function drawGround(){
+  for(const s of SOLIDS){
+    const x = s.x - cam; if(x + s.w < -20 || x > VW + 20) continue;
+    if(s.type === 'ground'){
+      ctx.fillStyle = '#8a5a2b'; ctx.fillRect(x, GY, s.w, VH - GY);
+      ctx.fillStyle = '#754c22';
+      for(let i = 0; i < s.w; i += 46){ const sx = x + ((i * 37) % Math.max(1, s.w - 8));
+        ctx.fillRect(sx, GY + 26 + ((i * 13) % 40), 9, 6); }
+      ctx.fillStyle = '#3fae4a'; ctx.fillRect(x, GY, s.w, 15);
+      ctx.fillStyle = '#57c75f'; ctx.fillRect(x, GY, s.w, 5);
+    } else {
+      ctx.fillStyle = '#c1552f'; rr(x, s.y, s.w, s.h, 4); ctx.fill();
+      ctx.strokeStyle = '#8f3a1d'; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(x + 3, s.y + s.h/2); ctx.lineTo(x + s.w - 3, s.y + s.h/2);
+      ctx.moveTo(x + s.w/2, s.y + 2); ctx.lineTo(x + s.w/2, s.y + s.h/2);
+      ctx.moveTo(x + s.w/4, s.y + s.h/2); ctx.lineTo(x + s.w/4, s.y + s.h - 2);
+      ctx.moveTo(x + 3*s.w/4, s.y + s.h/2); ctx.lineTo(x + 3*s.w/4, s.y + s.h - 2); ctx.stroke();
+      ctx.fillStyle = 'rgba(255,255,255,.25)'; ctx.fillRect(x, s.y, s.w, 3);
+    }
+  }
+}
+function drawFlag(){
+  const x = FLAGX - cam; if(x < -80 || x > VW + 80) return;
+  ctx.fillStyle = '#9aa3ad'; ctx.fillRect(x - 16, GY - 8, 44, 8);
+  ctx.fillStyle = '#dfe5ea'; ctx.fillRect(x + 4, GY - 232, 6, 232);
+  ctx.fillStyle = '#ffd83d'; ctx.beginPath(); ctx.arc(x + 7, GY - 240, 8, 0, 7); ctx.fill();
+  const w = Math.sin(time * 0.15) * 5;
+  ctx.fillStyle = '#2ecc71'; ctx.beginPath();
+  ctx.moveTo(x + 10, GY - 228); ctx.lineTo(x + 62, GY - 214 + w); ctx.lineTo(x + 10, GY - 198); ctx.fill();
+  ctx.fillStyle = '#fff'; ctx.font = 'bold 15px Arial'; ctx.fillText('ФИНИШ', x - 22, GY + 26);
+}
+function drawCoins(){
+  for(let i = 0; i < coins.length; i++){
+    const c = coins[i]; if(c.taken) continue;
+    const x = c.x - cam; if(x < -30 || x > VW + 30) continue;
+    const sq = Math.abs(Math.cos(time * 0.08 + i)) * 0.65 + 0.35;
+    ctx.save(); ctx.translate(x, c.y + Math.sin(time * 0.06 + i) * 3); ctx.scale(sq, 1);
+    ctx.fillStyle = '#ffd83d'; ctx.beginPath(); ctx.arc(0, 0, 11, 0, 7); ctx.fill();
+    ctx.fillStyle = '#f5b81d'; ctx.beginPath(); ctx.arc(0, 0, 7.5, 0, 7); ctx.fill();
+    ctx.fillStyle = '#ffe98a'; ctx.beginPath(); ctx.arc(-2, -2, 3, 0, 7); ctx.fill();
+    ctx.restore();
+  }
+}
+function drawEnemies(){
+  for(const e of enemies){
+    if(e.dead) continue;
+    const x = e.x - cam; if(x < -60 || x > VW + 60) continue;
+    const bob = Math.sin(time * 0.2 + e.x) * 2;
+    ctx.fillStyle = '#5d3a1a';
+    ctx.fillRect(x + 3, e.y + 26 + bob, 11, 6); ctx.fillRect(x + 22, e.y + 26 - bob, 11, 6);
+    ctx.fillStyle = '#a5672a'; rr(x, e.y + 4, e.w, 24, 11); ctx.fill();
+    ctx.fillStyle = '#c98a44'; rr(x + 2, e.y, e.w - 4, 13, 7); ctx.fill();
+    ctx.fillStyle = '#fff';
+    ctx.beginPath(); ctx.arc(x + 12, e.y + 15, 4.6, 0, 7); ctx.arc(x + 24, e.y + 15, 4.6, 0, 7); ctx.fill();
+    ctx.fillStyle = '#222';
+    ctx.beginPath(); ctx.arc(x + 12 + e.dir * 1.6, e.y + 16, 2.3, 0, 7);
+    ctx.arc(x + 24 + e.dir * 1.6, e.y + 16, 2.3, 0, 7); ctx.fill();
+    ctx.strokeStyle = '#3a2410'; ctx.lineWidth = 2.4;
+    ctx.beginPath(); ctx.moveTo(x + 7, e.y + 8); ctx.lineTo(x + 16, e.y + 11);
+    ctx.moveTo(x + 29, e.y + 8); ctx.lineTo(x + 20, e.y + 11); ctx.stroke();
+  }
+}
+function drawPlayer(){
+  const x = P.x - cam, y = P.y;
+  ctx.save(); ctx.translate(x + P.w/2, y); ctx.scale(P.face, 1); ctx.translate(-P.w/2, 0);
+  const run = P.ground && P.vx !== 0, sw = run ? Math.sin(P.anim * 6) * 6 : 0;
+  // ноги (синие штаны) и ботинки
+  ctx.fillStyle = '#2456a6';
+  if(!P.ground){ ctx.fillRect(6, 34, 9, 10); ctx.fillRect(20, 32, 9, 10); }
+  else { ctx.fillRect(6 + sw, 34, 9, 11); ctx.fillRect(20 - sw, 34, 9, 11); }
+  ctx.fillStyle = '#4a2f1d';
+  if(!P.ground){ ctx.fillRect(4, 43, 12, 5); ctx.fillRect(19, 41, 12, 5); }
+  else { ctx.fillRect(4 + sw, 44, 12, 5); ctx.fillRect(18 - sw, 44, 12, 5); }
+  // красное худи
+  ctx.fillStyle = '#d92b22'; rr(4, 17, 26, 20, 6); ctx.fill();
+  ctx.fillStyle = '#b01e17'; ctx.fillRect(9, 29, 16, 7);            // карман
+  ctx.fillStyle = '#f2f2f2'; ctx.fillRect(15.8, 19, 2.4, 11);       // молния
+  ctx.fillStyle = '#d92b22';                                        // рука
+  const armY = !P.ground ? 12 : 20 + (run ? -sw * 0.7 : 0);
+  rr(24, armY, 8, 14, 4); ctx.fill();
+  ctx.fillStyle = '#f2c79b'; ctx.fillRect(26, armY + 12, 5, 5);      // ладонь
+  // капюшон сзади
+  ctx.fillStyle = '#b01e17'; ctx.beginPath(); ctx.arc(9, 10, 8, 0, 7); ctx.fill();
+  // голова
+  ctx.fillStyle = '#f2c79b'; ctx.beginPath(); ctx.arc(19, 10, 9.5, 0, 7); ctx.fill();
+  ctx.fillStyle = '#5a3a1a'; ctx.beginPath(); ctx.arc(18, 4.5, 8, Math.PI, 0); ctx.fill(); // чёлка
+  ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(23.5, 10, 3.2, 0, 7); ctx.fill();
+  ctx.fillStyle = '#222'; ctx.beginPath(); ctx.arc(24.6, 10.5, 1.7, 0, 7); ctx.fill();
+  ctx.strokeStyle = '#a5672a'; ctx.lineWidth = 1.4;
+  ctx.beginPath(); ctx.arc(22, 14, 3.4, 0.15, 1.5); ctx.stroke();   // улыбка
+  ctx.restore();
+}
+function frame(){
+  step();
+  drawBG(); drawGround(); drawFlag(); drawCoins(); drawEnemies(); drawPlayer();
+  requestAnimationFrame(frame);
+}
+hud();
+requestAnimationFrame(frame);
+// отладочный доступ для автотеста
+window.GS = { P:P, S:function(){ return state; }, E:function(){ return enemies; } };
+</script>
+</body>
+</html>
