@@ -227,8 +227,8 @@ function personSVG(hid,bid,cc,face){var H=HSTY[hid]||HSTY.h0;var B=BSTY[bid]||BS
  var dress=(B.t==='dress');var legC=dress?H.skin:'#3c4c6e';var slv=(B.t==='tank')?H.skin:col;
  var s='<svg viewBox="0 0 60 100" xmlns="http://www.w3.org/2000/svg">';
  if(H.style==='long')s+='<rect x="15" y="8" width="30" height="42" rx="13" fill="'+H.hair+'"/>';
- s+='<g class="pl"><rect x="23.5" y="63" width="6" height="25" rx="3" fill="'+legC+'"/><ellipse cx="26" cy="90" rx="5.5" ry="3" fill="#333"/></g>';
- s+='<g class="pl r"><rect x="30.5" y="63" width="6" height="25" rx="3" fill="'+legC+'"/><ellipse cx="33" cy="90" rx="5.5" ry="3" fill="#333"/></g>';
+ s+='<g class="pl"><rect x="22" y="63" width="6.5" height="25" rx="3" fill="'+legC+'"/><ellipse cx="24.5" cy="90" rx="5.5" ry="3" fill="#333"/></g>';
+ s+='<g class="pl r"><rect x="31.5" y="63" width="6.5" height="25" rx="3" fill="'+legC+'"/><ellipse cx="34" cy="90" rx="5.5" ry="3" fill="#333"/></g>';
  s+='<g class="pa"><rect x="10.5" y="37" width="6" height="23" rx="3" fill="'+slv+'"/><circle cx="13.5" cy="62" r="3.4" fill="'+H.skin+'"/></g>';
  s+='<g class="pa r"><rect x="43.5" y="37" width="6" height="23" rx="3" fill="'+slv+'"/><circle cx="46.5" cy="62" r="3.4" fill="'+H.skin+'"/></g>';
  if(dress)s+='<path d="M21 36 L39 36 L47 68 L13 68 Z" fill="'+col+'"/>';
@@ -240,11 +240,11 @@ function personSVG(hid,bid,cc,face){var H=HSTY[hid]||HSTY.h0;var B=BSTY[bid]||BS
  s+='<rect x="26" y="29" width="8" height="9" fill="'+H.skin+'"/>';
  if(H.beard){s+='<circle cx="30" cy="23" r="12.5" fill="'+H.hair+'"/><circle cx="30" cy="19.5" r="10.5" fill="'+H.skin+'"/><path d="M19.5 19.5 a10.5 10.5 0 0 1 21 0 z" fill="'+H.hair+'"/>';}
  else{s+='<circle cx="30" cy="21" r="12.5" fill="'+H.skin+'"/>';
-  if(H.style==='short')s+='<path d="M17.5 21 a12.5 12.5 0 0 1 25 0 l0 -2.5 a12.5 10 0 0 0 -25 0 z" fill="'+H.hair+'"/>';
-  if(H.style==='curly'){s+='<path d="M17.5 21 a12.5 12.5 0 0 1 25 0 z" fill="'+H.hair+'"/><circle cx="21" cy="10" r="4.4" fill="'+H.hair+'"/><circle cx="27" cy="7.6" r="4.8" fill="'+H.hair+'"/><circle cx="33.5" cy="7.8" r="4.8" fill="'+H.hair+'"/><circle cx="39.5" cy="10.4" r="4.4" fill="'+H.hair+'"/>';}
-  if(H.style==='long')s+='<path d="M17.5 21 a12.5 12.5 0 0 1 25 0 l0 -1 a12.5 11 0 0 0 -25 0 z" fill="'+H.hair+'"/>';
-  if(H.style==='buns'){s+='<circle cx="17" cy="11" r="5.4" fill="'+H.hair+'"/><circle cx="43" cy="11" r="5.4" fill="'+H.hair+'"/><path d="M17.5 21 a12.5 12.5 0 0 1 25 0 z" fill="'+H.hair+'"/>';}
-  if(H.style==='cap'){s+='<path d="M17.5 20 a12.5 12.5 0 0 1 25 0 z" fill="'+H.hair+'"/><rect x="15" y="17.5" width="30" height="4" rx="2" fill="#14181f"/>';}}
+  if(H.style==='short')s+='<path d="M18.5 18.5 A11.5 9 0 0 1 41.5 18.5 Z" fill="'+H.hair+'"/>';
+  if(H.style==='curly'){s+='<path d="M18.5 18.5 A11.5 9 0 0 1 41.5 18.5 Z" fill="'+H.hair+'"/><circle cx="21" cy="11" r="4.4" fill="'+H.hair+'"/><circle cx="27" cy="8.6" r="4.8" fill="'+H.hair+'"/><circle cx="33.5" cy="8.8" r="4.8" fill="'+H.hair+'"/><circle cx="39.5" cy="11.4" r="4.4" fill="'+H.hair+'"/>';}
+  if(H.style==='long')s+='<path d="M18.5 18.5 A11.5 9 0 0 1 41.5 18.5 Z" fill="'+H.hair+'"/>';
+  if(H.style==='buns'){s+='<circle cx="17" cy="11" r="5.4" fill="'+H.hair+'"/><circle cx="43" cy="11" r="5.4" fill="'+H.hair+'"/><path d="M18.5 18.5 A11.5 9 0 0 1 41.5 18.5 Z" fill="'+H.hair+'"/>';}
+  if(H.style==='cap'){s+='<path d="M18.5 18.5 A11.5 9 0 0 1 41.5 18.5 Z" fill="'+H.hair+'"/><rect x="15" y="16.5" width="30" height="4" rx="2" fill="#14181f"/>';}}
  if(face==='drunk'){s+='<path d="M22.5 21 q2.5 -2.4 5 0" stroke="#26221f" stroke-width="1.5" fill="none" stroke-linecap="round"/><path d="M32.5 21 q2.5 -2.4 5 0" stroke="#26221f" stroke-width="1.5" fill="none" stroke-linecap="round"/>';
   s+='<path d="M26.5 25 q3.5 2.6 7 0" stroke="#26221f" stroke-width="1.4" fill="none" stroke-linecap="round"/><rect x="28.4" y="27.6" width="3.4" height="4.6" rx="1.7" fill="#ff7d9c"/>';}
  else if(face==='love'){s+='<text x="25" y="23.5" font-size="7" text-anchor="middle" fill="#e0245e">♥</text><text x="35" y="23.5" font-size="7" text-anchor="middle" fill="#e0245e">♥</text>';
