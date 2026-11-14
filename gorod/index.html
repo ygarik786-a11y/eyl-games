@@ -20,12 +20,12 @@ input{font-family:inherit}
 .logo .eyl{background:linear-gradient(180deg,#ffe97a,#f5b921);color:#4a2c00;font-size:15px;font-weight:900;letter-spacing:6px;padding:5px 16px 5px 22px;border-radius:999px;box-shadow:0 4px 12px rgba(0,0,0,.4),inset 0 1px 0 #fff8;text-shadow:none}
 .logo .orn{font-size:14px;letter-spacing:8px;opacity:.95;text-shadow:0 2px 6px rgba(0,0,0,.4)}
 #createScr .sub{opacity:.92;font-size:13px;margin:4px 0 12px;text-align:center}
-.bigava{font-size:74px;line-height:1.05;text-align:center;filter:drop-shadow(0 6px 8px rgba(0,0,0,.35))}
-.bigava #prevHead{position:relative;z-index:2}
-.bigava .bd{display:block;font-size:56px;margin-top:-15px;position:relative;z-index:1}
+.bigava{text-align:center;filter:drop-shadow(0 6px 8px rgba(0,0,0,.35));min-height:152px}
+.bigava svg{height:152px;width:92px}
 #nameInp{width:min(320px,90vw);padding:12px 14px;border-radius:12px;border:none;font-size:17px;text-align:center;margin:10px 0}
 .pickrow{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;max-width:360px;margin:4px 0 8px}
-.pick{width:52px;height:52px;font-size:30px;background:rgba(255,255,255,.18);border:2px solid transparent;border-radius:14px;display:flex;align-items:center;justify-content:center}
+.pick{width:54px;height:64px;font-size:30px;background:rgba(255,255,255,.18);border:2px solid transparent;border-radius:14px;display:flex;align-items:center;justify-content:center}
+.pick svg{height:54px;width:34px}
 .pick.sel{border-color:#ffd94d;background:rgba(255,217,77,.25)}
 .picklbl{font-size:12px;opacity:.9;margin-top:6px}
 #playBtn{background:#ffd94d;color:#402c00;font-size:19px;font-weight:800;padding:13px 42px;border-radius:16px;margin-top:12px;box-shadow:0 4px 14px rgba(0,0,0,.35)}
@@ -45,9 +45,14 @@ input{font-family:inherit}
 #questBubble .qp{font-weight:800;color:#b3001b}
 .deco{position:absolute;pointer-events:none;line-height:1}
 .person{position:absolute;bottom:26px;transform:translateX(-50%);text-align:center;z-index:3;transition:left .25s}
-.person .av{font-size:40px;line-height:.95;filter:drop-shadow(0 3px 3px rgba(0,0,0,.35))}
-.person .av .bd{display:block;font-size:31px;margin-top:-9px;position:relative;z-index:1}
-.person .av>span:first-child{position:relative;z-index:2}
+.person .av{line-height:.95;filter:drop-shadow(0 3px 3px rgba(0,0,0,.35))}
+.person .av svg{height:64px;width:40px;display:block;margin:0 auto}
+@keyframes legSwing{0%,100%{transform:rotate(8deg)}50%{transform:rotate(-8deg)}}
+@keyframes armSwing{0%,100%{transform:rotate(-6deg)}50%{transform:rotate(6deg)}}
+.pl,.pa{transform-box:fill-box;transform-origin:50% 0;animation:legSwing .72s ease-in-out infinite}
+.pl.r{animation-delay:-.36s}
+.pa{animation-name:armSwing;animation-duration:.72s}
+.pa.r{animation-delay:-.36s}
 .person .pn{font-size:11px;font-weight:700;background:rgba(0,0,0,.45);border-radius:999px;padding:1px 7px;margin-top:1px;white-space:nowrap}
 .person.me .pn{background:#ffd94d;color:#402c00}
 .person .say{position:absolute;bottom:100%;left:50%;transform:translateX(-50%);background:#fff;color:#222;font-size:11px;border-radius:10px;padding:3px 8px;width:max-content;max-width:150px;box-shadow:0 2px 6px rgba(0,0,0,.25);margin-bottom:2px}
@@ -78,6 +83,7 @@ input{font-family:inherit}
 .shopGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-top:8px}
 .shopIt{background:#f2f5fb;border:2px solid #dfe7f5;border-radius:14px;padding:9px 4px;text-align:center}
 .shopIt .e{font-size:34px;line-height:1.1}
+.shopIt .e svg{height:54px;width:34px}
 .shopIt .n{font-size:12px;font-weight:700;margin:2px 0}
 .shopIt .p{font-size:12px;color:#0a7a42;font-weight:800}
 .shopIt button{margin-top:5px;background:#2a4a7f;color:#fff;font-size:12px;font-weight:700;padding:7px 10px;border-radius:9px;width:100%}
@@ -98,7 +104,7 @@ input{font-family:inherit}
 <div id="createScr">
   <h1 class="logo"><span class="eyl">E.Y.L</span><span class="l1">ГОРОД ЛЮБВИ</span><span class="orn">✨ 💛 ✨</span></h1>
   <div class="sub">наша версия любимой игры, которую закрыли, — от создателя E.Y.L<br>Создай свой неповторимый образ! Приглашай друзей на вечеринки!</div>
-  <div class="bigava"><span id="prevHead">🧑</span><span class="bd" id="prevBody">👕</span></div>
+  <div class="bigava" id="prevAva"></div>
   <input id="nameInp" maxlength="16" placeholder="Имя твоего человека">
   <div class="picklbl">Лицо и причёска</div>
   <div class="pickrow" id="headPick"></div>
@@ -158,16 +164,16 @@ var FURS=[
 var LOCS={
  mall:{n:'Торговый центр',bg:'linear-gradient(180deg,#f7c8d8 0%,#f7c8d8 55%,#8a8a3a 56%,#a8a04a 100%)',
    deco:[['🏬',6,4,44],['💇',30,3,30],['👗',72,3,30],['🪑',90,4,28]],
-   npcs:[{n:'Парикмахер',e:'💇‍♂️',x:20},{n:'Продавец',e:'👩‍💼',x:42},{n:'Лера',e:'👩‍🎤',x:64},{n:'Аня',e:'👱‍♀️',x:84}]},
+   npcs:[{n:'Парикмахер',h:'h2',b:'b1',x:20},{n:'Продавец',h:'h6',b:'b7',x:42},{n:'Лера',h:'h7',b:'b2',x:64},{n:'Аня',h:'h6',b:'b0',x:84}]},
  beach:{n:'Пляж',bg:'linear-gradient(180deg,#8fd4f2 0%,#8fd4f2 34%,#3a9bd8 35%,#57b5e8 58%,#f2dc9b 59%,#ecd28a 100%)',
    deco:[['🌴',4,6,46],['🌴',88,4,40],['🪑',55,52,24],['🐢',70,66,22],['⛱️',30,44,30]],
-   npcs:[{n:'Рыбак',e:'👴',x:88},{n:'Сёрфер',e:'🏄‍♂️',x:66},{n:'Катя',e:'👩',x:40},{n:'Миёки',e:'👧',x:18}]},
+   npcs:[{n:'Рыбак',h:'h3',b:'b6',x:88},{n:'Сёрфер',h:'h1',b:'b4',x:66},{n:'Катя',h:'h5',b:'b7',x:40},{n:'Миёки',h:'h9',b:'b2',x:18}]},
  forest:{n:'Лес',bg:'linear-gradient(180deg,#a8d8a8 0%,#7ab87a 55%,#5d9455 56%,#4c7d45 100%)',
    deco:[['🌲',2,2,52],['🌲',88,2,56],['🌳',65,4,44],['🍄',20,64,22],['🌿',45,68,24]],
-   npcs:[{n:'Грибник',e:'🧑‍🌾',x:22},{n:'Оля',e:'👩',x:48},{n:'Вика',e:'👧',x:72}]},
+   npcs:[{n:'Грибник',h:'h3',b:'b3',x:22},{n:'Оля',h:'h6',b:'b0',x:48},{n:'Вика',h:'h9',b:'b7',x:72}]},
  home:{n:'Мой дом',bg:'linear-gradient(180deg,#c9a186 0%,#c9a186 58%,#8a6844 59%,#a37c50 100%)',
    deco:[['🖼️',8,6,30],['🪟',84,4,36]],
-   npcs:[{n:'Мита',e:'👩‍🦰',x:80}]}
+   npcs:[{n:'Мита',h:'h5',b:'b3',cc:'#d23b3b',x:80}]}
 };
 var QUESTS=[
  {npc:'Парикмахер',loc:'mall',text:'Привет! Я Парикмахер. Смени образ — купи любую причёску в салоне!',reward:50,test:function(s){return s.owned.filter(function(i){return i[0]==='h';}).length>2;}},
@@ -191,6 +197,43 @@ function load(){try{var t=localStorage.getItem(KEY);return t?JSON.parse(t):null;
 function lvl(){return Math.floor(S.rep/100)+1;}
 function itemById(id){var all=HEADS.concat(BODIES,FURS);for(var i=0;i<all.length;i++)if(all[i].id===id)return all[i];return null;}
 function headE(id){var it=itemById(id);return it?it.e:'🧑';}
+/* ===== РИСОВАННЫЕ ЧЕЛОВЕЧКИ (как в оригинале: голова, руки, ноги) ===== */
+var HSTY={
+ h0:{hair:'#6b4a2b',style:'short',skin:'#ffcf9e'},h1:{hair:'#3a2a1a',style:'short',skin:'#ffd9ae'},
+ h2:{hair:'#f2d06b',style:'short',skin:'#ffd9ae'},h3:{hair:'#4a3220',style:'short',skin:'#ffcf9e',beard:1},
+ h4:{hair:'#2e2018',style:'curly',skin:'#e8b48c'},h5:{hair:'#e06a2d',style:'long',skin:'#ffd9ae'},
+ h6:{hair:'#f7dc7a',style:'long',skin:'#ffe3c2'},h7:{hair:'#9b59d0',style:'long',skin:'#ffd9ae'},
+ h8:{hair:'#20242c',style:'cap',skin:'#ffcf9e'},h9:{hair:'#7a4a21',style:'buns',skin:'#ffe3c2'}};
+var BSTY={
+ b0:{c:'#7ec8e3',t:'tee'},b1:{c:'#f4f4f4',t:'shirt'},b2:{c:'#ff5d8f',t:'dress'},
+ b3:{c:'#4a6fa5',t:'jacket'},b4:{c:'#57b84a',t:'tank'},b5:{c:'#b5526a',t:'kimono'},
+ b6:{c:'#8a6844',t:'vest'},b7:{c:'#f2a7c3',t:'tee'}};
+function personSVG(hid,bid,cc){var H=HSTY[hid]||HSTY.h0;var B=BSTY[bid]||BSTY.b0;var col=cc||B.c;
+ var dress=(B.t==='dress');var legC=dress?H.skin:'#3c4c6e';var slv=(B.t==='tank')?H.skin:col;
+ var s='<svg viewBox="0 0 60 100" xmlns="http://www.w3.org/2000/svg">';
+ if(H.style==='long')s+='<rect x="15" y="8" width="30" height="42" rx="13" fill="'+H.hair+'"/>';
+ s+='<g class="pl"><rect x="23.5" y="63" width="6" height="25" rx="3" fill="'+legC+'"/><ellipse cx="26" cy="90" rx="5.5" ry="3" fill="#333"/></g>';
+ s+='<g class="pl r"><rect x="30.5" y="63" width="6" height="25" rx="3" fill="'+legC+'"/><ellipse cx="33" cy="90" rx="5.5" ry="3" fill="#333"/></g>';
+ s+='<g class="pa"><rect x="10.5" y="37" width="6" height="23" rx="3" fill="'+slv+'"/><circle cx="13.5" cy="62" r="3.4" fill="'+H.skin+'"/></g>';
+ s+='<g class="pa r"><rect x="43.5" y="37" width="6" height="23" rx="3" fill="'+slv+'"/><circle cx="46.5" cy="62" r="3.4" fill="'+H.skin+'"/></g>';
+ if(dress)s+='<path d="M21 36 L39 36 L47 68 L13 68 Z" fill="'+col+'"/>';
+ else s+='<rect x="17" y="36" width="26" height="30" rx="6" fill="'+col+'"/>';
+ if(B.t==='shirt')s+='<path d="M27 36 L30 42 L33 36 L31 52 L29 52 Z" fill="#7a1f2b"/>';
+ if(B.t==='vest')s+='<rect x="26" y="36" width="8" height="30" fill="#f4f4f4"/>';
+ if(B.t==='kimono')s+='<rect x="17" y="50" width="26" height="5" fill="#ffd94d"/>';
+ if(B.t==='jacket')s+='<rect x="28.6" y="36" width="2.8" height="30" fill="rgba(0,0,0,.25)"/>';
+ s+='<rect x="26" y="29" width="8" height="9" fill="'+H.skin+'"/>';
+ if(H.beard){s+='<circle cx="30" cy="23" r="12.5" fill="'+H.hair+'"/><circle cx="30" cy="19.5" r="10.5" fill="'+H.skin+'"/><path d="M19.5 19.5 a10.5 10.5 0 0 1 21 0 z" fill="'+H.hair+'"/>';}
+ else{s+='<circle cx="30" cy="21" r="12.5" fill="'+H.skin+'"/>';
+  if(H.style==='short')s+='<path d="M17.5 21 a12.5 12.5 0 0 1 25 0 l0 -2.5 a12.5 10 0 0 0 -25 0 z" fill="'+H.hair+'"/>';
+  if(H.style==='curly'){s+='<path d="M17.5 21 a12.5 12.5 0 0 1 25 0 z" fill="'+H.hair+'"/><circle cx="21" cy="10" r="4.4" fill="'+H.hair+'"/><circle cx="27" cy="7.6" r="4.8" fill="'+H.hair+'"/><circle cx="33.5" cy="7.8" r="4.8" fill="'+H.hair+'"/><circle cx="39.5" cy="10.4" r="4.4" fill="'+H.hair+'"/>';}
+  if(H.style==='long')s+='<path d="M17.5 21 a12.5 12.5 0 0 1 25 0 l0 -1 a12.5 11 0 0 0 -25 0 z" fill="'+H.hair+'"/>';
+  if(H.style==='buns'){s+='<circle cx="17" cy="11" r="5.4" fill="'+H.hair+'"/><circle cx="43" cy="11" r="5.4" fill="'+H.hair+'"/><path d="M17.5 21 a12.5 12.5 0 0 1 25 0 z" fill="'+H.hair+'"/>';}
+  if(H.style==='cap'){s+='<path d="M17.5 20 a12.5 12.5 0 0 1 25 0 z" fill="'+H.hair+'"/><rect x="15" y="17.5" width="30" height="4" rx="2" fill="#14181f"/>';}}
+ s+='<circle cx="25" cy="21" r="1.7" fill="#26221f"/><circle cx="35" cy="21" r="1.7" fill="#26221f"/>';
+ s+='<path d="M26 25.5 q4 3.2 8 0" stroke="#26221f" stroke-width="1.4" fill="none" stroke-linecap="round"/>';
+ if(H.style==='long'||H.style==='buns')s+='<circle cx="20.6" cy="24.6" r="2.1" fill="#ff9eb0" opacity=".65"/><circle cx="39.4" cy="24.6" r="2.1" fill="#ff9eb0" opacity=".65"/>';
+ s+='</svg>';return s;}
 /* ================= УТИЛИТЫ ================= */
 function $(id){return document.getElementById(id);}
 function esc(t){return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;');}
@@ -217,10 +260,10 @@ function renderScene(){var L=LOCS[S.loc];var sc=$('scene');sc.style.background=L
    h+='<div class="slot'+(f?'':' empty')+'" data-slot="'+i+'" style="left:'+pos[i]+'%">'+(f?itemById(f).e:'·')+'</div>';}
   var m=S.mess||0;if(m>0){var trash=['🧦','🍕','📦','🥤'];var cnt=m>=70?4:(m>=45?3:(m>=20?2:1));
    for(var t=0;t<cnt;t++)h+='<div class="deco" style="left:'+(8+t*24)+'%;top:78%;font-size:20px">'+trash[t]+'</div>';}}
- L.npcs.forEach(function(npc){h+=personHTML(npc,false,npc.e);});
- if(S.loc==='home'&&Date.now()<S.partyUntil){[['Гость', '🕺',24],['Гостья','💃',38],['Друг','🧑',56],['Подруга','👱‍♀️',68]].forEach(function(g){
-   h+='<div class="person dancing" style="left:'+g[2]+'%"><div class="av">'+g[1]+'</div><div class="pn">'+g[0]+'</div></div>';});}
- h+=personHTML({n:S.name,x:S.x},true,'<span>'+headE(S.head)+'</span><span class="bd">'+headE(S.body)+'</span>');
+ L.npcs.forEach(function(npc){h+=personHTML(npc,false,personSVG(npc.h,npc.b,npc.cc));});
+ if(S.loc==='home'&&Date.now()<S.partyUntil){[['Гость','h1','b0',24],['Гостья','h6','b2',38],['Друг','h2','b4',56],['Подруга','h9','b7',68]].forEach(function(g){
+   h+='<div class="person dancing" style="left:'+g[3]+'%"><div class="av">'+personSVG(g[1],g[2])+'</div><div class="pn">'+g[0]+'</div></div>';});}
+ h+=personHTML({n:S.name,x:S.x},true,personSVG(S.head,S.body));
  $('sceneInner').innerHTML=h;
  Array.prototype.forEach.call(document.querySelectorAll('.person'),function(el){
    el.addEventListener('click',function(){var n=el.getAttribute('data-npc');if(n&&n!==S.name)talkTo(n);});});
@@ -296,7 +339,8 @@ function openModal(html){$('modal').innerHTML='<button class="x" id="mX">✕</bu
 function closeModal(){$('modalWrap').style.display='none';stopFish();}
 function openShop(items,title){var h='<h3>'+title+'</h3><div style="font-size:13px">У тебя: <b>'+S.credits+'💰</b></div><div class="shopGrid">';
  items.forEach(function(it){var own=S.owned.indexOf(it.id)>=0;var eq=(S.head===it.id||S.body===it.id);
-  h+='<div class="shopIt"><div class="e">'+it.e+'</div><div class="n">'+it.n+'</div><div class="p">'+(own?'куплено':it.p+'💰')+'</div>'+
+  var vis=(it.id[0]==='h')?personSVG(it.id,S.body):(it.id[0]==='b'?personSVG(S.head,it.id):it.e);
+  h+='<div class="shopIt"><div class="e">'+vis+'</div><div class="n">'+it.n+'</div><div class="p">'+(own?'куплено':it.p+'💰')+'</div>'+
   (own?'<button class="own" data-eq="'+it.id+'">'+(eq?'✓ надето':'Надеть')+'</button>'
       :'<button data-buy="'+it.id+'" '+(S.credits<it.p?'disabled':'')+'>Купить</button>')+'</div>';});
  h+='</div><div class="msg" id="shopMsg"></div>';openModal(h);
@@ -309,7 +353,8 @@ function buyItem(id){var it=itemById(id);if(!it||S.owned.indexOf(id)>=0)return f
 function equipItem(id){if(S.owned.indexOf(id)<0)return;if(id[0]==='h')S.head=id;if(id[0]==='b')S.body=id;save();renderAll();}
 function openLook(){var h='<h3>👤 Твой образ</h3><div style="font-size:13px">Выбери из купленного:</div><div class="shopGrid">';
  HEADS.concat(BODIES).forEach(function(it){if(S.owned.indexOf(it.id)<0)return;var eq=(S.head===it.id||S.body===it.id);
-  h+='<div class="shopIt"><div class="e">'+it.e+'</div><div class="n">'+it.n+'</div><button class="'+(eq?'own':'')+'" data-eq="'+it.id+'">'+(eq?'✓ надето':'Надеть')+'</button></div>';});
+  var vis=(it.id[0]==='h')?personSVG(it.id,S.body):personSVG(S.head,it.id);
+  h+='<div class="shopIt"><div class="e">'+vis+'</div><div class="n">'+it.n+'</div><button class="'+(eq?'own':'')+'" data-eq="'+it.id+'">'+(eq?'✓ надето':'Надеть')+'</button></div>';});
  h+='</div>';openModal(h);
  Array.prototype.forEach.call(document.querySelectorAll('[data-eq]'),function(b){b.addEventListener('click',function(){equipItem(b.getAttribute('data-eq'));openLook();});});}
 var pendingFur=null;
@@ -363,11 +408,11 @@ setInterval(function(){if(!S||$('gameScr').style.display==='none')return;
 /* ================= СОЗДАНИЕ ================= */
 var selHead='h0',selBody='b0',newArm=false;
 function buildPickers(){var hp=$('headPick'),bp=$('bodyPick');hp.innerHTML='';bp.innerHTML='';
- HEADS.filter(function(i){return i.p===0;}).forEach(function(it){var b=document.createElement('button');b.className='pick'+(selHead===it.id?' sel':'');b.textContent=it.e;
+ HEADS.filter(function(i){return i.p===0;}).forEach(function(it){var b=document.createElement('button');b.className='pick'+(selHead===it.id?' sel':'');b.innerHTML=personSVG(it.id,selBody);
   b.addEventListener('click',function(){selHead=it.id;buildPickers();updPreview();});hp.appendChild(b);});
- BODIES.filter(function(i){return i.p===0;}).forEach(function(it){var b=document.createElement('button');b.className='pick'+(selBody===it.id?' sel':'');b.textContent=it.e;
+ BODIES.filter(function(i){return i.p===0;}).forEach(function(it){var b=document.createElement('button');b.className='pick'+(selBody===it.id?' sel':'');b.innerHTML=personSVG(selHead,it.id);
   b.addEventListener('click',function(){selBody=it.id;buildPickers();updPreview();});bp.appendChild(b);});}
-function updPreview(){$('prevHead').textContent=headE(selHead);$('prevBody').textContent=headE(selBody);}
+function updPreview(){$('prevAva').innerHTML=personSVG(selHead,selBody);}
 function enterGame(){$('createScr').style.display='none';$('gameScr').style.display='flex';renderAll();
  sysChat('Добро пожаловать в Город, '+S.name+'! 💛');chatMsg('Мита','я тут, в твоём доме живу по соседству 😊');checkQuest();}
 $('playBtn').addEventListener('click',function(){
