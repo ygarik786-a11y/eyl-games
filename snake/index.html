@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="ru"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Змейка — E.Y.L Games</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:linear-gradient(180deg,#141432,#1d2b53);color:#fff;font-family:Verdana,sans-serif;min-height:100vh;text-align:center;padding:14px 10px 24px}
+a.back{color:#aef;font-size:14px;text-decoration:none}
+h1{font-size:28px;color:#ffd23f;text-shadow:2px 2px 0 #b8860b;margin:10px 0 4px}
+.score{font-size:18px;margin:6px 0 10px}.score b{color:#ffd23f}
+canvas{background:#0d0d26;border:3px solid #ffd23f;border-radius:14px;max-width:92vw;touch-action:none}
+#msg{font-size:18px;min-height:26px;margin:10px 0;color:#ffd23f}
+button{background:#ffd23f;color:#1a1a2e;border:0;border-radius:12px;padding:12px 22px;font-size:18px;font-weight:bold;cursor:pointer;box-shadow:0 4px 0 #b8860b}
+button:active{transform:translateY(3px);box-shadow:0 1px 0 #b8860b}
+.pad{display:grid;grid-template-columns:repeat(3,64px);gap:8px;justify-content:center;margin:18px auto 0}
+.pad button{padding:0;height:56px;font-size:26px}
+.pad .sp{visibility:hidden}
+.hint{color:#89a;font-size:12px;margin-top:14px}
+</style></head><body>
+<a class="back" href="../">← E.Y.L Games</a>
+<h1>🐍 ЗМЕЙКА</h1>
+<div class="score">Счёт: <b id="sc">0</b> • Рекорд: <b id="best">0</b></div>
+<canvas id="c" width="400" height="400"></canvas>
+<div id="msg">Нажми «Играть» или свайпни по полю!</div>
+<button id="start" onclick="startGame()">▶ Играть</button>
+<div class="pad">
+<span class="sp"></span><button onclick="setDir(0,-1)">⬆️</button><span class="sp"></span>
+<button onclick="setDir(-1,0)">⬅️</button><button onclick="setDir(0,1)">⬇️</button><button onclick="setDir(1,0)">➡️</button>
+</div>
+<div class="hint">Клавиатура: стрелки или WASD • Телефон: свайп или кнопки • Ешь 🍎, не врезайся в себя и в стены!</div>
+<script>
+var cv=document.getElementById('c'),ctx=cv.getContext('2d'),N=20,S=20;
+var snake,dir,ndir,food,score,best=+(localStorage.getItem('eyl_snake_best')||0),timer,over=false,started=false;
+document.getElementById('best').textContent=best;
+function placeFood(){do{food={x:Math.floor(Math.random()*N),y:Math.floor(Math.random()*N)};}while(snake.some(function(p){return p.x===food.x&&p.y===food.y;}));}
+function draw(){
+  ctx.fillStyle='#0d0d26';ctx.fillRect(0,0,400,400);
+  ctx.fillStyle='#ffd23f';ctx.font='16px serif';ctx.textAlign='center';
+  ctx.fillText('🍎',food.x*S+S/2,food.y*S+15);
+  snake.forEach(function(p,i){
+    ctx.fillStyle=i===0?'#7CFC00':'#32CD32';
+    ctx.beginPath();ctx.roundRect(p.x*S+1,p.y*S+1,S-2,S-2,5);ctx.fill();
+  });
+}
+function setDir(x,y){
+  if(!started)return;
+  if(dir.x===-x&&dir.y===-y)return; // не разворачиваться в себя
+  ndir={x:x,y:y};
+}
+function tick(){
+  dir=ndir;
+  var head={x:snake[0].x+dir.x,y:snake[0].y+dir.y};
+  if(head.x<0||head.y<0||head.x>=N||head.y>=N||snake.some(function(p){return p.x===head.x&&p.y===head.y;})){
+    clearInterval(timer);over=true;
+    document.getElementById('msg').textContent='💥 Игра окончена! Счёт: '+score;
+    document.getElementById('start').textContent='↻ Ещё раз';
+    return;
+  }
+  snake.unshift(head);
+  if(head.x===food.x&&head.y===food.y){
+    score++;document.getElementById('sc').textContent=score;
+    if(score>best){best=score;localStorage.setItem('eyl_snake_best',best);document.getElementById('best').textContent=best;}
+    placeFood();
+    clearInterval(timer);timer=setInterval(tick,Math.max(70,150-score*3));
+  } else snake.pop();
+  draw();
+}
+function startGame(){
+  snake=[{x:10,y:10},{x:9,y:10},{x:8,y:10}];dir={x:1,y:0};ndir=dir;score=0;over=false;started=true;
+  document.getElementById('sc').textContent=0;
+  document.getElementById('msg').textContent='Вперёд! 🍎';
+  document.getElementById('start').textContent='↻ Заново';
+  placeFood();draw();clearInterval(timer);timer=setInterval(tick,150);
+}
+document.addEventListener('keydown',function(e){
+  var k=e.key.toLowerCase();
+  if(k==='arrowup'||k==='w')setDir(0,-1);
+  else if(k==='arrowdown'||k==='s')setDir(0,1);
+  else if(k==='arrowleft'||k==='a')setDir(-1,0);
+  else if(k==='arrowright'||k==='d')setDir(1,0);
+  if(['arrowup','arrowdown','arrowleft','arrowright'].indexOf(k)>=0)e.preventDefault();
+});
+var tx,ty;
+cv.addEventListener('touchstart',function(e){var t=e.touches[0];tx=t.clientX;ty=t.clientY;},{passive:true});
+cv.addEventListener('touchend',function(e){
+  if(!started){startGame();return;}
+  var t=e.changedTouches[0],dx=t.clientX-tx,dy=t.clientY-ty;
+  if(Math.abs(dx)>Math.abs(dy))setDir(dx>0?1:-1,0);else if(Math.abs(dy)>10)setDir(0,dy>0?1:-1);
+},{passive:true});
+draw();
+</script></body></html>
