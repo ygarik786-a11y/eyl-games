@@ -1,72 +1,199 @@
 <!DOCTYPE html>
 <html lang="ru"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>📺 E.Y.L Launcher — твой экран</title>
+<title>📺 E.Y.L Лаунчер</title>
 <style>
-*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{height:100%}
-body{font-family:-apple-system,'Segoe UI',Roboto,sans-serif;background:#0b0b16;color:#f4f4f8;overflow:hidden}
-.bg{position:fixed;inset:0;z-index:-1;background:radial-gradient(800px 480px at 15% -5%,rgba(255,183,0,.16),transparent 60%),radial-gradient(800px 520px at 95% 12%,rgba(124,77,255,.18),transparent 60%),#0b0b16}
-.wrap{height:100vh;max-width:1100px;margin:0 auto;padding:3vh 3vw;display:flex;flex-direction:column}
-header{display:flex;align-items:flex-end;justify-content:space-between;gap:16px}
-h1{font-size:clamp(28px,4.5vw,52px);font-weight:900;line-height:1.05}
-h1 .gold{background:linear-gradient(92deg,#ffe082,#ffb300 45%,#ff8f00 70%,#ffe082);-webkit-background-clip:text;background-clip:text;color:transparent}
-.sub{color:#c9c9da;font-size:clamp(14px,1.8vw,20px);margin-top:8px}
-.clock{text-align:right;flex-shrink:0}
-.clock .time{font-size:clamp(30px,4.5vw,54px);font-weight:900;color:#ffe082;line-height:1}
-.clock .date{color:#c9c9da;font-size:clamp(13px,1.6vw,18px);margin-top:6px}
-.grid{flex:1;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:1fr 1fr;gap:18px;margin-top:3vh}
-.tile{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-decoration:none;color:inherit;border-radius:26px;border:2px solid rgba(255,255,255,.14);background:linear-gradient(180deg,rgba(255,255,255,.08),rgba(255,255,255,.02));box-shadow:0 14px 34px rgba(0,0,0,.4);outline:none}
-.tile .ico{font-size:clamp(44px,7vw,84px);line-height:1;filter:drop-shadow(0 10px 14px rgba(0,0,0,.45))}
-.tile h2{font-size:clamp(19px,2.6vw,32px);font-weight:900;text-align:center}
-.tile p{color:#c9c9da;font-size:clamp(13px,1.6vw,19px);text-align:center;padding:0 12px}
-.tile:focus,.tile.focused{border-color:#ffb300;box-shadow:0 0 0 4px #ffb300,0 18px 40px rgba(0,0,0,.5);transform:scale(1.03);background:linear-gradient(180deg,rgba(255,183,0,.22),rgba(255,183,0,.06))}
-footer{text-align:center;color:#9a9ab2;font-size:clamp(13px,1.6vw,18px);padding-top:2vh}
-footer b{color:#ffe082}
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html,body { height:100%; overflow:hidden; background:#05060a; }
+  body { font-family:'Segoe UI',system-ui,Arial,sans-serif; color:#fff; }
+  .bgimg { position:fixed; inset:0; width:100%; height:100%; object-fit:cover; opacity:0; transition:opacity 1.4s ease; }
+  .bgimg.on { opacity:1; }
+  .shade { position:fixed; inset:0; background:linear-gradient(180deg,rgba(3,4,10,.55),rgba(3,4,10,.28) 40%,rgba(3,4,10,.62)); }
+  .wrap { position:relative; z-index:2; height:100vh; display:flex; flex-direction:column; padding:3.2vh 4vw 3vh; }
+  header { display:flex; align-items:flex-start; justify-content:space-between; }
+  .brand { font-size:2.6vh; font-weight:800; letter-spacing:.14em; color:#ffd968; text-shadow:0 2px 14px rgba(0,0,0,.7); }
+  .brand small { display:block; font-size:1.5vh; letter-spacing:.05em; color:#e8ecf4; font-weight:600; margin-top:.4vh; }
+  .clock { text-align:right; text-shadow:0 2px 14px rgba(0,0,0,.7); }
+  .clock .t { font-size:5.2vh; font-weight:800; line-height:1; }
+  .clock .d { font-size:1.9vh; color:#dfe6f2; margin-top:.5vh; text-transform:capitalize; }
+  .themes { display:flex; gap:1.2vw; margin-top:2.6vh; flex-wrap:wrap; }
+  .chip { flex:1 1 0; min-width:150px; text-align:center; padding:1.5vh 0; border-radius:16px; cursor:pointer;
+          background:rgba(10,13,24,.55); border:2px solid rgba(255,255,255,.18); backdrop-filter:blur(6px);
+          font-size:2.1vh; font-weight:700; color:#aeb8c8; user-select:none; }
+  .chip .st { display:block; font-size:1.4vh; font-weight:600; margin-top:.3vh; }
+  .chip.on { color:#fff; border-color:rgba(255,217,104,.55); background:rgba(30,26,8,.62); }
+  .chip.on .st { color:#ffd968; }
+  .chip.focus, .tile.focus { outline:4px solid #ffd968; outline-offset:2px; box-shadow:0 0 34px rgba(255,217,104,.45); }
+  .grid { flex:1; display:grid; grid-template-columns:repeat(3,1fr); gap:2vh 1.6vw; margin-top:2.6vh; align-content:stretch; }
+  .tile { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1vh; border-radius:26px;
+          background:rgba(8,10,20,.58); border:2px solid rgba(255,255,255,.16); backdrop-filter:blur(7px);
+          cursor:pointer; text-decoration:none; color:#fff; user-select:none; padding:1.6vh 1vw; }
+  .tile .em { font-size:8.2vh; line-height:1; filter:drop-shadow(0 4px 12px rgba(0,0,0,.6)); }
+  .tile .nm { font-size:2.9vh; font-weight:800; text-align:center; text-shadow:0 2px 10px rgba(0,0,0,.8); }
+  .tile .ds { font-size:1.7vh; color:#cfd8e6; text-align:center; }
+  .hint { margin-top:2.2vh; text-align:center; font-size:1.7vh; color:#d5dce8; text-shadow:0 1px 8px rgba(0,0,0,.9); }
+  .hint b { color:#ffd968; }
 </style></head><body>
-<div class="bg"></div>
+<img class="bgimg" id="bgA" alt="">
+<img class="bgimg" id="bgB" alt="">
+<div class="shade"></div>
 <div class="wrap">
   <header>
-    <div>
-      <h1>📺 <span class="gold">E.Y.L</span> Launcher</h1>
-      <p class="sub">Твои сайты — большими плитками, листается пультом 💛</p>
-    </div>
-    <div class="clock"><div class="time" id="clock">--:--</div><div class="date" id="date"></div></div>
+    <div class="brand">E.Y.L<small>домашний экран Erik</small></div>
+    <div class="clock"><div class="t" id="clock">--:--</div><div class="d" id="date"></div></div>
   </header>
-  <nav class="grid" id="grid">
-    <a class="tile" href="https://eriksocial.alwaysdata.net"><span class="ico">💛</span><h2>Соцсеть E.Y.L</h2><p>Посты, друзья, подарки и звонки</p></a>
-    <a class="tile" href="../"><span class="ico">🎮</span><h2>Игры E.Y.L</h2><p>Все игры, ферма и приставка</p></a>
-    <a class="tile" href="../farm/"><span class="ico">🚜</span><h2>Ферма</h2><p>Твоё хозяйство и монетки</p></a>
-    <a class="tile" href="https://erik-newyear.onrender.com"><span class="ico">🎄</span><h2>Новогодний сайт</h2><p>Ёлка, часы и радио до Нового года</p></a>
-    <a class="tile" href="../brick/"><span class="ico">🕹️</span><h2>Приставка Brick</h2><p>23 игры, как в детстве</p></a>
-    <a class="tile" href="../memory/"><span class="ico">🧠</span><h2>Мини-игры</h2><p>Память и орёл или решка</p></a>
-  </nav>
-  <footer>⬅️ ➡️ ⬆️ ⬇️ — листать пультом &nbsp;•&nbsp; <b>OK / Enter</b> — открыть &nbsp;•&nbsp; Всё на первом экране, ничего листать вниз не надо</footer>
+
+  <div class="themes" id="themes"></div>
+
+  <div class="grid" id="grid">
+    <a class="tile" href="https://eriksocial.alwaysdata.net"><span class="em">💬</span><span class="nm">Соцсеть E.Y.L</span><span class="ds">посты, друзья, подарки</span></a>
+    <a class="tile" href="../"><span class="em">🎮</span><span class="nm">Игры E.Y.L</span><span class="ds">все игры в одном месте</span></a>
+    <a class="tile" href="../farm/"><span class="em">🚜</span><span class="nm">Ферма</span><span class="ds">животные и урожай</span></a>
+    <a class="tile" href="https://erik-newyear.onrender.com"><span class="em">🎄</span><span class="nm">Новогодний сайт</span><span class="ds">обратный отсчёт и ErikTalk</span></a>
+    <a class="tile" href="../brick/"><span class="em">🧱</span><span class="nm">Brick Game</span><span class="ds">приставка 9999 в 1</span></a>
+    <a class="tile" href="../memory/"><span class="em">🃏</span><span class="nm">Мини-игры</span><span class="ds">память и монетка</span></a>
+  </div>
+
+  <div class="hint">Стрелки пульта — выбор • <b>OK</b> — открыть / включить тему • Картинки меняются сами каждые 8 секунд</div>
 </div>
 <script>
-var tiles=[].slice.call(document.querySelectorAll('.tile'));
-var cols=3, idx=0;
-function focusTile(i){idx=(i+tiles.length)%tiles.length;tiles.forEach(function(t){t.classList.remove('focused')});tiles[idx].classList.add('focused');tiles[idx].focus();}
-tiles.forEach(function(t,i){
-  t.addEventListener('mouseenter',function(){focusTile(i)});
-  t.addEventListener('click',function(){focusTile(i)});
-});
-document.addEventListener('keydown',function(e){
-  if(e.key==='ArrowRight')focusTile(idx+1);
-  else if(e.key==='ArrowLeft')focusTile(idx-1);
-  else if(e.key==='ArrowDown')focusTile(idx+cols);
-  else if(e.key==='ArrowUp')focusTile(idx-cols);
-  else if(e.key==='Enter'||e.key===' '){e.preventDefault();tiles[idx].click();}
-  else return;
-  e.preventDefault();
-});
-function tick(){
-  var d=new Date();
-  var hh=String(d.getHours()).padStart(2,'0'), mm=String(d.getMinutes()).padStart(2,'0');
-  document.getElementById('clock').textContent=hh+':'+mm;
-  document.getElementById('date').textContent=d.toLocaleDateString('ru-RU',{weekday:'long',day:'numeric',month:'long'});
+var THEMES = [
+  { id:'newyear', em:'🎄', name:'Новый год', pics:[
+    'https://thumb.wikimedia.org/wikipedia/commons/thumb/7/76/Glowing_Christmas_Tree_Lights_in_the_Winter_Night.jpg/1920px-Glowing_Christmas_Tree_Lights_in_the_Winter_Night.jpg',
+    'https://thumb.wikimedia.org/wikipedia/commons/thumb/2/25/Overview_of_Christmas_lights_and_tree_in_2024_at_Water_tower_Kostel%C3%AD%C4%8Dek_in_T%C5%99eb%C3%AD%C4%8D%2C_T%C5%99eb%C3%AD%C4%8D_District.jpg/1920px-Overview_of_Christmas_lights_and_tree_in_2024_at_Water_tower_Kostel%C3%AD%C4%8Dek_in_T%C5%99eb%C3%AD%C4%8D%2C_T%C5%99eb%C3%AD%C4%8D_District.jpg',
+    'https://thumb.wikimedia.org/wikipedia/commons/thumb/3/3c/2025_New_Year_Fireworks_in_Tamsui%2C_New_Taipei_%2854238509557%29.jpg/1920px-2025_New_Year_Fireworks_in_Tamsui%2C_New_Taipei_%2854238509557%29.jpg',
+    'https://thumb.wikimedia.org/wikipedia/commons/thumb/7/70/Bratislava_New_Year_Fireworks.jpg/1920px-Bratislava_New_Year_Fireworks.jpg',
+    'https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b4/Fireworks_on_New_Year%27s_Eve_in_a_small_Swabian_village_%281%29%2C_brightened.jpg/1920px-Fireworks_on_New_Year%27s_Eve_in_a_small_Swabian_village_%281%29%2C_brightened.jpg',
+    'https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a1/Winter_Forest_%28129068527%29.jpeg/1920px-Winter_Forest_%28129068527%29.jpeg'
+  ]},
+  { id:'cartoon', em:'🦄', name:'Мультики', pics:[
+    'https://thumb.wikimedia.org/wikipedia/commons/thumb/5/5f/Steamboat_Willie_%281928%29_by_Walt_Disney.webm/1280px--Steamboat_Willie_%281928%29_by_Walt_Disney.webm.jpg',
+    'https://thumb.wikimedia.org/wikipedia/commons/thumb/d/df/Betty_Boop_-_No%21_No%21_A_Thousand_Times_No%21%21_%281935%29.webm/1920px--Betty_Boop_-_No%21_No%21_A_Thousand_Times_No%21%21_%281935%29.webm.jpg',
+    'https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b6/Betty_Boop_-_Betty_in_Blunderland_%281934%29.webm/1280px--Betty_Boop_-_Betty_in_Blunderland_%281934%29.webm.jpg',
+    'https://thumb.wikimedia.org/wikipedia/commons/thumb/0/03/Felix_the_Cat_Kept_on_Walking_%281925%29.webm/1280px--Felix_the_Cat_Kept_on_Walking_%281925%29.webm.jpg',
+    'https://thumb.wikimedia.org/wikipedia/commons/thumb/c/cb/%22Birthday%22_%281922%29_Koko_The_Clown_Cartoon_%28Fleischer_Studios%29.webm/1920px--%22Birthday%22_%281922%29_Koko_The_Clown_Cartoon_%28Fleischer_Studios%29.webm.jpg',
+    'https://thumb.wikimedia.org/wikipedia/commons/thumb/5/5e/Gertie_the_Dinosaur_and_a_boulder.jpg/1920px-Gertie_the_Dinosaur_and_a_boulder.jpg'
+  ]},
+  { id:'nature', em:'🌲', name:'Природа', pics:[
+    'https://thumb.wikimedia.org/wikipedia/commons/thumb/a/ab/009_NZ_Southern_Alps_mountain_landscape_in_New_Zealand_seen_from_Gillespies_Beach%2C_West_Coast_-_sunset_light.jpg/1920px-009_NZ_Southern_Alps_mountain_landscape_in_New_Zealand_seen_from_Gillespies_Beach%2C_West_Coast_-_sunset_light.jpg',
+    'https://thumb.wikimedia.org/wikipedia/commons/thumb/6/60/Aurora_borealis_above_Storfjorden_and_the_Lyngen_Alps_in_moonlight%2C_2012_March.jpg/1920px-Aurora_borealis_above_Storfjorden_and_the_Lyngen_Alps_in_moonlight%2C_2012_March.jpg',
+    'https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b7/Mountain_landscape_in_the_Alps_%2852340666383%29.jpg/1920px-Mountain_landscape_in_the_Alps_%2852340666383%29.jpg',
+    'https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e0/Sunset%2C_Kuta%2C_Bali%2C_Indonesia%2C_20220825_1755_0879.jpg/1920px-Sunset%2C_Kuta%2C_Bali%2C_Indonesia%2C_20220825_1755_0879.jpg',
+    'https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e2/Dexing_Waterfall_in_the_green_forest.jpg/1920px-Dexing_Waterfall_in_the_green_forest.jpg',
+    'https://thumb.wikimedia.org/wikipedia/commons/thumb/e/ea/002_Wild_Alpine_Ibex_Swiss_Alps_and_Creux_du_Van_Photo_by_Giles_Laurent.jpg/1920px-002_Wild_Alpine_Ibex_Swiss_Alps_and_Creux_du_Van_Photo_by_Giles_Laurent.jpg'
+  ]},
+  { id:'real', em:'📸', name:'Настоящие фото', pics:[
+    'https://thumb.wikimedia.org/wikipedia/commons/thumb/7/71/At_New_York_City_2025_001_-_Hudson_Yards_skyline%2C_New_York%2C_at_night.jpg/1920px-At_New_York_City_2025_001_-_Hudson_Yards_skyline%2C_New_York%2C_at_night.jpg',
+    'https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d9/Chateau_Frontenac_illuminated_at_night_in_Quebec_City.jpg/1920px-Chateau_Frontenac_illuminated_at_night_in_Quebec_City.jpg',
+    'https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b6/Lower_Manhattan_from_Jersey_City_November_2014_panorama_3.jpg/1920px-Lower_Manhattan_from_Jersey_City_November_2014_panorama_3.jpg',
+    'https://thumb.wikimedia.org/wikipedia/commons/thumb/b/be/Eiffel_Tower_at_evening%2C_Paris%2C_France_%28Ank_Kumar%29_01.jpg/1920px-Eiffel_Tower_at_evening%2C_Paris%2C_France_%28Ank_Kumar%29_01.jpg',
+    'https://thumb.wikimedia.org/wikipedia/commons/thumb/b/bd/Maidan_Nezalezhnosti_%288601857500%29.jpg/1920px-Maidan_Nezalezhnosti_%288601857500%29.jpg',
+    'https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a3/Canal_Grande_Chiesa_della_Salute_e_Dogana_dal_ponte_dell_Accademia.jpg/1920px-Canal_Grande_Chiesa_della_Salute_e_Dogana_dal_ponte_dell_Accademia.jpg'
+  ]}
+];
+
+/* --- выбранные темы (сохраняются) --- */
+var active = {};
+try { active = JSON.parse(localStorage.getItem('eyl_launcher_themes_v2') || '{}'); } catch(e) { active = {}; }
+THEMES.forEach(function(t){ if (typeof active[t.id] !== 'boolean') active[t.id] = true; });
+function saveThemes(){ try { localStorage.setItem('eyl_launcher_themes_v2', JSON.stringify(active)); } catch(e){} }
+
+/* --- очередь картинок: перемешать внутри тем и чередовать темы --- */
+function shuffled(a){ a = a.slice(); for (var i = a.length - 1; i > 0; i--){ var j = Math.floor(Math.random() * (i + 1)); var x = a[i]; a[i] = a[j]; a[j] = x; } return a; }
+var queue = [], qi = 0;
+function rebuildQueue(){
+  var pools = THEMES.filter(function(t){ return active[t.id]; }).map(function(t){ return shuffled(t.pics); });
+  queue = [];
+  var more = true;
+  while (more) {
+    more = false;
+    pools.forEach(function(p){ if (p.length) { queue.push(p.shift()); more = true; } });
+  }
+  qi = 0;
 }
-tick();setInterval(tick,10000);
-focusTile(0);
+
+/* --- слайд-шоу с кроссфейдом --- */
+var layerA = document.getElementById('bgA'), layerB = document.getElementById('bgB');
+var front = layerA, back = layerB, timer = null;
+function showNext(){
+  if (!queue.length) return;
+  var url = queue[qi % queue.length]; qi++;
+  var pre = new Image();
+  pre.onload = function(){
+    back.src = url;
+    back.classList.add('on'); front.classList.remove('on');
+    var t = front; front = back; back = t;
+    var nxt = new Image(); nxt.src = queue[qi % queue.length];
+  };
+  pre.onerror = function(){
+    var i = queue.indexOf(url); if (i >= 0) queue.splice(i, 1);
+    if (queue.length) showNext();
+  };
+  pre.src = url;
+}
+function restartShow(){
+  rebuildQueue();
+  if (timer) clearInterval(timer);
+  if (queue.length) { qi = 0; showNext(); timer = setInterval(showNext, 8000); }
+}
+
+/* --- кнопки тем --- */
+var themesEl = document.getElementById('themes');
+THEMES.forEach(function(t){
+  var d = document.createElement('div');
+  d.className = 'chip'; d.setAttribute('data-theme', t.id);
+  d.innerHTML = t.em + ' ' + t.name + '<span class="st"></span>';
+  d.addEventListener('click', function(){ toggleTheme(t.id); focusEl(d); });
+  themesEl.appendChild(d);
+});
+function paintChips(){
+  themesEl.querySelectorAll('.chip').forEach(function(c){
+    var on = active[c.getAttribute('data-theme')];
+    c.classList.toggle('on', !!on);
+    c.querySelector('.st').textContent = on ? '● включено' : '○ выключено';
+  });
+}
+function toggleTheme(id){
+  var count = THEMES.filter(function(t){ return active[t.id]; }).length;
+  if (active[id] && count <= 1) return; /* последнюю включённую не гасим */
+  active[id] = !active[id];
+  saveThemes(); paintChips(); restartShow();
+}
+paintChips();
+
+/* --- навигация с пульта: сетка фокуса (темы сверху, плитки 3×2) --- */
+var chips = Array.prototype.slice.call(themesEl.querySelectorAll('.chip'));
+var tiles = Array.prototype.slice.call(document.querySelectorAll('.tile'));
+var rowsEls = [chips, tiles.slice(0, 3), tiles.slice(3, 6)];
+var fr = 1, fc = 0, cur = null;
+function focusEl(el){
+  if (cur) cur.classList.remove('focus');
+  cur = el; if (cur) cur.classList.add('focus');
+  for (var r = 0; r < rowsEls.length; r++) { var i = rowsEls[r].indexOf(el); if (i >= 0) { fr = r; fc = i; } }
+}
+function paintFocus(){ focusEl(rowsEls[fr][Math.min(fc, rowsEls[fr].length - 1)]); }
+tiles.forEach(function(t){ t.addEventListener('click', function(){ focusEl(t); }); });
+paintFocus();
+document.addEventListener('keydown', function(e){
+  var k = e.key;
+  if (k === 'ArrowRight') { fc = Math.min(fc + 1, rowsEls[fr].length - 1); paintFocus(); e.preventDefault(); }
+  else if (k === 'ArrowLeft') { fc = Math.max(fc - 1, 0); paintFocus(); e.preventDefault(); }
+  else if (k === 'ArrowDown') { if (fr < rowsEls.length - 1) { fc = Math.min(fc, rowsEls[fr + 1].length - 1); fr++; paintFocus(); } e.preventDefault(); }
+  else if (k === 'ArrowUp') { if (fr > 0) { fc = Math.min(fc, rowsEls[fr - 1].length - 1); fr--; paintFocus(); } e.preventDefault(); }
+  else if (k === 'Enter' || k === ' ') {
+    if (cur && cur.classList.contains('chip')) { toggleTheme(cur.getAttribute('data-theme')); e.preventDefault(); }
+    else if (cur && cur.classList.contains('tile')) { location.href = cur.href; e.preventDefault(); }
+  }
+});
+
+/* --- часы --- */
+function tickClock(){
+  var n = new Date();
+  var hh = String(n.getHours()).padStart(2, '0'), mm = String(n.getMinutes()).padStart(2, '0');
+  document.getElementById('clock').textContent = hh + ':' + mm;
+  document.getElementById('date').textContent = n.toLocaleDateString('ru-RU', { weekday:'long', day:'numeric', month:'long' });
+}
+tickClock(); setInterval(tickClock, 10000);
+restartShow();
 </script>
 </body></html>
