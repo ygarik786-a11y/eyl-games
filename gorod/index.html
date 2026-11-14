@@ -5,7 +5,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <meta name="theme-color" content="#1b2a4a">
-<title>💛 Любовь в городе — наша версия | Игра от создателя E.Y.L</title>
+<title>💛 Город Любви E.Y.L — игра от создателя E.Y.L</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{height:100%}
@@ -15,6 +15,10 @@ input{font-family:inherit}
 /* ===== СОЗДАНИЕ ПЕРСОНАЖА ===== */
 #createScr{position:fixed;inset:0;background:linear-gradient(180deg,#2a4a7f 0%,#4a7ab5 55%,#e8c98a 100%);display:flex;flex-direction:column;align-items:center;padding:18px 14px;overflow-y:auto;z-index:30}
 #createScr h1{font-size:24px;text-align:center;text-shadow:0 2px 8px rgba(0,0,0,.4)}
+.logo{display:flex;flex-direction:column;align-items:center;gap:9px;margin-top:2px}
+.logo .l1{font-size:37px;font-weight:900;letter-spacing:2.5px;line-height:1.05;background:linear-gradient(92deg,#ff9ec4 5%,#ffd94d 48%,#ff5d8f 95%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;filter:drop-shadow(0 3px 6px rgba(0,0,0,.45))}
+.logo .eyl{background:linear-gradient(180deg,#ffe97a,#f5b921);color:#4a2c00;font-size:15px;font-weight:900;letter-spacing:6px;padding:5px 16px 5px 22px;border-radius:999px;box-shadow:0 4px 12px rgba(0,0,0,.4),inset 0 1px 0 #fff8;text-shadow:none}
+.logo .orn{font-size:14px;letter-spacing:8px;opacity:.95;text-shadow:0 2px 6px rgba(0,0,0,.4)}
 #createScr .sub{opacity:.92;font-size:13px;margin:4px 0 12px;text-align:center}
 .bigava{font-size:74px;line-height:1.05;text-align:center;filter:drop-shadow(0 6px 8px rgba(0,0,0,.35))}
 .bigava .bd{display:block;font-size:56px;margin-top:-24px}
@@ -90,8 +94,8 @@ input{font-family:inherit}
 
 <!-- СОЗДАНИЕ ПЕРСОНАЖА -->
 <div id="createScr">
-  <h1>💛 Любовь в городе</h1>
-  <div class="sub">наша версия любимой игры — от создателя E.Y.L<br>Создай свой неповторимый образ! Приглашай друзей на вечеринки!</div>
+  <h1 class="logo"><span class="l1">ГОРОД ЛЮБВИ</span><span class="eyl">E.Y.L</span><span class="orn">✨ 💛 ✨</span></h1>
+  <div class="sub">наша версия любимой игры, которую закрыли, — от создателя E.Y.L<br>Создай свой неповторимый образ! Приглашай друзей на вечеринки!</div>
   <div class="bigava"><span id="prevHead">🧑</span><span class="bd" id="prevBody">👕</span></div>
   <input id="nameInp" maxlength="16" placeholder="Имя твоего человека">
   <div class="picklbl">Лицо и причёска</div>
@@ -179,7 +183,7 @@ var KEY='eyl-gorod-v1';
 var S=null;
 function defState(name,head,body){return {name:name,head:head,body:body,credits:282,rep:0,
  owned:['h0','h9','b0','b7'],loc:'mall',x:50,quest:0,fish:0,mush:0,fishQuest:0,mushQuest:0,
- parties:0,placed:[null,null,null,null],giftDate:'',shellCd:0,partyUntil:0};}
+ parties:0,mess:0,placed:[null,null,null,null],giftDate:'',shellCd:0,partyUntil:0};}
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
 function load(){try{var t=localStorage.getItem(KEY);return t?JSON.parse(t):null;}catch(e){return null;}}
 function lvl(){return Math.floor(S.rep/100)+1;}
@@ -208,7 +212,9 @@ function renderScene(){var L=LOCS[S.loc];var sc=$('scene');sc.style.background=L
  var h='';
  L.deco.forEach(function(d){h+='<div class="deco" style="left:'+d[1]+'%;top:'+d[2]+'%;font-size:'+d[3]+'px">'+d[0]+'</div>';});
  if(S.loc==='home'){var pos=[16,38,62,84];for(var i=0;i<4;i++){var f=S.placed[i];
-   h+='<div class="slot'+(f?'':' empty')+'" data-slot="'+i+'" style="left:'+pos[i]+'%">'+(f?itemById(f).e:'·')+'</div>';}}
+   h+='<div class="slot'+(f?'':' empty')+'" data-slot="'+i+'" style="left:'+pos[i]+'%">'+(f?itemById(f).e:'·')+'</div>';}
+  var m=S.mess||0;if(m>0){var trash=['🧦','🍕','📦','🥤'];var cnt=m>=70?4:(m>=45?3:(m>=20?2:1));
+   for(var t=0;t<cnt;t++)h+='<div class="deco" style="left:'+(8+t*24)+'%;top:78%;font-size:20px">'+trash[t]+'</div>';}}
  L.npcs.forEach(function(npc){h+=personHTML(npc,false,npc.e);});
  if(S.loc==='home'&&Date.now()<S.partyUntil){[['Гость', '🕺',24],['Гостья','💃',38],['Друг','🧑',56],['Подруга','👱‍♀️',68]].forEach(function(g){
    h+='<div class="person dancing" style="left:'+g[2]+'%"><div class="av">'+g[1]+'</div><div class="pn">'+g[0]+'</div></div>';});}
@@ -228,7 +234,7 @@ function renderActions(){var a=$('actions');var btns='';
  if(S.loc==='mall')btns+='<button data-a="hair">💇 Причёски</button><button data-a="cloth">👕 Одежда</button><button data-a="fur">🪑 Мебель</button>';
  if(S.loc==='beach')btns+='<button data-a="fish" class="gold">🎣 Рыбачить</button><button data-a="shell">🐚 Ракушки +5💰</button>';
  if(S.loc==='forest')btns+='<button data-a="mush" class="gold">🍄 Собирать грибы</button>';
- if(S.loc==='home')btns+='<button data-a="party" class="gold">🎉 Вечеринка 10💰</button><button data-a="place">🛋️ Поставить мебель</button>';
+ if(S.loc==='home')btns+='<button data-a="party" class="gold">🎉 Вечеринка 10💰</button><button data-a="place">🛋️ Поставить мебель</button><button data-a="clean">🧹 Убрать · бардак '+(S.mess||0)+'/100</button>';
  btns+='<button data-a="talk">💬 Поговорить</button><button data-a="look">👤 Образ</button>';
  btns+='<button id="mvR">▶</button>';
  a.innerHTML=btns;
@@ -257,6 +263,7 @@ function doAction(a){
  if(a==='mush')openMush();
  if(a==='shell')doShell();
  if(a==='party')doParty();
+ if(a==='clean')doClean();
  if(a==='place')openPlace();
  if(a==='talk'){var npcs=LOCS[S.loc].npcs;if(npcs.length){var best=npcs[0],bd=999;
    npcs.forEach(function(n){var d=Math.abs(n.x-S.x);if(d<bd){bd=d;best=n;}});talkTo(best.n);}}
@@ -265,10 +272,14 @@ function doShell(){var now=Date.now();if(S.shellCd&&now<S.shellCd){sysChat('Ра
  S.shellCd=now+20000;S.credits+=5;save();renderTop();sysChat('Ты нашёл ракушку и продал её за 5💰');checkQuest();}
 function doParty(){if(Date.now()<S.partyUntil){sysChat('Вечеринка уже идёт! 🎉');return;}
  if(S.credits<10){sysChat('Не хватает кредитов на угощения. Порыбачь или собери грибы!');return;}
- S.credits-=10;S.parties++;S.rep+=15;S.partyUntil=Date.now()+25000;save();renderAll();
+ S.credits-=10;S.parties++;S.rep+=15;S.mess=Math.min(100,(S.mess||0)+30);S.partyUntil=Date.now()+25000;save();renderAll();
  sysChat('Вечеринка началась! Друзья пришли к тебе домой 🎉 +15⭐');
  chatMsg('Мита','какая классная вечеринка, '+S.name+'! 💛');chatMsg('Катя','танцуем! 💃');
  setTimeout(function(){renderScene();},25100);checkQuest();}
+function doClean(){var m=S.mess||0;if(m<=0){sysChat('Дома и так чисто! ✨');return;}
+ S.mess=0;S.rep+=5;save();renderAll();
+ sysChat('Ты убрался! Дома чисто и уютно ✨ +5⭐');
+ chatMsg('Мита','вот теперь красота, зай 💛');}
 /* ================= ЗАДАНИЯ ================= */
 function checkQuest(){var changed=true;
  while(changed&&S.quest<QUESTS.length){changed=false;var q=QUESTS[S.quest];
@@ -375,7 +386,7 @@ $('modalWrap').addEventListener('click',function(e){if(e.target===$('modalWrap')
   $('nameInp').value=s.name;selHead=s.head;selBody=s.body;buildPickers();updPreview();}})();
 /* API для проверок */
 window.G={get state(){return S;},newGame:function(n){S=defState(n||'Тест','h0','b0');save();return S;},
- buy:buyItem,equip:equipItem,catchOk:catchOk,mushAdd:mushAdd,party:doParty,place:placeAt,
+ buy:buyItem,equip:equipItem,catchOk:catchOk,mushAdd:mushAdd,party:doParty,clean:doClean,place:placeAt,
  placeItem:function(id,i){pendingFur=id;placeAt(i);},
  setLoc:function(l){S.loc=l;},check:checkQuest,quests:QUESTS};
 </script>
