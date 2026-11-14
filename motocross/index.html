@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>🏍️ Мотокросс E.Y.L — гонки как на Денди</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html,body { background:#160b26; color:#fff; font-family:'Segoe UI', Arial, sans-serif; }
+  body { display:flex; flex-direction:column; align-items:center; min-height:100vh; padding:8px 6px 14px; }
+  h1 { font-size:21px; margin:4px 0 8px; text-align:center;
+       background:linear-gradient(90deg,#ffa751,#ffe259); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  #wrap { position:relative; width:100%; max-width:880px; touch-action:none; user-select:none; }
+  canvas { width:100%; height:auto; display:block; border-radius:14px; background:#2a1650;
+           box-shadow:0 10px 34px rgba(0,0,0,.55); }
+  #hud { position:absolute; inset:0; pointer-events:none; font-weight:700; }
+  .hud-left { position:absolute; top:10px; left:12px; display:flex; gap:8px; }
+  .pill { background:rgba(10,10,25,.55); border:1px solid rgba(255,255,255,.28); border-radius:999px;
+          padding:5px 12px; font-size:16px; text-shadow:0 1px 3px #000; }
+  .hud-right { position:absolute; top:10px; right:12px; text-align:right; }
+  #pos { font-size:24px; font-weight:900; color:#ffe259; text-shadow:0 2px 8px rgba(0,0,0,.85); }
+  #speedLine { font-size:14px; color:#cfe3ff; text-shadow:0 1px 4px #000; }
+  #msg { position:absolute; top:64px; left:0; right:0; text-align:center; font-size:26px; font-weight:900;
+         color:#ffe259; text-shadow:0 3px 12px rgba(0,0,0,.9); opacity:0; transition:opacity .25s; }
+  #count { position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+           font-size:110px; font-weight:900; color:#ffe259; text-shadow:0 6px 30px rgba(0,0,0,.8); }
+  #pauseBtn { position:absolute; top:96px; right:12px; pointer-events:auto; width:40px; height:40px; border-radius:50%;
+    border:2px solid rgba(255,255,255,.35); background:rgba(10,10,25,.45); color:#fff; font-size:16px; cursor:pointer; }
+  /* ---------- Сенсорные кнопки: панель ПОД игрой, не на трассе ---------- */
+  #touch { display:none; width:100%; max-width:880px; justify-content:space-between; padding:10px 4px 0; }
+  body.touch-on #touch { display:flex; }
+  .tgroup { display:flex; gap:12px; align-items:center; }
+  #touch button { border-radius:50%; border:2px solid rgba(255,255,255,.45); color:#fff; cursor:pointer;
+    background:rgba(13,15,26,.55); backdrop-filter:blur(2px); box-shadow:0 4px 16px rgba(0,0,0,.45); }
+  #touch button:active, #touch button.on { background:rgba(255,167,81,.7); }
+  .lean { width:72px; height:72px; font-size:29px; }
+  #btnBrake { width:72px; height:72px; font-size:27px; border-color:rgba(255,120,120,.75) !important; }
+  #btnGas { width:88px; height:88px; font-size:36px; border-color:#7dff8a !important;
+            box-shadow:0 4px 16px rgba(0,0,0,.45), inset 0 0 14px rgba(125,255,138,.3) !important; }
+  .hint { margin-top:10px; font-size:13px; color:#9aa0b5; text-align:center; max-width:880px; }
+  /* ---------- Оверлеи на весь экран ---------- */
+  .overlay { position:fixed; inset:0; z-index:50; overflow-y:auto;
+    background:rgba(8,6,20,.87); backdrop-filter:blur(3px);
+    display:flex; flex-direction:column; align-items:center; justify-content:flex-start;
+    padding:30px 18px 40px; text-align:center; }
+  .overlay.hidden { display:none; }
+  .overlay .logo { font-size:62px; filter:drop-shadow(0 0 22px rgba(255,126,71,.8)); }
+  .overlay h2 { font-size:31px; font-weight:900; margin:8px 0 4px;
+    background:linear-gradient(90deg,#ffa751,#ffe259); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .overlay .sub { color:#ffb3c8; font-weight:700; margin-bottom:16px; }
+  .rules { max-width:460px; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.14);
+    border-radius:14px; padding:14px 16px; text-align:left; font-size:15px; line-height:1.55; }
+  .rules b { color:#ffe259; }
+  .bestbox { margin:14px 0 4px; color:#cfe3ff; font-size:14px; }
+  .bigbtn { margin-top:20px; font-size:22px; font-weight:900; letter-spacing:.5px; color:#0d0f1a;
+    background:linear-gradient(90deg,#ffa751,#ffe259); border:none; border-radius:999px;
+    padding:16px 44px; cursor:pointer; box-shadow:0 8px 26px rgba(255,167,81,.45); }
+  .stats { font-size:18px; line-height:1.7; color:#e8ecf8; }
+  .stats b { color:#ffe259; }
+  .record { margin-top:10px; font-size:19px; font-weight:900; color:#7dff8a; }
+</style>
+</head>
+<body>
+<h1>🏍️ МОТОКРОСС E.Y.L</h1>
+<main>
+  <div id="wrap">
+    <canvas id="game" width="880" height="495"></canvas>
+    <div id="hud">
+      <div class="hud-left">
+        <div class="pill" id="time">⏱ 0.0</div>
+        <div class="pill" id="dist">🏁 0 м</div>
+      </div>
+      <div class="hud-right">
+        <div id="pos">🏆 4/4</div>
+        <div id="speedLine"><span id="speedVal">0</span> км/ч</div>
+      </div>
+      <button id="pauseBtn" title="Пауза">⏸</button>
+      <div id="msg"></div>
+      <div id="count"></div>
+    </div>
+  </div>
+  <div id="touch">
+    <div class="tgroup">
+      <button class="lean" id="btnBack" title="Наклон назад">◀</button>
+      <button class="lean" id="btnFwd" title="Наклон вперёд">▶</button>
+    </div>
+    <div class="tgroup">
+      <button id="btnBrake" title="Тормоз">🛑</button>
+      <button id="btnGas" title="Газ — держать!">⛽</button>
+    </div>
+  </div>
+  <p class="hint">⌨️ Компьютер: ↑ или W — газ, ↓ или S — тормоз, ◀ ▶ или A/D — наклон в прыжке. 📱 Телефон: держи ⛽ ГАЗ, в воздухе наклоняйся кнопками ◀ ▶ — приземляйся ровно на оба колеса!</p>
+</main>
+
+<div id="startScreen" class="overlay">
+  <div class="logo">🏍️</div>
+  <h2>МОТОКРОСС E.Y.L</h2>
+  <div class="sub">Трамплины, грязь и соперники — как Excitebike на Денди 🌇</div>
+  <div class="rules">
+    ⛽ <b>Держи ГАЗ</b> — мотоцикл едет. Трасса — <b>1200 метров</b> с трамплинами.<br>
+    🕊️ В прыжке наклоняйся кнопками <b>◀ ▶</b>: приземляться надо <b>ровно, по склону</b>. Приземлишься криво — кувырок и потеря времени!<br>
+    🏆 Соперники: <b>ЮРКА</b>, <b>MITA</b> и <b>ТЕНЬ</b>. Обгоняй всех и приходи первым!<br>
+    🟤 Тёмная грязь на трассе тормозит — объезжай по верху трамплинов.
+  </div>
+  <div class="bestbox" id="startBest"></div>
+  <button class="bigbtn" id="startBtn">▶ СТАРТ</button>
+</div>
+
+<div id="finishScreen" class="overlay hidden">
+  <div class="logo">🏁</div>
+  <h2 id="finTitle">ФИНИШ!</h2>
+  <div class="sub" id="finSub">Заезд окончен, гонщик 👇</div>
+  <div class="stats">
+    Твоё место <b id="fPos">1</b> из 4<br>
+    Время <b id="fTime">0.0</b> сек<br>
+    Кувырков <b id="fFalls">0</b>
+  </div>
+  <div class="record" id="fRecord"></div>
+  <button class="bigbtn" id="againBtn">🔄 ЕЩЁ РАЗ</button>
+</div>
+
+<div id="pauseScreen" class="overlay hidden">
+  <div class="logo">⏸</div>
+  <h2>ПАУЗА</h2>
+  <div class="sub">Отдохни — трасса подождёт 😎</div>
+  <button class="bigbtn" id="resumeBtn">▶ ДАЛЬШЕ</button>
+</div>
+
+<script>
+'use strict';
+/* ============================================================
+   🏍️ МОТОКРОСС E.Y.L — гонки по трамплинам в стиле Excitebike
+   Трасса-рельеф, прыжки с наклоном, соперники, грязь, финиш.
+   ============================================================ */
+const cvs = document.getElementById('game');
+const ctx = cvs.getContext('2d');
+const W = 880, H = 495;
+const $ = id => document.getElementById(id);
+const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
+const lerp = (a, b, t) => a + (b - a) * t;
+function wrapAng(a) { while (a > Math.PI) a -= Math.PI * 2; while (a < -Math.PI) a += Math.PI * 2; return a; }
+
+/* ---------- звук (WebAudio, по чуть-чуть) ---------- */
+let AC = null;
+function ac() { if (!AC) { try { AC = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { AC = null; } } return AC; }
+function beep(fr, dur, type, vol, delay) {
+  const a = ac(); if (!a) return;
+  const t0 = a.currentTime + (delay || 0);
+  const o = a.createOscillator(), g = a.createGain();
+  o.type = type || 'square'; o.frequency.value = fr;
+  g.gain.setValueAtTime(vol || 0.1, t0);
+  g.gain.exponentialRampToValueAtTime(0.001, t0 + dur);
+  o.connect(g); g.connect(a.destination); o.start(t0); o.stop(t0 + dur + 0.02);
+}
+function noiseBurst(dur) {
+  const a = ac(); if (!a) return;
+  const n = Math.floor(a.sampleRate * (dur || 0.18));
+  const buf = a.createBuffer(1, n, a.sampleRate), d = buf.getChannelData(0);
+  for (let i = 0; i < n; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / n);
+  const s = a.createBufferSource(); s.buffer = buf;
+  const g = a.createGain(); g.gain.value = 0.16;
+  s.connect(g); g.connect(a.destination); s.start();
+}
+
+/* ---------- трасса ---------- */
+const TRACK_LEN = 12000;              // 1200 метров (10 px = 1 м)
+const BASE_Y = 392;                   // уровень земли на экране (мировые координаты — высота над базой, px)
+function mulberry(seed) { return function () { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+const rnd = mulberry(20261107);
+const hills = [];   // {x0, len, h}
+const muds = [];    // {x0, x1}
+(function buildTrack() {
+  let x = 1500;                        // старт — ровный разгон
+  while (x < TRACK_LEN - 1100) {
+    const kind = rnd();
+    if (kind < 0.62) {                 // одиночный трамплин
+      const len = 320 + rnd() * 220, h = 55 + rnd() * 62;
+      hills.push({ x0: x, len, h });
+      x += len + 260 + rnd() * 320;
+    } else if (kind < 0.85) {          // серия мелких бугров (вупсы)
+      const n = 3 + Math.floor(rnd() * 3);
+      for (let i = 0; i < n; i++) { hills.push({ x0: x, len: 120, h: 26 + rnd() * 12 }); x += 128; }
+      x += 240 + rnd() * 260;
+    } else {                           // грязь на ровном месте
+      muds.push({ x0: x, x1: x + 420 + rnd() * 260 });
+      x += 700 + rnd() * 320;
+    }
+  }
+})();
+function groundH(x) {
+  let h = 0;
+  for (const s of hills) {
+    if (x <= s.x0 || x >= s.x0 + s.len) continue;
+    const t = (x - s.x0) / s.len;
+    h += s.h * Math.pow(Math.sin(Math.PI * t), 0.85);
+  }
+  return h;
+}
+function groundSlope(x) { return Math.atan2(groundH(x + 3) - groundH(x - 3), 6); }
+function inMud(x) { for (const m of muds) if (x >= m.x0 && x <= m.x1) return true; return false; }
+
+/* ---------- состояние ---------- */
+let state = 'menu';            // menu | count | race | crash | finish
+let paused = false;
+let elapsed = 0, raceTime = 0, countT = 0, crashT = 0, falls = 0;
+let camX = 0, shake = 0;
+let best = null;
+try { const b = localStorage.getItem('eylMotoBest'); if (b) best = parseFloat(b); } catch (e) {}
+
+const GRAV = 1550, MAXV = 665;
+const P = { x: 120, y: 0, vx: 0, vy: 0, ang: 0, air: false };   // игрок: y — высота над базовой линией
+function makeRival(name, color, dark, base, delay) {
+  return { name, color, dark, base, x: 120, y: 0, vx: 0, vy: 0, ang: 0, air: false, wob: Math.random() * 9, delay, fin: 0 };
+}
+let rivals = [];
+function resetRace() {
+  P.x = 120; P.y = groundH(P.x); P.vx = 0; P.vy = 0; P.ang = 0; P.air = false;
+  rivals = [
+    makeRival('ЮРКА', '#ff8c1a', '#c25e00', 520, 0),
+    makeRival('MITA', '#3f8cff', '#2563c9', 545, 0.5),
+    makeRival('ТЕНЬ', '#4a4a58', '#23232e', 505, 1.0),
+  ];
+  raceTime = 0; falls = 0; crashT = 0; shake = 0; camX = 0; particles.length = 0;
+}
+function place() { let n = 1; for (const r of rivals) if (r.x > P.x) n++; return n; }
+
+/* ---------- ввод ---------- */
+const keys = { gas: false, brake: false, back: false, fwd: false };
+const touch = { gas: false, brake: false, back: false, fwd: false };
+function setKey(code, val) {
+  if (code === 'ArrowUp' || code === 'KeyW') keys.gas = val;
+  else if (code === 'ArrowDown' || code === 'KeyS') keys.brake = val;
+  else if (code === 'ArrowLeft' || code === 'KeyA') keys.back = val;
+  else if (code === 'ArrowRight' || code === 'KeyD') keys.fwd = val;
+  else return false;
+  return true;
+}
+window.addEventListener('keydown', e => {
+  if (setKey(e.code, true)) e.preventDefault();
+  if (e.code === 'KeyP' && state === 'race') togglePause();
+});
+window.addEventListener('keyup', e => { if (setKey(e.code, false)) e.preventDefault(); });
+function bindBtn(id, prop) {
+  const el = $(id);
+  const on = e => { e.preventDefault(); touch[prop] = true; el.classList.add('on'); };
+  const off = e => { e.preventDefault(); touch[prop] = false; el.classList.remove('on'); };
+  el.addEventListener('pointerdown', on);
+  el.addEventListener('pointerup', off);
+  el.addEventListener('pointerleave', off);
+  el.addEventListener('pointercancel', off);
+  el.addEventListener('touchstart', on, { passive: false });
+  el.addEventListener('touchend', off, { passive: false });
+}
+bindBtn('btnGas', 'gas'); bindBtn('btnBrake', 'brake'); bindBtn('btnBack', 'back'); bindBtn('btnFwd', 'fwd');
+if ('ontouchstart' in window || navigator.maxTouchPoints > 0) document.body.classList.add('touch-on');
+const gasOn = () => keys.gas || touch.gas;
+const brakeOn = () => keys.brake || touch.brake;
+const backOn = () => keys.back || touch.back;
+const fwdOn = () => keys.fwd || touch.fwd;
+
+/* ---------- частицы ---------- */
+const particles = [];
+function spawnDust(x, y, n, mud) {
+  for (let i = 0; i < n; i++) particles.push({
+    x: x - 14 + Math.random() * 10, y, vx: -40 - Math.random() * 70, vy: 24 + Math.random() * 55,
+    life: 0.5 + Math.random() * 0.4, t: 0, r: 3 + Math.random() * 5, mud: !!mud,
+  });
+}
+function spawnStars(x, y) {
+  for (let i = 0; i < 12; i++) { const a = Math.random() * Math.PI * 2, s = 60 + Math.random() * 150;
+    particles.push({ x, y: y - 30, vx: Math.cos(a) * s, vy: Math.sin(a) * s - 40, life: 0.6, t: 0, r: 3, star: true }); }
+}
+function updateParticles(dt) {
+  for (let i = particles.length - 1; i >= 0; i--) {
+    const p = particles[i]; p.t += dt;
+    if (p.t >= p.life) { particles.splice(i, 1); continue; }
+    p.x += p.vx * dt; p.y += (p.star ? p.vy : -p.vy) * dt; if (p.star) p.vy += 500 * dt;
+  }
+}
+
+/* ---------- физика игрока ---------- */
+let msgT = 0;
+function showMsg(t, hold) { const m = $('msg'); m.textContent = t; m.style.opacity = 1; msgT = hold ? 9999 : 1.4; }
+function doCrash() {
+  state = 'crash'; crashT = 1.5; falls++;
+  spawnStars(P.x, P.y); noiseBurst(); showMsg('💥 КУВЫРОК!');
+  P.vx = P.vx * 0.25;
+}
+function stepPlayer(dt) {
+  const slope = groundSlope(P.x);
+  const mud = inMud(P.x);
+  if (!P.air) {
+    // на земле
+    if (gasOn()) P.vx += (mud ? 300 : 640) * dt;
+    if (brakeOn()) P.vx -= 950 * dt;
+    P.vx += -Math.sin(slope) * 430 * dt;                    // уклон: в горку тормозит, с горки разгоняет
+    P.vx -= P.vx * (mud ? 0.55 : 0.16) * dt;                // сопротивление
+    P.vx = clamp(P.vx, 0, mud ? 250 : MAXV);
+    P.x += P.vx * dt;
+    const gy = groundH(P.x);
+    const slopeTan = Math.tan(groundSlope(P.x));
+    if (gy < P.y - 2 && slopeTan < -0.30 && P.vx > 240) {   // гребень трамплина — взлетаем!
+      P.air = true; P.vy = P.vx * Math.abs(slopeTan) * 0.55; // vy: вверх — плюс (было: slopeTan без модуля давал минус — мотик бросало вниз)
+    } else {
+      P.y = gy; P.vy = 0;
+      P.ang += wrapAng(slope - P.ang) * Math.min(1, dt * 14);
+      if (gasOn() && Math.random() < 0.5) spawnDust(P.x, P.y, 1, mud);
+    }
+  }
+  if (P.air) {
+    // в воздухе: y — высота, vy — скорость вверх
+    P.vy -= GRAV * dt;
+    if (backOn()) P.ang += 2.7 * dt;                        // ◀ — нос вверх
+    if (fwdOn()) P.ang -= 2.7 * dt;                         // ▶ — нос вниз, по склону
+    P.x += P.vx * dt;
+    P.y += P.vy * dt;
+    const gy = groundH(P.x);
+    if (P.y <= gy) {
+      P.y = gy;
+      const diff = wrapAng(P.ang - groundSlope(P.x));
+      if (Math.abs(diff) > 0.62) { doCrash(); return; }
+      P.air = false; P.vy = 0;
+      if (Math.abs(diff) > 0.32) { P.vx *= 0.82; showMsg('Жёстко! 😬', 0); msgT = 0.8; beep(140, 0.09, 'sawtooth', 0.1); }
+      else if (Math.abs(diff) > 0.12) beep(220, 0.05, 'sine', 0.06);
+      P.ang = groundSlope(P.x);
+      spawnDust(P.x, P.y, 4, inMud(P.x));
+    }
+  }
+  if (P.x >= TRACK_LEN && state === 'race') finishRace();
+}
+
+/* ---------- соперники ---------- */
+function stepRivals(dt) {
+  for (const r of rivals) {
+    if (r.delay > 0) { r.delay -= dt; continue; }
+    r.wob += dt;
+    let target = r.base + Math.sin(r.wob * 0.7) * 36;
+    const gap = P.x - r.x;                                   // лёгкий резиновый бэнд — гонка плотная
+    if (gap > 700) target += 42; else if (gap < -700) target -= 42;
+    if (inMud(r.x)) target = Math.min(target, 235);
+    r.vx += clamp(target - r.vx, -500 * dt, 260 * dt);
+    r.x += r.vx * dt;
+    if (!r.air) {
+      const gy = groundH(r.x);
+      const slopeTan = Math.tan(groundSlope(r.x));
+      if (gy < r.y - 2 && slopeTan < -0.30 && r.vx > 240) {   // гребень трамплина — соперник тоже взлетает
+        r.air = true; r.vy = r.vx * Math.abs(slopeTan) * 0.55;
+      } else { r.y = gy; r.ang = groundSlope(r.x); }
+    }
+    if (r.air) {
+      r.vy -= GRAV * dt;
+      r.y += r.vy * dt;
+      const gy = groundH(r.x);
+      if (r.y <= gy) { r.y = gy; r.air = false; r.vy = 0; r.ang = groundSlope(r.x); }
+    }
+    if (r.x >= TRACK_LEN && !r.fin) r.fin = raceTime;
+  }
+}
+
+function finishRace() {
+  state = 'finish';
+  const pl = place();
+  $('fPos').textContent = pl;
+  $('fTime').textContent = raceTime.toFixed(1);
+  $('fFalls').textContent = falls;
+  $('finTitle').textContent = pl === 1 ? '🏆 ТЫ — ЧЕМПИОН!' : 'ФИНИШ! Место ' + pl;
+  $('finSub').textContent = pl === 1 ? 'Всех обогнал, президент! 👑' : 'Победил: ' + (rivals.find(r => r.x >= TRACK_LEN)?.name || '—') + '. Реванш?';
+  let rec = '';
+  if (best === null || raceTime < best) {
+    if (best !== null) rec = '🎉 НОВЫЙ РЕКОРД ТРАССЫ!';
+    best = raceTime;
+    try { localStorage.setItem('eylMotoBest', String(best)); } catch (e) {}
+  }
+  $('fRecord').textContent = rec || (best ? '⏱ Рекорд трассы: ' + best.toFixed(1) + ' сек' : '');
+  $('finishScreen').classList.remove('hidden');
+  beep(660, 0.11, 'square', 0.12); beep(880, 0.11, 'square', 0.12, 0.11); beep(1320, 0.2, 'square', 0.12, 0.22);
+}
+
+/* ---------- главный цикл обновления ---------- */
+function update(dt) {
+  elapsed += dt;
+  updateParticles(dt);
+  if (msgT !== 9999 && msgT > 0) { msgT -= dt; if (msgT <= 0) $('msg').style.opacity = 0; }
+  if (state === 'count') {
+    countT -= dt;
+    const n = Math.ceil(countT);
+    $('count').textContent = countT > 0.55 ? String(n) : 'СТАРТ! 🏍️💨';
+    if (countT <= 0) { state = 'race'; $('count').textContent = ''; beep(990, 0.16, 'square', 0.14); }
+    else if (Math.abs(countT - Math.round(countT)) < dt) beep(440, 0.09, 'square', 0.1);
+    return;
+  }
+  if (state === 'crash') {
+    crashT -= dt;
+    P.ang += 8.5 * dt;
+    P.x += P.vx * dt; P.vx = Math.max(0, P.vx - 300 * dt);
+    P.y = groundH(P.x);
+    camX = lerp(camX, P.x - 240, Math.min(1, dt * 6));
+    if (crashT <= 0) {
+      state = 'race'; P.air = false; P.vy = 0; P.ang = groundSlope(P.x);
+      P.vx = Math.max(P.vx, 170); $('msg').style.opacity = 0;
+    }
+    return;
+  }
+  if (state !== 'race') return;
+  raceTime += dt;
+  stepPlayer(dt);
+  stepRivals(dt);
+  camX = lerp(camX, clamp(P.x - 240, 0, TRACK_LEN - W + 260), Math.min(1, dt * 7));
+  if (shake > 0) shake = Math.max(0, shake - 30 * dt);
+  // HUD
+  $('time').textContent = '⏱ ' + raceTime.toFixed(1);
+  $('dist').textContent = '🏁 ' + Math.max(0, Math.round((TRACK_LEN - P.x) / 10)) + ' м';
+  $('pos').textContent = '🏆 ' + place() + '/4';
+  $('speedVal').textContent = Math.round(P.vx * 0.36);
+}
+
+/* ---------- отрисовка ---------- */
+function drawBike(sx, sy, ang, pal, name) {
+  ctx.save();
+  ctx.translate(sx, sy);
+  ctx.rotate(-ang);
+  // колёса
+  for (const wx of [-27, 29]) {
+    ctx.beginPath(); ctx.arc(wx, -13, 13, 0, Math.PI * 2);
+    ctx.fillStyle = '#191922'; ctx.fill();
+    ctx.lineWidth = 3; ctx.strokeStyle = '#0a0a10'; ctx.stroke();
+    ctx.beginPath(); ctx.arc(wx, -13, 5.5, 0, Math.PI * 2);
+    ctx.fillStyle = '#c9ced8'; ctx.fill();
+    ctx.lineWidth = 2; ctx.strokeStyle = 'rgba(220,225,235,.75)';
+    for (let s = 0; s < 3; s++) { const a = s * Math.PI / 3 + elapsed * 2;
+      ctx.beginPath(); ctx.moveTo(wx - Math.cos(a) * 11, -13 - Math.sin(a) * 11);
+      ctx.lineTo(wx + Math.cos(a) * 11, -13 + Math.sin(a) * 11); ctx.stroke(); }
+  }
+  // рама и крылья
+  ctx.lineWidth = 5; ctx.strokeStyle = pal.bike; ctx.lineCap = 'round';
+  ctx.beginPath(); ctx.moveTo(-27, -13); ctx.lineTo(-4, -34); ctx.lineTo(16, -36); ctx.lineTo(29, -13); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(-4, -34); ctx.lineTo(22, -52); ctx.stroke();
+  ctx.lineWidth = 4; ctx.strokeStyle = pal.dark;
+  ctx.beginPath(); ctx.moveTo(22, -52); ctx.lineTo(30, -44); ctx.stroke();      // руль
+  ctx.beginPath(); ctx.moveTo(-27, -16); ctx.quadraticCurveTo(-34, -30, -22, -34); ctx.stroke(); // заднее крыло
+  ctx.beginPath(); ctx.moveTo(29, -16); ctx.quadraticCurveTo(38, -28, 30, -36); ctx.stroke();   // переднее крыло
+  // гонщик
+  ctx.lineWidth = 6; ctx.strokeStyle = pal.pants;
+  ctx.beginPath(); ctx.moveTo(-2, -50); ctx.lineTo(-12, -34); ctx.lineTo(-4, -20); ctx.stroke(); // нога
+  ctx.lineWidth = 8; ctx.strokeStyle = pal.body;
+  ctx.beginPath(); ctx.moveTo(-2, -50); ctx.lineTo(9, -70); ctx.stroke();       // корпус
+  ctx.lineWidth = 5.5;
+  ctx.beginPath(); ctx.moveTo(9, -70); ctx.lineTo(23, -53); ctx.stroke();       // рука к рулю
+  // шлем
+  ctx.beginPath(); ctx.arc(14, -82, 10.5, 0, Math.PI * 2);
+  ctx.fillStyle = pal.helmet; ctx.fill();
+  ctx.lineWidth = 2; ctx.strokeStyle = 'rgba(0,0,0,.35)'; ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(16, -85); ctx.lineTo(26, -82); ctx.lineTo(16, -79); ctx.closePath();
+  ctx.fillStyle = '#20303e'; ctx.fill();                                        // визор
+  ctx.restore();
+  if (name) {
+    ctx.font = '900 12px Arial'; ctx.textAlign = 'center';
+    const tw = ctx.measureText(name).width + 12;
+    ctx.fillStyle = 'rgba(8,8,18,.62)';
+    ctx.beginPath(); ctx.roundRect(sx - tw / 2, sy - 118, tw, 18, 9); ctx.fill();
+    ctx.fillStyle = '#fff'; ctx.fillText(name, sx, sy - 105);
+  }
+}
+function drawGantry(x, label, checkered) {
+  const sx = x - camX, gy = BASE_Y - groundH(x);
+  if (sx < -160 || sx > W + 160) return;
+  ctx.fillStyle = '#3a3f4d';
+  ctx.fillRect(sx - 70, gy - 150, 8, 150); ctx.fillRect(sx + 62, gy - 150, 8, 150);
+  ctx.fillStyle = checkered ? '#f4f4f4' : '#d92323';
+  ctx.fillRect(sx - 78, gy - 168, 156, 24);
+  if (checkered) { ctx.fillStyle = '#14141c';
+    for (let i = 0; i < 13; i++) for (let j = 0; j < 2; j++)
+      if ((i + j) % 2 === 0) ctx.fillRect(sx - 78 + i * 12, gy - 168 + j * 12, 12, 12); }
+  ctx.font = '900 15px Arial'; ctx.textAlign = 'center';
+  ctx.fillStyle = checkered ? '#14141c' : '#fff';
+  ctx.fillText(label, sx, gy - 151);
+}
+function render() {
+  // небо
+  const sky = ctx.createLinearGradient(0, 0, 0, H);
+  sky.addColorStop(0, '#2c1850'); sky.addColorStop(0.55, '#8a3d74'); sky.addColorStop(0.8, '#ff8a5a'); sky.addColorStop(1, '#ffb37a');
+  ctx.fillStyle = sky; ctx.fillRect(0, 0, W, H);
+  // солнце
+  ctx.beginPath(); ctx.arc(W - 150 - camX * 0.02 % 40, 92, 34, 0, Math.PI * 2);
+  ctx.fillStyle = '#ffd76a'; ctx.fill();
+  ctx.beginPath(); ctx.arc(W - 150 - camX * 0.02 % 40, 92, 46, 0, Math.PI * 2);
+  ctx.fillStyle = 'rgba(255,215,106,.22)'; ctx.fill();
+  // дальние холмы (параллакс)
+  ctx.fillStyle = 'rgba(46,26,84,.75)';
+  ctx.beginPath(); ctx.moveTo(0, BASE_Y);
+  for (let sx = 0; sx <= W; sx += 16) {
+    const wx = sx + camX * 0.35;
+    ctx.lineTo(sx, BASE_Y - 120 - Math.sin(wx * 0.004) * 42 - Math.sin(wx * 0.0013) * 30);
+  }
+  ctx.lineTo(W, BASE_Y); ctx.closePath(); ctx.fill();
+  // трасса
+  const x0 = Math.max(0, camX - 40), x1 = camX + W + 40;
+  const dirt = ctx.createLinearGradient(0, BASE_Y - 130, 0, H);
+  dirt.addColorStop(0, '#9c6a33'); dirt.addColorStop(0.25, '#855726'); dirt.addColorStop(1, '#5d3a1a');
+  ctx.beginPath();
+  ctx.moveTo(x0 - camX, BASE_Y - groundH(x0));
+  for (let wx = x0; wx <= x1; wx += 7) ctx.lineTo(wx - camX, BASE_Y - groundH(wx));
+  ctx.lineTo(x1 - camX, H); ctx.lineTo(x0 - camX, H); ctx.closePath();
+  ctx.fillStyle = dirt; ctx.fill();
+  ctx.beginPath();
+  for (let wx = x0; wx <= x1; wx += 7) { const sx = wx - camX, sy = BASE_Y - groundH(wx);
+    if (wx === x0) ctx.moveTo(sx, sy); else ctx.lineTo(sx, sy); }
+  ctx.lineWidth = 4; ctx.strokeStyle = '#c98d4b'; ctx.stroke();
+  // грязь
+  for (const m of muds) {
+    if (m.x1 < x0 || m.x0 > x1) continue;
+    ctx.beginPath();
+    for (let wx = Math.max(m.x0, x0); wx <= Math.min(m.x1, x1); wx += 7) {
+      const sx = wx - camX, sy = BASE_Y - groundH(wx) + 2;
+      if (wx <= Math.max(m.x0, x0) + 7) ctx.moveTo(sx, sy); else ctx.lineTo(sx, sy); }
+    ctx.lineWidth = 9; ctx.strokeStyle = 'rgba(66,40,16,.85)'; ctx.stroke();
+    ctx.lineWidth = 2; ctx.strokeStyle = 'rgba(160,200,255,.35)';
+    ctx.beginPath(); ctx.moveTo((m.x0 + 60) - camX, BASE_Y - groundH(m.x0 + 60) - 1);
+    ctx.lineTo((m.x0 + 130) - camX, BASE_Y - groundH(m.x0 + 130) - 1); ctx.stroke();
+  }
+  drawGantry(170, 'СТАРТ', false);
+  drawGantry(TRACK_LEN, 'ФИНИШ 🏁', true);
+  // соперники и игрок
+  const all = rivals.map(r => ({ r })).sort((a, b) => a.r.x - b.r.x);
+  for (const { r } of all) {
+    const sx = r.x - camX; if (sx < -90 || sx > W + 90) continue;
+    drawBike(sx, BASE_Y - r.y, r.ang, { bike: r.color, dark: r.dark, pants: '#2b3040', body: r.color, helmet: '#f2f2f2' }, r.name);
+  }
+  drawBike(P.x - camX, BASE_Y - P.y, P.ang,
+    { bike: '#d92323', dark: '#8f1212', pants: '#2b3a55', body: '#d92323', helmet: '#ffffff' },
+    state === 'race' || state === 'crash' ? null : 'ERIK');
+  // частицы
+  for (const p of particles) {
+    const k = 1 - p.t / p.life;
+    if (p.star) { ctx.fillStyle = 'rgba(255,225,110,' + k + ')'; ctx.font = '13px Arial'; ctx.textAlign = 'center';
+      ctx.fillText('★', p.x - camX, BASE_Y - p.y); }
+    else { ctx.beginPath(); ctx.arc(p.x - camX, BASE_Y - p.y, p.r * (1.6 - k * 0.6), 0, Math.PI * 2);
+      ctx.fillStyle = p.mud ? 'rgba(80,52,22,' + 0.55 * k + ')' : 'rgba(216,178,130,' + 0.5 * k + ')'; ctx.fill(); }
+  }
+}
+
+/* ---------- управление экранами ---------- */
+function showBest() {
+  $('startBest').textContent = best ? '⏱ Твой рекорд трассы: ' + best.toFixed(1) + ' сек' : '⏱ Рекорда пока нет — поставь первый!';
+}
+function startRace() {
+  ac();
+  resetRace();
+  $('startScreen').classList.add('hidden');
+  $('finishScreen').classList.add('hidden');
+  $('pauseScreen').classList.add('hidden');
+  paused = false;
+  state = 'count'; countT = 3.4;
+  $('count').textContent = '3';
+  beep(440, 0.09, 'square', 0.1);
+}
+function togglePause() {
+  if (state !== 'race' && state !== 'count') return;
+  paused = !paused;
+  $('pauseScreen').classList.toggle('hidden', !paused);
+}
+$('startBtn').addEventListener('click', startRace);
+$('againBtn').addEventListener('click', startRace);
+$('resumeBtn').addEventListener('click', togglePause);
+$('pauseBtn').addEventListener('click', togglePause);
+showBest();
+resetRace();
+
+/* ---------- главный цикл ---------- */
+let lastTs = 0;
+function frame(ts) {
+  requestAnimationFrame(frame);
+  if (!lastTs) { lastTs = ts; return; }
+  let dt = (ts - lastTs) / 1000; lastTs = ts;
+  if (dt > 0.05) dt = 0.05;
+  if (!paused) update(dt);
+  render();
+}
+requestAnimationFrame(frame);
+</script>
+<script>
+/* самообновление: телефон любит держать старую копию страницы в кэше */
+const MOTO_VER = 2;
+setTimeout(() => {
+  fetch('mversion.txt?t=' + Date.now(), { cache: 'no-store' })
+    .then(r => r.text())
+    .then(t => { if (parseInt(t, 10) > MOTO_VER) location.replace(location.pathname + '?u=' + t.trim()); })
+    .catch(() => {});
+}, 1200);
+</script>
+</body>
+</html>
