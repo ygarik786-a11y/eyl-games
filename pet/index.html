@@ -208,7 +208,7 @@ var PHRASES_IDLE = ['Привет!','Поиграем?','Что нового?','
 var DEF = { name:'Пушик', hunger:80, clean:80, energy:80, fun:70, coins:150, xp:0,
             owned:[], wornTop:null, wornEyes:null, sleeping:false, started:false, lastSeen:Date.now(),
             char:'swan', wall:{}, flower:0, flowerXp:0, sick:false,
-            stock:{ carrot:2, apple:2 }, immuneUntil:0 };
+            stock:{ carrot:2, apple:2 }, immuneUntil:0, sleepUntil:0 };
 var S = loadSave();
 var room = 'kitchen';
 var foam = 0;              // пена на питомце (не сохраняется)
@@ -1314,9 +1314,10 @@ function toggleShower(){
 function toggleLamp(){
   if(!S.sleeping){
     S.sleeping = true; showerOn = false;
-    say('Баю-бай… 💤');
+    S.sleepUntil = Date.now() + 60 * 1000; /* настоящий сон — минимум минутку */
+    say('Баю-бай… 💤 Посплю минутку, честно!');
   } else {
-    S.sleeping = false;
+    S.sleeping = false; S.sleepUntil = 0;
     say('Доброе утро! ☀');
     burstHearts(3);
   }
@@ -1503,7 +1504,7 @@ function renderPanel(){
   }
   else if(room === 'bedroom'){
     html = S.sleeping
-      ? '<button class="bigbtn" onclick="toggleLamp()">🔆 Разбудить</button><div class="hint">Питомец спит, энергия растёт быстро… 💤</div>'
+      ? '<button class="bigbtn" onclick="toggleLamp()">🔆 Разбудить</button><div class="hint">Питомец спит по-настоящему — минимум минутку, энергия растёт 💤<br>Сам проснётся, когда выспится. А кнопкой можно разбудить раньше.</div>'
       : '<button class="bigbtn" onclick="toggleLamp()">💡 Выключить свет — спать!</button><div class="hint">Во сне энергия восстанавливается заметно быстрее.<br>Пока он спит, кормить и играть нельзя.</div>';
   }
   else if(room === 'game'){
@@ -1632,8 +1633,8 @@ function tick(){
       S.hunger = clamp(S.hunger - 0.03, 0, 100);
       S.clean  = clamp(S.clean  - 0.012, 0, 100);
       S.fun    = clamp(S.fun    - 0.02, 0, 100);
-      if(S.energy >= 100){
-        S.sleeping = false;
+      if(S.energy >= 100 && Date.now() >= (S.sleepUntil || 0)){
+        S.sleeping = false; S.sleepUntil = 0;
         say('Я выспался! ☀ Доброе утро!');
         renderPanel();
       }
@@ -1730,7 +1731,7 @@ setInterval(tick, 1000);
 <script>
 /* самообновление: телефон Erik держит старые копии страниц в кэше */
 (function(){
-  var PET_VER = 5;
+  var PET_VER = 6;
   try {
     if(new URLSearchParams(location.search).get('u') === String(PET_VER)) return;
     fetch('pversion.txt?x=' + Date.now(), { cache:'no-store' })

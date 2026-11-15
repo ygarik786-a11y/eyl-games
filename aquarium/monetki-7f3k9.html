@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>👑 Админка аквариума E.Y.L</title>
+<style>
+  * { box-sizing:border-box; }
+  body { margin:0; font-family:'Segoe UI', system-ui, sans-serif; min-height:100vh;
+    background:linear-gradient(160deg,#2b6cb0,#0b2a4a); color:#10222e;
+    display:flex; align-items:flex-start; justify-content:center; padding:22px 14px; }
+  .box { background:#f5fbff; border-radius:20px; padding:24px 20px; max-width:360px; width:100%;
+    box-shadow:0 14px 40px rgba(0,0,0,.35); text-align:center; }
+  h1 { font-size:22px; margin:0 0 6px; }
+  .mini { font-size:13.5px; color:#4a6a7d; margin:6px 0 12px; }
+  input { width:100%; padding:12px; margin:5px 0; border:2px solid #bcd9ea; border-radius:12px; font-size:17px; text-align:center; }
+  .btn { display:block; width:100%; margin-top:9px; padding:13px; border:0; border-radius:12px;
+    background:#1f6feb; color:#fff; font-size:16.5px; font-weight:700; cursor:pointer; }
+  .btn:active { transform:scale(.98); }
+  .bal { font-size:19px; font-weight:800; margin:10px 0 2px; }
+  #msg { min-height:22px; font-weight:700; color:#1a7f37; margin-top:12px; }
+  a.back { display:inline-block; margin-top:16px; color:#1f6feb; font-weight:700; text-decoration:none; }
+</style>
+</head>
+<body>
+<div class="box">
+  <h1>👑 Админка аквариума</h1>
+
+  <div id="viewSet">
+    <p class="mini">Первый вход: придумай пароль админки. Он будет жить только на этом телефоне.</p>
+    <input type="password" id="pw1" placeholder="Пароль">
+    <input type="password" id="pw2" placeholder="Ещё раз пароль">
+    <button class="btn" id="btnSavePw">Сохранить пароль</button>
+  </div>
+
+  <div id="viewLogin" style="display:none">
+    <p class="mini">Введи пароль админки:</p>
+    <input type="password" id="pw" placeholder="Пароль">
+    <button class="btn" id="btnEnter">Войти</button>
+  </div>
+
+  <div id="viewPanel" style="display:none">
+    <div class="bal">Монет сейчас: <span id="balCoins">0</span> 🪙</div>
+    <p class="mini">Сколько монет выдать?</p>
+    <input type="number" id="amount" value="1000000" min="1">
+    <button class="btn" id="btnAdd">Добавить монеты</button>
+    <p class="mini">Или нажми сюда — дам тот самый миллион, что ты просил:</p>
+    <button class="btn" id="btnMillion" style="background:#f9a825;color:#3e2723">🐠 Дать 1 000 000 монет</button>
+    <p class="mini">Монеты придут в игру сами. Если аквариум открыт в другой вкладке — просто обнови его страницу.</p>
+  </div>
+
+  <div id="msg"></div>
+  <a class="back" href="./">← Вернуться в аквариум</a>
+</div>
+
+<script>
+const GAME_KEY = "eyl-aqua-v1";
+const ADM_KEY = "eylAquaAdminHash";
+const $ = id => document.getElementById(id);
+
+function admHash(s){ let h = 5381; for (let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) >>> 0; return "h" + h.toString(36); }
+function msg(t){ $("msg").textContent = t; }
+function show(v){
+  ["viewSet","viewLogin","viewPanel"].forEach(id => $(id).style.display = "none");
+  $(v).style.display = "block";
+}
+function loadSave(){
+  try { return JSON.parse(localStorage.getItem(GAME_KEY)); } catch(e){ return null; }
+}
+function loadOrCreate(){
+  const S = loadSave();
+  if (S) return { S, created:false };
+  return { S: { coins: 0 }, created:true };
+}
+function refreshBal(){
+  const S = loadSave();
+  $("balCoins").textContent = S ? Number(S.coins || 0).toLocaleString("ru-RU") : 0;
+}
+
+if (localStorage.getItem(ADM_KEY)) show("viewLogin"); else show("viewSet");
+
+$("btnSavePw").addEventListener("click", () => {
+  const a = $("pw1").value, b = $("pw2").value;
+  if (a.length < 3) { msg("Пароль коротковат — надо хотя бы 3 знака"); return; }
+  if (a !== b) { msg("Пароли не совпали, попробуй ещё раз"); return; }
+  localStorage.setItem(ADM_KEY, admHash(a));
+  msg("👑 Пароль сохранён! Заходи в панель.");
+  refreshBal(); show("viewPanel");
+});
+$("btnEnter").addEventListener("click", () => {
+  if (admHash($("pw").value) === localStorage.getItem(ADM_KEY)) {
+    $("pw").value = ""; msg("");
+    refreshBal(); show("viewPanel");
+  } else msg("Неверный пароль 🚫");
+});
+$("btnAdd").addEventListener("click", () => {
+  const n = Math.floor(Number($("amount").value) || 0);
+  if (n <= 0) { msg("Впиши сумму побольше нуля 🪙"); return; }
+  const { S, created } = loadOrCreate();
+  S.coins = (S.coins || 0) + n;
+  localStorage.setItem(GAME_KEY, JSON.stringify(S));
+  $("balCoins").textContent = Number(S.coins).toLocaleString("ru-RU");
+  msg("👑 Выдано " + n.toLocaleString("ru-RU") + " 🪙! Заходи в аквариум — монеты уже там." + (created ? " (Аквариум создан заново, монеты на месте.)" : ""));
+});
+$("btnMillion").addEventListener("click", () => {
+  const { S, created } = loadOrCreate();
+  S.coins = (S.coins || 0) + 1000000;
+  localStorage.setItem(GAME_KEY, JSON.stringify(S));
+  $("balCoins").textContent = Number(S.coins).toLocaleString("ru-RU");
+  msg("👑 Готово, миллион выдан! Заходи в аквариум — монеты уже там. Потратишь — приходи ещё 😉" + (created ? " (Аквариум создан заново, монеты на месте.)" : ""));
+});
+</script>
+</body>
+</html>
