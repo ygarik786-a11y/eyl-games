@@ -1731,15 +1731,15 @@ setInterval(tick, 1000);
 <script>
 /* самообновление: телефон Erik держит старые копии страниц в кэше */
 (function(){
-  var PET_VER = 6;
+  var PET_VER = 7;
   try {
-    if(new URLSearchParams(location.search).get('u') === String(PET_VER)) return;
     fetch('pversion.txt?x=' + Date.now(), { cache:'no-store' })
       .then(function(r){ return r.text(); })
       .then(function(tx){
-        if(parseInt(tx, 10) === PET_VER && !/[?&]u=/.test(location.search)){
-          location.replace(location.pathname + '?u=' + PET_VER);
-        }
+        var v = parseInt(tx, 10);
+        if(isNaN(v)) return;
+        var cur = new URLSearchParams(location.search).get('u');
+        if(String(v) !== cur) location.replace(location.pathname + '?u=' + v);
       })
       .catch(function(){});
   } catch(e){}
