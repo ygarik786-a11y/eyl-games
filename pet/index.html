@@ -133,7 +133,21 @@ var FOODS = [
   {id:'pizza',  e:'🍕', n:'Пицца',      price:20, hunger:28, fun:2, lvl:2},
   {id:'burger', e:'🍔', n:'Бургер',     price:25, hunger:35, fun:2, lvl:3},
   {id:'donut',  e:'🍩', n:'Пончик',     price:18, hunger:14, fun:8, lvl:4},
-  {id:'cake',   e:'🍰', n:'Торт',       price:40, hunger:45, fun:6, lvl:5}
+  {id:'cake',   e:'🍰', n:'Торт',       price:40, hunger:45, fun:6, lvl:5},
+  {id:'candy',  e:'🍭', n:'Леденец',    price:6,  hunger:4,  fun:6, lvl:1},
+  {id:'banana', e:'🍌', n:'Банан',      price:10, hunger:14, fun:0, lvl:1},
+  {id:'milk',   e:'🥛', n:'Молоко',     price:10, hunger:12, fun:0, energy:4, lvl:1},
+  {id:'strawb', e:'🍓', n:'Клубника',   price:12, hunger:10, fun:4, lvl:2},
+  {id:'grapes', e:'🍇', n:'Виноград',   price:14, hunger:16, fun:2, lvl:2},
+  {id:'cheese', e:'🧀', n:'Сыр',        price:16, hunger:18, fun:0, lvl:2},
+  {id:'soup',   e:'🍲', n:'Суп',        price:18, hunger:24, fun:0, lvl:3},
+  {id:'pancake',e:'🥞', n:'Блинчики',   price:22, hunger:26, fun:3, lvl:3},
+  {id:'popcorn',e:'🍿', n:'Попкорн',    price:12, hunger:8,  fun:8, lvl:3},
+  {id:'salad',  e:'🥗', n:'Салат',      price:16, hunger:20, fun:0, energy:3, lvl:4},
+  {id:'chicken',e:'🍗', n:'Курочка',    price:30, hunger:40, fun:2, lvl:4},
+  {id:'sushi',  e:'🍣', n:'Суши',       price:45, hunger:38, fun:4, lvl:5},
+  {id:'steak',  e:'🥩', n:'Стейк',      price:55, hunger:55, fun:2, lvl:6},
+  {id:'lobster',e:'🦞', n:'Лобстер',    price:80, hunger:65, fun:6, lvl:7}
 ];
 var HATS = [
   {id:'bow',     e:'🎀', n:'Бантик',            price:60,  lvl:1, kind:'top'},
@@ -144,6 +158,7 @@ var HATS = [
 ];
 var ROOMS = [
   {id:'kitchen',  e:'🍳', n:'Кухня',    bg:['#8a5a2b','#5d3a1a'], mark:'🍳'},
+  {id:'shop',     e:'🛒', n:'Магазин',  bg:['#2d6e4f','#173d2a'], mark:'🛒'},
   {id:'bath',     e:'🚿', n:'Ванная',   bg:['#2e7fb8','#174a6e'], mark:'🛁'},
   {id:'bedroom',  e:'🛏️', n:'Спальня',  bg:['#4a3a7a','#2a1f4d'], mark:'🌙'},
   {id:'game',     e:'🎮', n:'Игровая',  bg:['#2e7d46','#174a28'], mark:'🎯'},
@@ -166,6 +181,7 @@ var CHARS = [
 /* обои: [верх стены, низ стены, пол]; у улицы — [небо верх, небо низ, трава] */
 var WALLS = {
   kitchen:  [ ['#8a5a2b','#5d3a1a','#4a2f18'], ['#a34d2d','#6e2f1a','#54240f'], ['#3f6d4e','#274732','#1d3325'] ],
+  shop:     [ ['#2d6e4f','#173d2a','#122b1e'], ['#6e5a2d','#40331a','#2b2110'], ['#2d4a6e','#1a2c42','#121e2e'] ],
   bath:     [ ['#2e7fb8','#174a6e','#123a52'], ['#37a08e','#1c5a50','#14423b'], ['#7a5fb0','#46306e','#33224f'] ],
   bedroom:  [ ['#4a3a7a','#2a1f4d','#1d1436'], ['#7a3a5e','#47203a','#331627'], ['#2d5a6e','#1a3644','#122630'] ],
   game:     [ ['#2e7d46','#174a28','#10331b'], ['#8a6d1f','#54420f','#3d2f0a'], ['#5e2d82','#381a52','#27123a'] ],
@@ -178,7 +194,11 @@ var POTIONS = [
   {id:'small',  e:'🧫', n:'Уменьшение', price:40, d:'Стать крохой на 60 сек'},
   {id:'energy', e:'⚡', n:'Энергия',    price:30, d:'Энергия сразу до 100'},
   {id:'food',   e:'🍔', n:'Сытость',    price:30, d:'Сытость сразу до 100'},
-  {id:'med',    e:'💊', n:'Лекарство',  price:35, d:'Лечит болезнь 🤒'}
+  {id:'med',    e:'💊', n:'Лекарство',  price:35, d:'Лечит болезнь 🤒'},
+  {id:'hp1',    e:'❤️', n:'Малое зелье здоровья', price:25, d:'Лечит болезнь + силы: энергия +20, веселье +10'},
+  {id:'hp2',    e:'❤️‍🩹', n:'Большое зелье здоровья', price:60, d:'Лечит болезнь + все шкалы +30'},
+  {id:'vit',    e:'🍋', n:'Витамины',   price:45, d:'Иммунитет: сутки без болезни + веселье +10'},
+  {id:'super',  e:'🌟', n:'Эликсир «Супер-здоровье»', price:150, d:'Лечит всё: все шкалы до 100 + иммунитет на сутки'}
 ];
 var FLOWER_E = ['🌰','🌱','🌿','🌷','🌹'];
 var PHRASES_LOVE = ['Я тебя люблю!','Уррр, приятно!','Ещё погладь!','Ты лучший!','Муррр ❤'];
@@ -187,7 +207,8 @@ var PHRASES_IDLE = ['Привет!','Поиграем?','Что нового?','
 /* ---------- СОСТОЯНИЕ ---------- */
 var DEF = { name:'Пушик', hunger:80, clean:80, energy:80, fun:70, coins:150, xp:0,
             owned:[], wornTop:null, wornEyes:null, sleeping:false, started:false, lastSeen:Date.now(),
-            char:'swan', wall:{}, flower:0, flowerXp:0, sick:false };
+            char:'swan', wall:{}, flower:0, flowerXp:0, sick:false,
+            stock:{ carrot:2, apple:2 }, immuneUntil:0 };
 var S = loadSave();
 var room = 'kitchen';
 var foam = 0;              // пена на питомце (не сохраняется)
@@ -1249,14 +1270,32 @@ function feed(id){
   var lvl = levelInfo().lvl;
   if(lvl < f.lvl){ say('Откроется на уровне ' + f.lvl + ' 🔒'); return; }
   if(S.hunger >= 98){ say('Я сыт! Больше не влезет 😋'); return; }
-  if(S.coins < f.price){ say('Не хватает монет! Заработай в игре 🎮'); sndBad(); return; }
+  if(!S.stock) S.stock = {};
+  if((S.stock[id] || 0) <= 0){ say('В холодильнике пусто! Купи еду в магазине 🛒'); sndBad(); setRoom('shop'); return; }
   if(flyFood) return;
-  S.coins -= f.price;
+  S.stock[id] -= 1;
   S.hunger = clamp(S.hunger + f.hunger, 0, 100);
   S.fun = clamp(S.fun + f.fun, 0, 100);
+  if(f.energy) S.energy = clamp(S.energy + f.energy, 0, 100);
   flyFood = { e:f.e, x:W * 0.82, y:H - 50, t:0 };
   if(Math.random() < 0.3) setTimeout(function(){ say('Вкусно! 😋'); }, 600);
   addXp(6); updateHUD(); renderPanel(); save();
+}
+
+/* магазин: покупка еды в запас (холодильник), как в Pou */
+function buyFood(id){
+  if(blocked()) return;
+  var f = FOODS.filter(function(x){ return x.id === id; })[0];
+  if(!f) return;
+  var lvl = levelInfo().lvl;
+  if(lvl < f.lvl){ say('Откроется на уровне ' + f.lvl + ' 🔒'); return; }
+  if(S.coins < f.price){ say('Не хватает монет! Заработай в игре 🎮'); sndBad(); return; }
+  S.coins -= f.price;
+  if(!S.stock) S.stock = {};
+  S.stock[id] = (S.stock[id] || 0) + 1;
+  sndCoin();
+  say(f.e + ' ' + f.n + ' — в холодильник! Там уже ' + S.stock[id] + ' шт.');
+  addXp(2); updateHUD(); renderPanel(); save();
 }
 
 function soapTap(){
@@ -1351,6 +1390,10 @@ function buyPotion(id){
   else if(id === 'energy'){ S.energy = 100; say('Энергия полная! ⚡'); }
   else if(id === 'food'){ S.hunger = 100; say('Сытый до ушей! 🍔'); }
   else if(id === 'med'){ S.sick = false; say('Выздоровел! ❤️ Спасибо!'); burstHearts(6); }
+  else if(id === 'hp1'){ S.sick = false; S.energy = clamp(S.energy + 20, 0, 100); S.fun = clamp(S.fun + 10, 0, 100); say('Зелье здоровья! Мне лучше! ❤️'); burstHearts(4); }
+  else if(id === 'hp2'){ S.sick = false; S.hunger = clamp(S.hunger + 30, 0, 100); S.clean = clamp(S.clean + 30, 0, 100); S.energy = clamp(S.energy + 30, 0, 100); S.fun = clamp(S.fun + 30, 0, 100); say('Большое зелье здоровья! Как новенький! ❤️‍🩹'); burstHearts(8); }
+  else if(id === 'vit'){ S.immuneUntil = Date.now() + 24 * 3600 * 1000; S.fun = clamp(S.fun + 10, 0, 100); say('Витамины! Сутки болезнь не пристанет 🍋'); }
+  else if(id === 'super'){ S.sick = false; S.hunger = 100; S.clean = 100; S.energy = 100; S.fun = 100; S.immuneUntil = Date.now() + 24 * 3600 * 1000; say('Супер-здоровье! Всё на максимуме! 🌟'); burstHearts(10); }
   sndWin(); addXp(3); updateHUD(); renderPanel(); save();
 }
 function cycleWall(){
@@ -1430,15 +1473,28 @@ function setRoom(id){
 function renderPanel(){
   var p = $('panel'), lvl = levelInfo().lvl, html = '';
   if(room === 'kitchen'){
+    if(!S.stock) S.stock = {};
     html = '<div class="grid">';
     FOODS.forEach(function(f){
-      var lock = lvl < f.lvl, poor = S.coins < f.price;
-      html += '<button class="item' + (lock ? ' lock' : (poor ? ' poor' : '')) + '" onclick="feed(\'' + f.id + '\')">'
+      var lock = lvl < f.lvl, n = S.stock[f.id] || 0, empty = !lock && n <= 0;
+      html += '<button class="item' + (lock ? ' lock' : (empty ? ' poor' : '')) + '" onclick="feed(\'' + f.id + '\')">'
             + '<span class="e">' + f.e + '</span>' + f.n + '<br>'
             + '<span class="plus">+' + f.hunger + ' 🍔</span><br>'
+            + (lock ? '🔒 ур. ' + f.lvl : (empty ? '<span class="p">пусто · в магазин 🛒</span>' : '<span class="p">📦 в холодильнике: ' + n + '</span>')) + '</button>';
+    });
+    html += '</div><div class="hint">Это холодильник 🧊 Еда берётся из запасов.<br>Пополнить запасы — в комнате 🛒 Магазин, как в Pou!</div>';
+  }
+  else if(room === 'shop'){
+    if(!S.stock) S.stock = {};
+    html = '<div class="grid">';
+    FOODS.forEach(function(f){
+      var lock = lvl < f.lvl, poor = S.coins < f.price, n = S.stock[f.id] || 0;
+      html += '<button class="item' + (lock ? ' lock' : (poor ? ' poor' : '')) + '" onclick="buyFood(\'' + f.id + '\')">'
+            + '<span class="e">' + f.e + '</span>' + f.n + '<br>'
+            + '<span class="plus">+' + f.hunger + ' 🍔' + (n > 0 ? ' · 📦 ' + n : '') + '</span><br>'
             + (lock ? '🔒 ур. ' + f.lvl : '<span class="p">🪙 ' + f.price + '</span>') + '</button>';
     });
-    html += '</div><div class="hint">Еда покупается из холодильника за монеты — как в Pou.<br>Не хватает монет? Загляни в 🎮 Игровую!</div>';
+    html += '</div><div class="hint">Магазин E.Y.L 🛒 Нажимай на еду — она упадёт в холодильник на кухне.<br>Потом корми питомца оттуда. Не хватает монет? Загляни в 🎮 Игровую!</div>';
   }
   else if(room === 'bath'){
     html = '<button class="bigbtn" onclick="soapTap()">🧼 Намылить ' + (foam > 0 ? '(пены: ' + foam + ')' : '') + '</button>'
@@ -1474,7 +1530,8 @@ function renderPanel(){
             + '<span class="plus">' + pt.d + '</span><br>'
             + '<span class="p">🪙 ' + pt.price + '</span></button>';
     });
-    html += '</div><div class="hint">Лаборатория E.Y.L 🧪 Зелья роста и уменьшения действуют 60 секунд.<br>Заболеть питомец может, если надолго оставить его голодным или грязным.</div>';
+    if(S.immuneUntil && Date.now() < S.immuneUntil) html += '<div class="hint" style="color:#9fe8a9;font-weight:700">🍋 Действуют витамины: болезнь питомцу не страшна</div>';
+    html += '</div><div class="hint">Лаборатория E.Y.L 🧪 Главное тут — здоровье: зелья ❤️ лечат и дают силы, витамины 🍋 защищают на сутки.<br>Зелья роста и уменьшения действуют 60 секунд. Заболеть питомец может, если надолго оставить его голодным или грязным.</div>';
   }
   else if(room === 'street'){
     html = '<button class="bigbtn" onclick="toggleWalk()">' + (walk.on ? '🏠 Закончить прогулку' : '🚶 Гулять по улице') + '</button>'
@@ -1589,7 +1646,7 @@ function tick(){
       /* болезнь: от долгого голода или грязи */
       if(S.sick){
         S.fun = clamp(S.fun - 0.02, 0, 100);
-      } else if((S.hunger <= 10 || S.clean <= 10) && Math.random() < 0.05){
+      } else if((S.hunger <= 10 || S.clean <= 10) && Math.random() < 0.05 && Date.now() > (S.immuneUntil || 0)){
         S.sick = true;
         say('Ой… я заболел 🤒 Нужно лекарство — оно в лаборатории 🧪');
         sndBad(); save();
@@ -1673,7 +1730,7 @@ setInterval(tick, 1000);
 <script>
 /* самообновление: телефон Erik держит старые копии страниц в кэше */
 (function(){
-  var PET_VER = 4;
+  var PET_VER = 5;
   try {
     if(new URLSearchParams(location.search).get('u') === String(PET_VER)) return;
     fetch('pversion.txt?x=' + Date.now(), { cache:'no-store' })
