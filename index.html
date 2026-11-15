@@ -8,7 +8,7 @@
 <script>
 // Самообновление каталога: телефон Erik держал старую копию страницы
 // из кэша и не видел новые игры. Сверяемся с gversion.txt на сервере.
-var GAMES_VER = 13;
+var GAMES_VER = 14;
 fetch("gversion.txt?x=" + Date.now()).then(function(r){ return r.text(); }).then(function(t){
   var rv = parseInt(t, 10);
   if (rv && rv > GAMES_VER && sessionStorage.getItem("gamesUpd") !== String(rv)) {
@@ -43,6 +43,13 @@ fetch("gversion.txt?x=" + Date.now()).then(function(r){ return r.text(); }).then
     box-shadow:0 18px 40px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.22);
     animation:floaty 4s ease-in-out infinite; }
   @keyframes floaty { 0%,100% { transform:translateY(0); } 50% { transform:translateY(-6px); } }
+
+  /* Ёлки на входе (идея Erik, 15.11): две нарядные ёлки по бокам логотипа, огоньки мягко переливаются */
+  .hero-trees { display:flex; align-items:flex-end; justify-content:center; gap:20px; }
+  .hero-tree { font-size:76px; line-height:1; animation:treeGlow 2.8s ease-in-out infinite; }
+  .hero-tree.right { animation-delay:1.4s; }
+  @keyframes treeGlow { 0%,100% { transform:scale(1) rotate(-1.4deg); filter:drop-shadow(0 0 5px rgba(255,213,79,.25)); } 50% { transform:scale(1.06) rotate(1.4deg); filter:drop-shadow(0 0 17px rgba(255,213,79,.6)); } }
+  @media (max-width:480px){ .hero-tree { font-size:54px; } .hero-trees { gap:13px; } }
   header.hero h1 { font-size:42px; font-weight:800; letter-spacing:-.5px; margin-top:18px; line-height:1.04; }
   header.hero h1 .gold { background:linear-gradient(92deg,#7dd3fc,#37aee2 40%,#8b7bff 75%,#e0c3fc); -webkit-background-clip:text; background-clip:text; color:transparent; }
   header.hero .sub { color:#9c9cae; font-size:15px; margin-top:12px; line-height:1.55; font-weight:400; }
@@ -112,11 +119,12 @@ fetch("gversion.txt?x=" + Date.now()).then(function(r){ return r.text(); }).then
 <div class="bg"></div>
 <div class="wrap">
   <header class="hero">
-    <div class="applogo">👑</div>
+    <div class="hero-trees"><div class="hero-tree">🎄</div><div class="applogo">👑</div><div class="hero-tree right">🎄</div></div>
     <h1><span class="gold">E.Y.L</span> GAMES</h1>
     <p class="sub">Игровая империя президента <b>Erik Lebed</b> 🎮<br>Бесплатные игры прямо в браузере — без скачивания и регистрации.<br>Открыл — и играешь. Прогресс сохраняется в телефоне.</p>
     <div class="chips">
       <span class="chip gold">👑 89 игр</span>
+      <span class="chip">🎄 С наступающим Новым годом!</span>
       <span class="chip">💸 Полностью бесплатно</span>
       <span class="chip">📱 С телефона и компьютера</span>
     </div>
