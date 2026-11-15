@@ -8,7 +8,7 @@
 <script>
 // Самообновление каталога: телефон Erik держал старую копию страницы
 // из кэша и не видел новые игры. Сверяемся с gversion.txt на сервере.
-var GAMES_VER = 16;
+var GAMES_VER = 17;
 fetch("gversion.txt?x=" + Date.now()).then(function(r){ return r.text(); }).then(function(t){
   var rv = parseInt(t, 10);
   if (rv && rv > GAMES_VER && sessionStorage.getItem("gamesUpd") !== String(rv)) {
@@ -107,6 +107,7 @@ fetch("gversion.txt?x=" + Date.now()).then(function(r){ return r.text(); }).then
   .c-arkanoid{ background:linear-gradient(150deg,#6a4fd0,#3a1f86 60%,#0d0024); }
   .c-pet   { background:linear-gradient(150deg,#f78fb0,#c2185b 60%,#33081e); }
   .c-muha  { background:linear-gradient(150deg,#ffd93d,#f08c00 60%,#4a2c00); }
+  .c-aqua  { background:linear-gradient(150deg,#4cc9f0,#2b6cb0 60%,#0b2a4a); }
   .c-gorod { background:linear-gradient(150deg,#ffb3c8,#e75480 55%,#5c1030); }
   .c-neonrace{ background:linear-gradient(150deg,#e84e8a,#6236e8 55%,#0b0624); }
   .c-moto  { background:linear-gradient(150deg,#ef8f1f,#94406e 55%,#1d0f38); }
@@ -135,7 +136,7 @@ fetch("gversion.txt?x=" + Date.now()).then(function(r){ return r.text(); }).then
     <h1><span class="gold">E.Y.L</span> GAMES</h1>
     <p class="sub">Игровая империя президента <b>Erik Lebed</b> 🎮<br>Бесплатные игры прямо в браузере — без скачивания и регистрации.<br>Открыл — и играешь. Прогресс сохраняется в телефоне.</p>
     <div class="chips">
-      <span class="chip gold">👑 90 игр</span>
+      <span class="chip gold">👑 91 игра</span>
       <span class="chip">🎄 С наступающим Новым годом!</span>
       <span class="chip">💸 Полностью бесплатно</span>
       <span class="chip">📱 С телефона и компьютера</span>
@@ -171,6 +172,18 @@ fetch("gversion.txt?x=" + Date.now()).then(function(r){ return r.text(); }).then
 
   <h2 class="sec">🎮 Все игры</h2>
   <div class="grid">
+    <a class="game" href="aquarium/">
+      <div class="cover c-aqua">
+        <span class="tag">Аквариум • рыбки и монеты</span><span class="new">НОВОЕ</span>
+        <span class="main">🐠</span>
+      </div>
+      <div class="gbody">
+        <h3>🐠 Аквариум</h3>
+        <p>Как ферма, только под водой! Покупай рыбок — от гуппи до акулы и дельфина, корми, чисти аквариум и продавай взрослых дорого. Рыбки растут, даже пока тебя нет. Украшения, аквариумы побольше и задания с наградами.</p>
+        <div class="meta">🐠 10 видов • 🍽️ Кормление • 📋 Задания • 🏠 Океанариум</div>
+        <div class="play">Играть →</div>
+      </div>
+    </a>
     <a class="game" href="muhoboyka/">
       <div class="cover c-muha">
         <span class="tag">Охота • монеты и задания</span><span class="new">НОВОЕ</span>
