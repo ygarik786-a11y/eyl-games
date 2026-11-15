@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>🚗 Гараж: Тачку на прокачку — E.Y.L Games</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  body { font-family:'Segoe UI',system-ui,sans-serif; background:#0d1117; color:#e6edf3; min-height:100vh; }
+  .wrap { max-width:560px; margin:0 auto; padding:10px 10px 26px; }
+  .topbar { display:flex; align-items:center; gap:10px; margin-bottom:8px; }
+  .back { color:#58a6ff; text-decoration:none; font-size:15px; background:#161b22; border:1px solid #30363d; padding:7px 12px; border-radius:10px; }
+  h1 { font-size:20px; }
+  .hud { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:8px; }
+  .hud .cell { flex:1; min-width:86px; background:#161b22; border:1px solid #30363d; border-radius:12px; padding:7px 8px; text-align:center; font-size:15px; }
+  .hud .cell b { display:block; font-size:16px; color:#ffd93d; }
+  .hud .cell span { font-size:11px; color:#8b949e; }
+  #scene { position:relative; border-radius:16px; overflow:hidden; border:2px solid #444c56; background:linear-gradient(180deg,#23272e 0%,#16181d 72%,#0c0d10 72.2%,#1a1c20 100%); padding:14px 8px 6px; }
+  #carBox { width:100%; }
+  #carBox svg { width:100%; height:auto; display:block; }
+  #sceneMsg { text-align:center; font-size:14px; font-weight:700; color:#ffd93d; min-height:19px; margin-top:2px; }
+  .client { background:#161b22; border:2px solid #8a6d1f; border-radius:14px; padding:10px; margin-top:10px; }
+  .client h3 { font-size:15px; margin-bottom:4px; }
+  .client p { font-size:14px; color:#c9d1d9; }
+  .client .wishok { color:#7ee787; font-weight:700; }
+  .btnrow { display:flex; gap:8px; margin:10px 0; }
+  .btn { flex:1; background:#238636; color:#fff; border:none; border-radius:12px; padding:13px 6px; font-size:15px; font-weight:700; cursor:pointer; }
+  .btn.gold { background:#f9a825; color:#231a00; }
+  .btn:disabled { opacity:.45; }
+  .tabs { display:flex; gap:6px; margin:6px 0 8px; }
+  .tabbtn { flex:1; background:#161b22; border:2px solid #30363d; color:#e6edf3; border-radius:10px; padding:9px 4px; font-size:15px; cursor:pointer; }
+  .tabbtn.on { border-color:#ffd93d; background:#2a2410; }
+  .panel { background:#161b22; border:1px solid #30363d; border-radius:14px; padding:10px; }
+  .cat { font-size:15px; font-weight:800; margin:10px 0 4px; color:#ffd93d; }
+  .cat:first-child { margin-top:0; }
+  .row { display:flex; align-items:center; gap:9px; padding:7px 4px; border-bottom:1px solid #21262d; }
+  .row:last-child { border-bottom:none; }
+  .row .ic { font-size:24px; }
+  .row .tx { flex:1; font-size:14px; }
+  .row .tx small { display:block; color:#8b949e; font-size:12px; }
+  .bar { height:7px; background:#30363d; border-radius:4px; margin-top:4px; overflow:hidden; }
+  .bar i { display:block; height:100%; background:#ffd93d; border-radius:4px; }
+  .act { background:#ffd93d; color:#111; border:none; border-radius:9px; padding:8px 11px; font-weight:800; font-size:13px; cursor:pointer; white-space:nowrap; }
+  .act.blue { background:#1f6feb; color:#fff; }
+  .act:disabled { background:#30363d; color:#8b949e; }
+  .colors { display:flex; flex-wrap:wrap; gap:7px; padding:6px 0 2px; }
+  .swatch { width:40px; height:40px; border-radius:11px; border:3px solid #30363d; cursor:pointer; }
+  .swatch.on { border-color:#ffd93d; }
+  .coll { display:flex; flex-wrap:wrap; gap:8px; }
+  .collItem { width:47%; background:#0d1117; border:2px solid #30363d; border-radius:12px; padding:6px; text-align:center; }
+  .collItem svg { width:100%; height:auto; }
+  .collItem .nm { font-size:13px; font-weight:700; margin:3px 0; }
+  .foot { text-align:center; color:#8b949e; font-size:12px; margin-top:14px; }
+  input[type=color] { width:46px; height:40px; border:3px solid #30363d; border-radius:11px; background:none; padding:0; cursor:pointer; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar"><a class="back" href="../">← Игры</a><h1>🚗 Гараж: Тачку на прокачку</h1></div>
+
+  <div class="hud">
+    <div class="cell"><b id="hudCoins">0</b><span>🪙 монеты</span></div>
+    <div class="cell"><b id="hudStyle">0</b><span>⭐ стиль машины</span></div>
+    <div class="cell"><b id="hudOrders">0</b><span>👤 заказов сдано</span></div>
+  </div>
+
+  <div id="scene">
+    <div id="carBox"></div>
+    <div id="sceneMsg"></div>
+  </div>
+
+  <div class="client" id="clientBox"></div>
+
+  <div class="btnrow">
+    <button class="btn gold" id="showBtn" onclick="goShow()">📸 На выставку</button>
+    <button class="btn" onclick="saveDesign()">💾 Сохранить дизайн</button>
+  </div>
+
+  <div class="tabs">
+    <button class="tabbtn on" id="tabbtn-parts" onclick="openTab('parts')">🔧 Детали</button>
+    <button class="tabbtn" id="tabbtn-coll" onclick="openTab('coll')">🏆 Коллекция</button>
+    <button class="tabbtn" id="tabbtn-tasks" onclick="openTab('tasks')">📋 Задания</button>
+  </div>
+  <div class="panel" id="panel-parts"></div>
+  <div class="panel" id="panel-coll" style="display:none"></div>
+  <div class="panel" id="panel-tasks" style="display:none"></div>
+
+  <div class="foot">Игра от создателя E.Y.L · придумывай свои машины: цвет, колёса, спойлер, неон, наклейки 💛</div>
+</div>
+<script>
+'use strict';
+/* ============ ГАРАЖ «ТАЧКУ НА ПРОКАЧКУ» E.Y.L ============ */
+var SAVE_KEY = 'eyl-garage-v1';
+var BODIES = [
+  { id:'sedan', name:'Седан',    price:0,   cool:2,  stickerPos:[165,86],
+    body:'M18,118 L24,86 Q26,74 44,71 L84,66 L112,40 Q118,33 132,33 L186,33 Q200,33 214,44 L238,64 Q300,68 318,80 Q326,86 326,100 L324,118 Q324,124 316,124 L26,124 Q18,124 18,118 Z',
+    glass:'M102,62 L124,41 Q127,38 135,38 L166,38 L166,62 Z M176,38 L188,38 Q200,38 210,47 L226,62 L176,62 Z' },
+  { id:'sport', name:'Спорткар', price:800, cool:15, stickerPos:[160,84],
+    body:'M14,116 L22,96 Q26,84 52,80 L96,72 L128,50 Q136,44 152,44 L196,44 Q214,44 230,56 L252,70 Q306,74 320,88 Q328,95 326,108 L324,118 Q324,124 316,124 L26,124 Q14,124 14,116 Z',
+    glass:'M112,68 L140,50 Q144,48 154,48 L192,48 Q206,48 218,57 L234,68 Z' },
+  { id:'jeep',  name:'Джип',     price:600, cool:10, stickerPos:[160,84],
+    body:'M20,120 L22,50 Q22,40 34,40 L44,40 L48,26 Q50,20 60,20 L250,20 Q260,20 262,30 L266,40 L306,44 Q320,46 322,60 L324,120 Q324,124 316,124 L28,124 Q20,124 20,120 Z',
+    glass:'M58,28 L160,28 L160,58 L54,58 Q52,40 58,28 Z M170,28 L248,28 Q254,40 256,58 L170,58 Z' },
+  { id:'pickup',name:'Пикап',    price:700, cool:12, stickerPos:[215,84],
+    body:'M16,120 L18,78 Q18,70 28,70 L150,70 L158,44 Q160,36 170,36 L232,36 Q242,36 246,46 L254,70 Q306,72 318,82 Q326,88 326,102 L324,120 Q324,124 316,124 L26,124 Q16,124 16,120 Z',
+    glass:'M168,66 L174,44 Q176,41 182,41 L226,41 Q234,41 237,48 L242,66 Z' }
+];
+var WHEELS = [
+  { id:'stock', name:'Обычные', price:0, cool:1 }, { id:'chrome', name:'Хром', price:300, cool:6 },
+  { id:'gold', name:'Золотые', price:700, cool:12 }, { id:'star', name:'Диски-звёзды', price:1000, cool:16 }
+];
+var SPOILERS = [
+  { id:'none', name:'Нет спойлера', price:0, cool:0 }, { id:'normal', name:'Обычный', price:250, cool:6 },
+  { id:'race', name:'Гоночный', price:600, cool:12 }
+];
+var NEONS = [
+  { id:'none', name:'Нет неона', price:0, cool:0, hex:'' },
+  { id:'blue', name:'Синий', price:400, cool:8, hex:'#37c8ff' }, { id:'pink', name:'Розовый', price:400, cool:8, hex:'#ff5ec4' },
+  { id:'green', name:'Зелёный', price:400, cool:8, hex:'#52ff7a' }, { id:'purple', name:'Фиолетовый', price:400, cool:8, hex:'#b26bff' },
+  { id:'gold', name:'Золотой', price:400, cool:8, hex:'#ffd93d' }
+];
+var STICKERS = [
+  { id:'none', name:'Нет наклейки', price:0, cool:0, e:'' },
+  { id:'fire', name:'Огонь', price:150, cool:5, e:'🔥' }, { id:'bolt', name:'Молния', price:150, cool:5, e:'⚡' },
+  { id:'star', name:'Звезда', price:150, cool:5, e:'⭐' }, { id:'heart', name:'Сердце', price:150, cool:5, e:'❤️' },
+  { id:'crown', name:'Корона', price:300, cool:9, e:'👑' }, { id:'skull', name:'Череп', price:300, cool:9, e:'💀' }
+];
+var LIGHTS = [
+  { id:'stock', name:'Обычные фары', price:0, cool:1 }, { id:'xenon', name:'Ксенон', price:350, cool:7 },
+  { id:'angel', name:'Ангельские глазки', price:650, cool:11 }
+];
+var EXHAUSTS = [
+  { id:'stock', name:'Обычный выхлоп', price:0, cool:1 }, { id:'double', name:'Двойной', price:300, cool:6 },
+  { id:'fire', name:'Выхлоп с огнём', price:900, cool:14 }
+];
+var TINTS = [
+  { id:'none', name:'Без тонировки', price:0, cool:0 }, { id:'light', name:'Лёгкая тонировка', price:150, cool:4 },
+  { id:'full', name:'Полная тонировка', price:300, cool:7 }
+];
+var PAINTS = [
+  { hex:'#e23b3b', name:'красную' }, { hex:'#2b6cb0', name:'синюю' }, { hex:'#38a169', name:'зелёную' },
+  { hex:'#ffd93d', name:'жёлтую' }, { hex:'#17181c', name:'чёрную' }, { hex:'#f2f4f7', name:'белую' },
+  { hex:'#ff8c1a', name:'оранжевую' }, { hex:'#ff5ec4', name:'розовую' }, { hex:'#7c4dff', name:'фиолетовую' },
+  { hex:'#00c2c2', name:'бирюзовую' }, { hex:'#c0c6ce', name:'серебристую' }, { hex:'#8b5a2b', name:'коричневую' }
+];
+var PAINT_COST = 100;
+var CATS = [
+  { key:'wheels', name:'🛞 Колёса', items:WHEELS }, { key:'spoiler', name:'🪽 Спойлер', items:SPOILERS },
+  { key:'neon', name:'🌈 Неон под машиной', items:NEONS }, { key:'sticker', name:'🎨 Наклейка на дверь', items:STICKERS },
+  { key:'lights', name:'💡 Фары', items:LIGHTS }, { key:'exhaust', name:'💨 Выхлоп', items:EXHAUSTS },
+  { key:'tint', name:'🕶️ Тонировка', items:TINTS }
+];
+var TASKS = [
+  { id:'parts', icon:'🔧', name:'Купи деталей',         tiers:[3,10,20,35],    rewards:[100,400,1200,3000] },
+  { id:'orders',icon:'👤', name:'Сдай заказов клиентам', tiers:[1,5,15,40],    rewards:[200,800,2500,8000] },
+  { id:'earn',  icon:'🪙', name:'Заработай в гараже',    tiers:[1000,8000,30000,120000], rewards:[150,600,2000,8000] },
+  { id:'saved', icon:'🏆', name:'Сохрани машин в коллекцию', tiers:[1,3,6,10], rewards:[100,300,800,2000] }
+];
+var DAILY_POOL = [
+  { id:'orders', icon:'👤', name:'Сдай 1 заказ клиенту', target:1, reward:200 },
+  { id:'parts',  icon:'🔧', name:'Купи 2 детали',        target:2, reward:150 },
+  { id:'earn',   icon:'🪙', name:'Заработай 500 монет',  target:500, reward:150 }
+];
+var CLIENT_FACES = ['🧑','👩','👨','👵','🧔','👱‍♀️','👨‍🦱','🧒'];
+
+function defCar() { return { body:'sedan', paint:'#e23b3b', wheels:'stock', spoiler:'none', neon:'none', sticker:'none', lights:'stock', exhaust:'stock', tint:'none' }; }
+function defState() {
+  return {
+    coins:600, car:defCar(),
+    owned:{ body:['sedan'], wheels:['stock'], spoiler:['none'], neon:['none'], sticker:['none'], lights:['stock'], exhaust:['stock'], tint:['none'] },
+    collection:[], client:null, lastShow:0,
+    prog:{ parts:0, orders:0, earn:0, saved:0 },
+    tier:{ parts:0, orders:0, earn:0, saved:0 },
+    daily:{ date:'', idx:0, base:0, claimed:false }
+  };
+}
+var S = defState();
+try {
+  var raw = localStorage.getItem(SAVE_KEY);
+  if (raw) { var p = JSON.parse(raw); var d = defState();
+    for (var k in d) { if (p[k] !== undefined) S[k] = p[k]; }
+    var dc = defCar(); for (var ck in dc) { if (S.car[ck] === undefined) S.car[ck] = dc[ck]; }
+    for (var k2 in d.prog) { if (S.prog[k2] === undefined) S.prog[k2] = 0; }
+    for (var k3 in d.tier) { if (S.tier[k3] === undefined) S.tier[k3] = 0; }
+  }
+} catch (e) {}
+function save() { try { localStorage.setItem(SAVE_KEY, JSON.stringify(S)); } catch (e) {} }
+function $(id) { return document.getElementById(id); }
+function findIn(list, id) { for (var i=0;i<list.length;i++) if (list[i].id===id) return list[i]; return list[0]; }
+function bodyDef(id) { return findIn(BODIES, id); }
+function catItems(key) { for (var i=0;i<CATS.length;i++) if (CATS[i].key===key) return CATS[i].items; return []; }
+function itemDef(key, id) { return findIn(catItems(key), id); }
+function styleRating(car) {
+  car = car || S.car;
+  var r = bodyDef(car.body).cool + 2;
+  CATS.forEach(function(c){ r += itemDef(c.key, car[c.key]).cool; });
+  return r;
+}
+function todayStr() { var t = new Date(); return t.getFullYear() + '-' + (t.getMonth()+1) + '-' + t.getDate(); }
+function dailyDef() { return DAILY_POOL[S.daily.idx % DAILY_POOL.length]; }
+function ensureDaily() {
+  var t = todayStr();
+  if (S.daily.date !== t) {
+    var idx = 0; for (var i=0;i<t.length;i++) idx += t.charCodeAt(i);
+    S.daily = { date:t, idx: idx % DAILY_POOL.length, base:0, claimed:false };
+    S.daily.base = S.prog[dailyDef().id] || 0;
+  }
+}
+function dailyProg() { var d = dailyDef(); return Math.min(d.target, (S.prog[d.id] || 0) - S.daily.base); }
+
+/* ============ РИСОВАНИЕ МАШИНЫ (SVG) ============ */
+function wheelSVG(cx, style) {
+  var rim = '#9aa4ad', extra = '';
+  if (style === 'chrome') rim = '#e8f1f8';
+  if (style === 'gold') rim = '#ffd93d';
+  if (style === 'star') { rim = '#2b2f36'; extra = '<text x="' + cx + '" y="130" font-size="17" text-anchor="middle">⭐</text>'; }
+  var spokes = '';
+  if (style !== 'star') {
+    spokes = '<line x1="' + cx + '" y1="114" x2="' + cx + '" y2="134" stroke="' + rim + '" stroke-width="3"/>' +
+             '<line x1="' + (cx-10) + '" y1="124" x2="' + (cx+10) + '" y2="124" stroke="' + rim + '" stroke-width="3"/>';
+  }
+  return '<circle cx="' + cx + '" cy="124" r="23" fill="#0b0c0e"/>' +
+         '<circle cx="' + cx + '" cy="124" r="21" fill="#17181c"/>' +
+         '<circle cx="' + cx + '" cy="124" r="11" fill="' + rim + '"/>' + spokes + extra;
+}
+function renderCarSVG(car) {
+  var b = bodyDef(car.body);
+  var glassFill = car.tint === 'full' ? '#1d2f45' : (car.tint === 'light' ? '#7fa8c9' : '#bfe3ff');
+  var neon = itemDef('neon', car.neon);
+  var s = '<svg viewBox="0 0 340 160" xmlns="http://www.w3.org/2000/svg">';
+  if (neon.hex) s += '<ellipse cx="172" cy="136" rx="140" ry="11" fill="' + neon.hex + '" opacity="0.45"/>' +
+                     '<ellipse cx="172" cy="134" rx="100" ry="7" fill="' + neon.hex + '" opacity="0.5"/>';
+  s += '<rect x="0" y="146" width="340" height="2" fill="#2c313a"/>';
+  /* выхлоп */
+  s += '<rect x="4" y="114" width="16" height="6" rx="3" fill="#6b7280"/>';
+  if (car.exhaust === 'double') s += '<rect x="4" y="106" width="16" height="6" rx="3" fill="#6b7280"/>';
+  if (car.exhaust === 'fire') s += '<text x="-4" y="126" font-size="19">🔥</text>';
+  /* спойлер */
+  if (car.spoiler !== 'none') {
+    var sy = car.spoiler === 'race' ? 40 : 52, sw = car.spoiler === 'race' ? 58 : 44;
+    s += '<rect x="16" y="' + (sy + 12) + '" width="5" height="16" fill="#22262c"/>' +
+         '<rect x="' + (16 + sw - 12) + '" y="' + (sy + 12) + '" width="5" height="16" fill="#22262c"/>' +
+         '<rect x="12" y="' + sy + '" width="' + sw + '" height="8" rx="4" fill="#22262c" stroke="' + car.paint + '" stroke-width="1.5"/>';
+  }
+  /* кузов и стёкла */
+  s += '<path d="' + b.body + '" fill="' + car.paint + '" stroke="rgba(0,0,0,.35)" stroke-width="2"/>';
+  s += '<path d="' + b.glass + '" fill="' + glassFill + '" opacity="0.92"/>';
+  /* фары */
+  var lightFill = car.lights === 'stock' ? '#ffe9a8' : '#bfe3ff';
+  s += '<circle cx="318" cy="94" r="6" fill="' + lightFill + '" stroke="#8a6d1f" stroke-width="1.5"/>';
+  if (car.lights === 'angel') s += '<circle cx="318" cy="94" r="10" fill="none" stroke="#bfe3ff" stroke-width="2" opacity="0.8"/>';
+  s += '<rect x="17" y="90" width="7" height="9" rx="2" fill="#e23b3b"/>';
+  /* ручка и линия двери */
+  s += '<line x1="' + (b.stickerPos[0] - 38) + '" y1="70" x2="' + (b.stickerPos[0] - 38) + '" y2="118" stroke="rgba(0,0,0,.25)" stroke-width="2"/>' +
+       '<rect x="' + (b.stickerPos[0] - 30) + '" y="72" width="16" height="5" rx="2.5" fill="rgba(0,0,0,.35)"/>';
+  /* наклейка */
+  var st = itemDef('sticker', car.sticker);
+  if (st.e) s += '<text x="' + b.stickerPos[0] + '" y="' + (b.stickerPos[1] + 10) + '" font-size="30" text-anchor="middle">' + st.e + '</text>';
+  /* колёса */
+  s += wheelSVG(88, car.wheels) + wheelSVG(252, car.wheels);
+  s += '</svg>';
+  return s;
+}
+
+/* ============ КЛИЕНТЫ ============ */
+function genClient() {
+  var wishes = [];
+  var kind = Math.random();
+  if (kind < 0.55) {
+    var p = PAINTS[Math.floor(Math.random() * PAINTS.length)];
+    wishes.push({ type:'paint', hex:p.hex, label:'Покрась в ' + p.name });
+  } else {
+    var bd = BODIES[1 + Math.floor(Math.random() * (BODIES.length - 1))];
+    wishes.push({ type:'body', id:bd.id, label:'Кузов: ' + bd.name });
+  }
+  var extra = Math.random();
+  if (extra < 0.3) {
+    var nn = NEONS[1 + Math.floor(Math.random() * (NEONS.length - 1))];
+    wishes.push({ type:'neon', id:nn.id, label:'Неон: ' + nn.name });
+  } else if (extra < 0.55) {
+    var sk = STICKERS[1 + Math.floor(Math.random() * (STICKERS.length - 1))];
+    wishes.push({ type:'sticker', id:sk.id, label:'Наклейка: ' + sk.e + ' ' + sk.name });
+  } else if (extra < 0.75) {
+    wishes.push({ type:'spoiler', id:'any', label:'Поставь спойлер' });
+  } else {
+    var wh = ['chrome','gold','star'][Math.floor(Math.random() * 3)];
+    wishes.push({ type:'wheels', id:wh, label:'Колёса: ' + itemDef('wheels', wh).name });
+  }
+  return { face: CLIENT_FACES[Math.floor(Math.random() * CLIENT_FACES.length)], wishes: wishes, pay: 300 + wishes.length * 200 };
+}
+function wishOk(w) {
+  if (w.type === 'paint') return S.car.paint === w.hex;
+  if (w.type === 'body') return S.car.body === w.id;
+  if (w.type === 'neon') return S.car.neon === w.id;
+  if (w.type === 'sticker') return S.car.sticker === w.id;
+  if (w.type === 'spoiler') return S.car.spoiler !== 'none';
+  if (w.type === 'wheels') return S.car.wheels === w.id;
+  return false;
+}
+function clientAllOk() { return S.client && S.client.wishes.every(wishOk); }
+/* ============ ДЕЙСТВИЯ ============ */
+function buyBody(id) {
+  var bd = bodyDef(id);
+  if (S.owned.body.indexOf(id) >= 0) { S.car.body = id; save(); renderAll(); return true; }
+  if (S.coins < bd.price) { sceneSay('Не хватает монет на кузов 🪙'); return false; }
+  S.coins -= bd.price; S.owned.body.push(id); S.car.body = id;
+  S.prog.parts += 1;
+  sceneSay('Новый кузов: ' + bd.name + '! 🚗');
+  save(); renderAll();
+  return true;
+}
+function buyPart(key, id) {
+  var it = itemDef(key, id);
+  if (S.owned[key].indexOf(id) >= 0) { S.car[key] = id; save(); renderAll(); return true; }
+  if (S.coins < it.price) { sceneSay('Не хватает монет 🪙'); return false; }
+  S.coins -= it.price; S.owned[key].push(id); S.car[key] = id;
+  S.prog.parts += 1;
+  sceneSay('Поставлено: ' + it.name + ' 🔧');
+  save(); renderAll();
+  return true;
+}
+function paintCar(hex) {
+  if (S.car.paint === hex) return true;
+  if (S.coins < PAINT_COST) { sceneSay('Покраска стоит ' + PAINT_COST + ' 🪙 — не хватает монет'); return false; }
+  S.coins -= PAINT_COST; S.car.paint = hex;
+  sceneSay('Покрашено! Какой цвет! 🎨');
+  save(); renderAll();
+  return true;
+}
+function goShow() {
+  var now = Date.now();
+  if (now - S.lastShow < 20000) { sceneSay('Выставка только что была — подожди чуть-чуть 📸'); return false; }
+  S.lastShow = now;
+  var earn = 30 + styleRating() * 3;
+  S.coins += earn; S.prog.earn += earn;
+  sceneSay('Выставка: твоя машина собрала толпу! +' + earn + ' 🪙');
+  save(); renderAll();
+  return true;
+}
+function completeOrder() {
+  if (!clientAllOk()) return false;
+  var pay = S.client.pay;
+  S.coins += pay; S.prog.earn += pay; S.prog.orders += 1;
+  sceneSay('Клиент в восторге! +' + pay + ' 🪙 Пришёл следующий…');
+  S.client = genClient();
+  save(); renderAll();
+  return true;
+}
+function skipClient() { S.client = genClient(); save(); renderAll(); }
+function saveDesign() {
+  if (S.collection.length >= 12) { sceneSay('Коллекция полная (12 машин). Удали что-нибудь 🏆'); return false; }
+  var copy = JSON.parse(JSON.stringify(S.car));
+  S.collection.push({ name:'Машина ' + (S.collection.length + 1), car:copy });
+  S.prog.saved = S.collection.length;
+  sceneSay('Дизайн сохранён в коллекцию! 🏆');
+  save(); renderAll();
+  return true;
+}
+function loadDesign(i) {
+  var d = S.collection[i];
+  if (!d) return false;
+  S.car = JSON.parse(JSON.stringify(d.car));
+  sceneSay('Загружена: ' + d.name + ' 🚗');
+  save(); renderAll();
+  return true;
+}
+function delDesign(i) {
+  S.collection.splice(i, 1);
+  S.prog.saved = S.collection.length;
+  save(); renderAll();
+  return true;
+}
+function claimTask(id) {
+  var t = null; TASKS.forEach(function(x){ if (x.id===id) t = x; });
+  if (!t) return;
+  var ti = S.tier[id] || 0;
+  if (ti >= t.tiers.length) return;
+  if ((S.prog[id] || 0) < t.tiers[ti]) return;
+  S.coins += t.rewards[ti]; S.tier[id] = ti + 1;
+  save(); renderAll();
+}
+function claimDaily() {
+  ensureDaily();
+  if (S.daily.claimed) return;
+  var d = dailyDef();
+  if (dailyProg() < d.target) return;
+  S.coins += d.reward; S.daily.claimed = true;
+  save(); renderAll();
+}
+
+/* ============ ОТРИСОВКА ============ */
+var lastMsg = '';
+function sceneSay(txt) { lastMsg = txt; var m = $('sceneMsg'); if (m) m.textContent = txt; }
+function renderScene() {
+  $('carBox').innerHTML = renderCarSVG(S.car);
+  if (lastMsg) $('sceneMsg').textContent = lastMsg;
+}
+function renderHUD() {
+  $('hudCoins').textContent = S.coins;
+  $('hudStyle').textContent = styleRating();
+  $('hudOrders').textContent = S.prog.orders;
+  var left = Math.ceil((20000 - (Date.now() - S.lastShow)) / 1000);
+  $('showBtn').disabled = left > 0;
+  $('showBtn').textContent = left > 0 ? '📸 Выставка через ' + left + ' сек' : '📸 На выставку';
+}
+function renderClient() {
+  if (!S.client) S.client = genClient();
+  var c = S.client;
+  var h = '<h3>' + c.face + ' Клиент хочет такую машину:</h3><p>';
+  h += c.wishes.map(function(w){ return (wishOk(w) ? '✅ ' : '⬜ ') + w.label; }).join('<br>');
+  h += '</p><p>Плата за заказ: <b style="color:#ffd93d">' + c.pay + ' 🪙</b></p>';
+  h += '<div class="btnrow"><button class="btn" ' + (clientAllOk() ? '' : 'disabled') + ' onclick="completeOrder()">🤝 Сдать заказ</button>' +
+       '<button class="btn" style="background:#30363d" onclick="skipClient()">Другой клиент</button></div>';
+  if (clientAllOk()) h += '<p class="wishok">Всё как он хотел! Жми «Сдать заказ» 🎉</p>';
+  $('clientBox').innerHTML = h;
+}
+function partRow(key, it) {
+  var owned = S.owned[key].indexOf(it.id) >= 0;
+  var on = S.car[key] === it.id;
+  var btn = on ? '<button class="act" disabled>Стоит ✔️</button>'
+    : owned ? '<button class="act blue" onclick="buyPart(\'' + key + '\',\'' + it.id + '\')">Поставить</button>'
+    : '<button class="act" ' + (S.coins >= it.price ? '' : 'disabled') + ' onclick="buyPart(\'' + key + '\',\'' + it.id + '\')">Купить ' + it.price + ' 🪙</button>';
+  return '<div class="row"><div class="ic">' + (it.e || '🔧') + '</div><div class="tx"><b>' + it.name + '</b><small>Стиль: +' + it.cool + ' ⭐</small></div>' + btn + '</div>';
+}
+function renderParts() {
+  var h = '<div class="cat">🚗 Кузов</div>';
+  BODIES.forEach(function(bd){
+    var owned = S.owned.body.indexOf(bd.id) >= 0;
+    var on = S.car.body === bd.id;
+    var btn = on ? '<button class="act" disabled>Стоит ✔️</button>'
+      : owned ? '<button class="act blue" onclick="buyBody(\'' + bd.id + '\')">Поставить</button>'
+      : '<button class="act" ' + (S.coins >= bd.price ? '' : 'disabled') + ' onclick="buyBody(\'' + bd.id + '\')">Купить ' + bd.price + ' 🪙</button>';
+    h += '<div class="row"><div class="ic">🚗</div><div class="tx"><b>' + bd.name + '</b><small>Стиль: +' + bd.cool + ' ⭐</small></div>' + btn + '</div>';
+  });
+  h += '<div class="cat">🎨 Краска — покраска ' + PAINT_COST + ' 🪙</div><div class="colors">';
+  PAINTS.forEach(function(p){
+    h += '<div class="swatch' + (S.car.paint === p.hex ? ' on' : '') + '" style="background:' + p.hex + '" onclick="paintCar(\'' + p.hex + '\')"></div>';
+  });
+  h += '<input type="color" id="customColor" value="' + S.car.paint + '" onchange="paintCar(this.value)"></div>';
+  h += '<div style="font-size:12px;color:#8b949e">Квадратик с палитрой — выбрать ЛЮБОЙ свой цвет</div>';
+  CATS.forEach(function(c){
+    h += '<div class="cat">' + c.name + '</div>';
+    c.items.forEach(function(it){ h += partRow(c.key, it); });
+  });
+  $('panel-parts').innerHTML = h;
+}
+function renderColl() {
+  var h = '';
+  if (S.collection.length === 0) h = '<div class="row"><div class="tx">Пока пусто. Собери крутую машину и нажми «💾 Сохранить дизайн» над вкладками</div></div>';
+  h += '<div class="coll">';
+  S.collection.forEach(function(d, i){
+    h += '<div class="collItem">' + renderCarSVG(d.car) + '<div class="nm">' + d.name + ' · ⭐ ' + styleRating(d.car) + '</div>' +
+      '<button class="act blue" onclick="loadDesign(' + i + ')">Загрузить</button> ' +
+      '<button class="act" onclick="delDesign(' + i + ')">Удалить</button></div>';
+  });
+  h += '</div>';
+  $('panel-coll').innerHTML = h;
+}
+function renderTasks() {
+  ensureDaily();
+  var h = '';
+  var dd = dailyDef(), dp = dailyProg();
+  h += '<div class="row"><div class="ic">📅</div><div class="tx"><b>Задание дня:</b> ' + dd.name +
+    '<small>Награда: ' + dd.reward + ' 🪙 · прогресс: ' + dp + ' / ' + dd.target + '</small>' +
+    '<div class="bar"><i style="width:' + Math.round(100 * dp / dd.target) + '%"></i></div></div>' +
+    (S.daily.claimed ? '<button class="act" disabled>Взято ✔️</button>' : '<button class="act" ' + (dp >= dd.target ? '' : 'disabled') + ' onclick="claimDaily()">Забрать ' + dd.reward + ' 🪙</button>') + '</div>';
+  TASKS.forEach(function(t){
+    var ti = S.tier[t.id] || 0;
+    var val = S.prog[t.id] || 0;
+    if (ti >= t.tiers.length) {
+      h += '<div class="row"><div class="ic">' + t.icon + '</div><div class="tx">' + t.name + '<small>Все награды взяты ✔️</small></div></div>';
+      return;
+    }
+    var target = t.tiers[ti], prog = Math.min(target, val);
+    h += '<div class="row"><div class="ic">' + t.icon + '</div><div class="tx">' + t.name +
+      '<small>Награда: ' + t.rewards[ti] + ' 🪙 · прогресс: ' + prog + ' / ' + target + '</small>' +
+      '<div class="bar"><i style="width:' + Math.round(100 * prog / target) + '%"></i></div></div>' +
+      '<button class="act" ' + (prog >= target ? '' : 'disabled') + ' onclick="claimTask(\'' + t.id + '\')">Забрать ' + t.rewards[ti] + ' 🪙</button></div>';
+  });
+  $('panel-tasks').innerHTML = h;
+}
+function renderAll() { renderScene(); renderHUD(); renderClient(); renderParts(); renderColl(); renderTasks(); }
+function openTab(name) {
+  ['parts','coll','tasks'].forEach(function(t){
+    $('panel-' + t).style.display = (t === name) ? 'block' : 'none';
+    $('tabbtn-' + t).className = 'tabbtn' + (t === name ? ' on' : '');
+  });
+  if (name === 'parts') renderParts();
+  if (name === 'coll') renderColl();
+  if (name === 'tasks') renderTasks();
+}
+setInterval(function(){ renderHUD(); }, 1000);
+document.addEventListener('visibilitychange', function(){ if (document.hidden) save(); });
+
+/* ---- старт ---- */
+ensureDaily();
+if (!S.client) S.client = genClient();
+renderAll();
+save();
+window.__garage = { S:S, buyBody:buyBody, buyPart:buyPart, paintCar:paintCar, goShow:goShow, completeOrder:completeOrder, skipClient:skipClient, saveDesign:saveDesign, loadDesign:loadDesign, delDesign:delDesign, claimTask:claimTask, claimDaily:claimDaily, styleRating:styleRating, renderCarSVG:renderCarSVG, wishOk:wishOk, clientAllOk:clientAllOk, genClient:genClient };
+</script>
+</body>
+</html>

@@ -8,7 +8,7 @@
 <script>
 // Самообновление каталога: телефон Erik держал старую копию страницы
 // из кэша и не видел новые игры. Сверяемся с gversion.txt на сервере.
-var GAMES_VER = 20;
+var GAMES_VER = 21;
 fetch("gversion.txt?x=" + Date.now()).then(function(r){ return r.text(); }).then(function(t){
   var rv = parseInt(t, 10);
   if (rv && rv > GAMES_VER && sessionStorage.getItem("gamesUpd") !== String(rv)) {
@@ -109,6 +109,7 @@ fetch("gversion.txt?x=" + Date.now()).then(function(r){ return r.text(); }).then
   .c-muha  { background:linear-gradient(150deg,#ffd93d,#f08c00 60%,#4a2c00); }
   .c-aqua  { background:linear-gradient(150deg,#4cc9f0,#2b6cb0 60%,#0b2a4a); }
   .c-shop  { background:linear-gradient(150deg,#ffd93d,#b8860b 60%,#4a3503); }
+  .c-garage { background:linear-gradient(150deg,#ff7a45,#a61e4d 60%,#2b0a1e); }
   .c-gorod { background:linear-gradient(150deg,#ffb3c8,#e75480 55%,#5c1030); }
   .c-neonrace{ background:linear-gradient(150deg,#e84e8a,#6236e8 55%,#0b0624); }
   .c-moto  { background:linear-gradient(150deg,#ef8f1f,#94406e 55%,#1d0f38); }
@@ -137,7 +138,7 @@ fetch("gversion.txt?x=" + Date.now()).then(function(r){ return r.text(); }).then
     <h1><span class="gold">E.Y.L</span> GAMES</h1>
     <p class="sub">Игровая империя президента <b>Erik Lebed</b> 🎮<br>Бесплатные игры прямо в браузере — без скачивания и регистрации.<br>Открыл — и играешь. Прогресс сохраняется в телефоне.</p>
     <div class="chips">
-      <span class="chip gold">👑 92 игры</span>
+      <span class="chip gold">👑 93 игры</span>
       <span class="chip">🎄 С наступающим Новым годом!</span>
       <span class="chip">💸 Полностью бесплатно</span>
       <span class="chip">📱 С телефона и компьютера</span>
@@ -173,6 +174,18 @@ fetch("gversion.txt?x=" + Date.now()).then(function(r){ return r.text(); }).then
 
   <h2 class="sec">🎮 Все игры</h2>
   <div class="grid">
+    <a class="game" href="garage/">
+      <div class="cover c-garage">
+        <span class="tag">Гараж • тачку на прокачку</span><span class="new">НОВОЕ</span>
+        <span class="main">🚗</span>
+      </div>
+      <div class="gbody">
+        <h3>🚗 Гараж: Тачку на прокачку</h3>
+        <p>Как в том самом шоу! Придумывай свои машины: 4 кузова, покраска в ЛЮБОЙ цвет, колёса, спойлеры, неон, наклейки, фары и выхлоп с огнём. Клиенты заказывают машины мечты — собери точно под заказ и получи монеты. Свои дизайны сохраняй в коллекцию!</p>
+        <div class="meta">🎨 Любой цвет • 👤 Заказы клиентов • 🏆 Коллекция • ⭐ Стиль</div>
+        <div class="play">Играть →</div>
+      </div>
+    </a>
     <a class="game" href="shop/">
       <div class="cover c-shop">
         <span class="tag">Магазинчик • торговля и прибыль</span><span class="new">НОВОЕ</span>
