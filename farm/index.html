@@ -75,6 +75,18 @@
   .harvest-all { width:100%; margin-top:9px; }
   footer { text-align:center; color:rgba(255,255,255,.85); font-size:12.5px; margin-top:22px; }
   footer button { background:none; border:0; color:rgba(255,255,255,.75); text-decoration:underline; font-size:12.5px; cursor:pointer; }
+
+  .visit-btn { margin-left:8px; }
+  .modal { position:fixed; inset:0; background:rgba(10,20,10,.62); display:none; align-items:flex-start; justify-content:center; z-index:80; overflow-y:auto; padding:14px 10px; }
+  .modal.open { display:flex; }
+  .modal-box { background:#fffdf4; border-radius:18px; max-width:520px; width:100%; padding:16px; box-shadow:0 14px 40px rgba(0,0,0,.4); }
+  .modal-box h3 { margin:0 0 4px; font-size:21px; }
+  .nfarm { font-size:33px; text-align:center; padding:12px 6px; background:linear-gradient(180deg,#cdeffd,#a8d08d); border-radius:14px; letter-spacing:3px; line-height:1.5; margin:10px 0; word-break:break-all; }
+  .nbeds { display:grid; grid-template-columns:repeat(4,1fr); gap:6px; margin:8px 0; }
+  .nbed { background:linear-gradient(180deg,#8a5a33,#71471f); border-radius:10px; min-height:52px; display:flex; align-items:center; justify-content:center; font-size:26px; }
+  .nsay { background:#fff8e1; border:2px dashed #f9a825; border-radius:12px; padding:10px 12px; font-size:15px; margin:10px 0; min-height:44px; }
+  .nrow { display:flex; gap:8px; flex-wrap:wrap; margin-top:8px; }
+  .nrow .btn { flex:1; }
 </style>
 </head>
 <body>
@@ -105,6 +117,12 @@
 
   <h2 class="sec">🐔 Животные</h2>
   <div class="card"><div class="row2" id="animals"></div></div>
+
+  <h2 class="sec" id="hybridSec" style="display:none">🧬 Гибриды чупакабры</h2>
+  <div class="card" id="hybridCard" style="display:none">
+    <div id="crossBox"></div>
+    <div id="hybridList"></div>
+  </div>
 
   <h2 class="sec">🏡 Двор и постройки</h2>
   <div class="card">
@@ -147,6 +165,24 @@
     <button id="resetBtn">Сбросить ферму и начать заново</button>
   </footer>
 </div>
+
+<div class="modal" id="visitModal">
+  <div class="modal-box">
+    <h3 id="visitTitle">В гостях</h3>
+    <div class="mini" id="visitSub"></div>
+    <div class="nfarm" id="visitYard"></div>
+    <div class="nbeds" id="visitBeds"></div>
+    <div class="nfarm" id="visitAnimals" style="font-size:29px"></div>
+    <div class="nsay" id="visitSay"></div>
+    <div class="nrow">
+      <button class="btn" id="visitLike">👍 Похвалить ферму</button>
+      <button class="btn gold" id="visitPrank">😜 Подлянка</button>
+    </div>
+    <div class="nrow">
+      <button class="btn grey" id="visitClose" style="flex:1">🚪 Уйти домой</button>
+    </div>
+  </div>
+</div>
 <div id="toast"></div>
 <script>
 "use strict";
@@ -177,7 +213,8 @@ const GOODS = {
   wheat:{name:"Пшеница",em:"🌾",sell:20}, flour:{name:"Мука",em:"🥣",sell:60},
   bread:{name:"Хлеб",em:"🍞",sell:180}, apple:{name:"Яблоки",em:"🍎",sell:320},
   fur:{name:"Кроличий пух",em:"🧣",sell:130}, horseshoe:{name:"Подковы",em:"🧲",sell:260},
-  applejuice:{name:"Сок яблочный",em:"🧃",sell:700}
+  applejuice:{name:"Сок яблочный",em:"🧃",sell:700},
+  stardust:{name:"Звёздная пыль",em:"✨",sell:1000}
 };
 const ANIMALS = {
   chicken:{ name:"Курицы", em:"🐔", price:100,  lvl:2, good:"egg",   rate:120, cap:10 },
@@ -188,8 +225,23 @@ const ANIMALS = {
   rabbit: { name:"Кролики", em:"🐇", price:600, lvl:4, good:"fur",   rate:300, cap:8 },
   cow:    { name:"Коровы", em:"🐄", price:800,  lvl:4, good:"milk",  rate:600, cap:6 },
   pig:    { name:"Свиньи", em:"🐷", price:1200, lvl:5, good:"bacon", rate:900, cap:4 },
-  horse:  { name:"Лошади", em:"🐎", price:2000, lvl:6, good:"horseshoe", rate:900, cap:4 }
+  horse:  { name:"Лошади", em:"🐎", price:2000, lvl:6, good:"horseshoe", rate:900, cap:4 },
+  chupa:  { name:"Чупакабры", em:"👽", price:5000, lvl:7, good:"stardust", rate:900, cap:3 }
 };
+// Скрещивание чупакабры: партнёр -> гибрид (два смайлика). Кот — соседский, животное для него не нужно.
+const CROSS = {
+  goat:   { name:"Козакабра",  em:"👽🐐" },
+  cow:    { name:"Чупова",     em:"👽🐄" },
+  cat:    { name:"Чупокот",    em:"👽🐱" },
+  chicken:{ name:"Чупокурица", em:"👽🐔" },
+  pig:    { name:"Чупосвин",   em:"👽🐷" },
+  sheep:  { name:"Чуповца",    em:"👽🐑" },
+  horse:  { name:"Чуполошадь", em:"👽🐎" },
+  rabbit: { name:"Чупокролик", em:"👽🐇" },
+  duck:   { name:"Чупоутка",   em:"👽🦆" },
+  bees:   { name:"Чупопчела",  em:"👽🐝" }
+};
+let crossOpen = false;
 const HOUSE_FOR = { chicken:"henhouse", duck:"henhouse", sheep:"sheepfold", goat:"sheepfold", cow:"cowshed", horse:"stable" };
 const RECIPES = {
   omelet:{ name:"Омлет",       em:"🍳", need:{egg:3},        secs:60,  lvl:2 },
@@ -284,8 +336,9 @@ function freshState(){
   return {
     coins: 60, xp: 0, level: 1, plots: 6, seed: "carrot",
     beds: [], stock: {}, prices: {}, marketAt: 0,
-    animals: { chicken:0, duck:0, bees:0, sheep:0, goat:0, rabbit:0, cow:0, pig:0, horse:0 }, acc: { chicken:0, duck:0, bees:0, sheep:0, goat:0, rabbit:0, cow:0, pig:0, horse:0 },
+    animals: { chicken:0, duck:0, bees:0, sheep:0, goat:0, rabbit:0, cow:0, pig:0, horse:0, chupa:0 }, acc: { chicken:0, duck:0, bees:0, sheep:0, goat:0, rabbit:0, cow:0, pig:0, horse:0, chupa:0 },
     fed: {}, young: {}, gold: {}, decor: {}, questIdx: 0,
+    hybrids: [], hybridAcc: 0,
     upg: { fert:0, barn:0, market:0, linda:false, tractor:false },
     buildings: {}, season: null, lastFish: 0,
     order: null, orderSkipUntil: 0,
@@ -396,6 +449,77 @@ function growRivals(){
   }
 }
 
+
+// ---------- В гости к соседям ----------
+const NEIGHBORS = {
+  "Дядя Витя": { crops:["pumpkin","corn","wheat","apple"], animals:["🐄","🐄","🐖","🐎","🐔"], house:"🏠", extra:"🚜🛖",
+    hi:"Заходи, президент! У меня всё по-взрослому: тыквы — во! А ты не отставай 😉",
+    like:"Витя расплылся: «Приятно! Заходи ещё, чаю налью.»",
+    prank:"Ты выпустил его кур во двор! Витя бегает за ними и кричит: «Мои чемпионки!» 🐔💨",
+    prank2:"Ты перевесил его табличку на «Ферма №2». Витя хмыкнул: «Ну-ну, посмотрим, кто первый!» 😏" },
+  "Юрка": { crops:["grapes","strawberry","corn"], animals:["🐔","🐥","🐐"], house:"🏡", extra:"🌳🎸",
+    hi:"О, Erik! Залетай. У меня виноград зреет и куры поют. Почти как люди, только честнее 😎",
+    like:"Юрка: «Бро! Твоя ферма тоже огонь, но моя... ладно, твоя тоже огонь» 😄",
+    prank:"Ты спрятал его грабли в кусты! Юрка: «Бро, это точно не я сам их туда положил?» 🤔",
+    prank2:"Ты наклеил его курице усы из соломы. Курица довольна, Юрка в шоке 🐔" },
+  "Бабушка Зина": { crops:["carrot","tomato","strawberry","apple"], animals:["🐝","🐐","🐔","🐈"], house:"🏠", extra:"🌸🌼💐",
+    hi:"Милок, заходи! Пирожков хочешь? А ферма у меня — как сад, всё цветёт 🌸",
+    like:"Баба Зина: «Ой, спасибо, милок! На, держи пирожок за добрые слова» 🥧",
+    prank:"Ты поменял местами её таблички «морковь» и «томаты»! Баба Зина: «Хулиган... но смешно» 😄",
+    prank2:"Ты поставил её гномику на голову ведёрко. Гномик стал как рыцарь! 🪖" },
+  "Коля-тракторист": { crops:["wheat","corn","pumpkin"], animals:["🐎","🐄"], house:"🛖", extra:"🚜🚜⛽",
+    hi:"Здорово! У меня главное — техника. Два трактора, а урожай — как получится 🚜",
+    like:"Коля: «Уважуха! Тракторист тракториста всегда поймёт» 🤝",
+    prank:"Ты накачал колёса его трактора... конфетти в выхлопе! Трактор чихнул праздником 🎉",
+    prank2:"Ты переставил его трактор носом к забору. Коля полчаса думал, как он так припарковался 🤣" },
+  "Людмила": { crops:["strawberry","grapes","tomato","carrot"], animals:["🦆","🐇","🐝","🦋"], house:"🏡", extra:"🌷🌹🪻",
+    hi:"Привет! У меня клубника и цветы, а уточки — мои помощницы. Красота же? 🌸",
+    like:"Людмила: «Как мило! Приходи ещё, угощу клубникой» 🍓",
+    prank:"Ты выпустил её уточек поплавать в поилке коров... то есть в её прудик! Уточки счастливы 🦆💦",
+    prank2:"Ты повесил на её забор гирлянду из морковок. Людмила: «А... это теперь так модно?» 🥕" }
+};
+let visitName = null, visitPranked = false;
+function seedRand(seed){ let x = seed; return ()=>{ x = (x * 1103515245 + 12345) % 2147483648; return x / 2147483648; }; }
+function nameSeed(str){ let h = 7; for (let i=0;i<str.length;i++) h = (h * 31 + str.charCodeAt(i)) % 9973; return h + 13; }
+function openVisit(name){
+  const r = (S.rivals || []).find(x=>x.name === name);
+  const prof = NEIGHBORS[name]; if (!r || !prof) return;
+  visitName = name; visitPranked = false;
+  const lvl = Math.max(1, Math.round(Math.sqrt(r.xp / 60)) + 1);
+  $("visitTitle").textContent = r.em + " Ферма: " + name;
+  $("visitSub").textContent = "Опыт соседа: " + r.xp + " ⭐ • Уровень фермы примерно " + lvl + " • Это его хозяйство — можно смотреть, хвалить и шалить 😜 А тебе подлянки делать нельзя — ты президент!";
+  $("visitYard").textContent = prof.house + prof.extra + "🌳🌲";
+  const rnd = seedRand(nameSeed(name) + Math.floor(r.xp / 50));
+  const nBeds = Math.min(12, 4 + Math.floor(lvl * 1.2));
+  const beds = $("visitBeds"); beds.innerHTML = "";
+  for (let i=0;i<nBeds;i++){
+    const c = prof.crops[Math.floor(rnd() * prof.crops.length)];
+    const d = document.createElement("div"); d.className = "nbed";
+    d.textContent = rnd() < 0.18 ? "🌱" : (CROPS[c] ? CROPS[c].em : "🌾");
+    beds.appendChild(d);
+  }
+  const nAn = Math.min(10, 2 + Math.floor(lvl * 0.9));
+  let an = "";
+  for (let i=0;i<nAn;i++) an += prof.animals[Math.floor(rnd() * prof.animals.length)];
+  $("visitAnimals").textContent = an;
+  $("visitSay").textContent = "💬 " + prof.hi;
+  $("visitModal").classList.add("open");
+}
+function closeVisit(){ $("visitModal").classList.remove("open"); visitName = null; }
+$("visitClose").onclick = closeVisit;
+$("visitModal").addEventListener("click", e=>{ if (e.target === $("visitModal")) closeVisit(); });
+$("visitLike").onclick = ()=>{
+  const prof = NEIGHBORS[visitName]; if (!prof) return;
+  $("visitSay").textContent = "💬 " + prof.like;
+  toast("👍 Соседу приятно!");
+};
+$("visitPrank").onclick = ()=>{
+  const prof = NEIGHBORS[visitName]; if (!prof) return;
+  $("visitSay").textContent = "😜 " + (visitPranked ? prof.prank2 : prof.prank);
+  visitPranked = true;
+  toast("😜 Подлянка удалась! Тебе так делать нельзя — ты под защитой президента 👑");
+};
+
 // ---------- Заказы ----------
 function genOrder(){
   const unlocked = Object.keys(GOODS).filter(g=>{
@@ -410,6 +534,7 @@ function genOrder(){
     if (g === "applejuice") return S.level >= 5;
     if (g === "horseshoe") return S.level >= 6;
     if (g === "juice") return S.level >= 6;
+    if (g === "stardust") return S.level >= 7;
     return false; // рыбу в заказы не берём — она с пруда
   });
   const n = 1 + Math.floor(Math.random()*2) + (Math.random() < 0.4 ? 1 : 0);
@@ -515,6 +640,71 @@ function breedAnimal(k){
   if (Math.random() < 0.1) { S.gold[k] = (S.gold[k]||0) + 1; toast("✨ Малыш родился ЗОЛОТЫМ! Вырастет через 5 минут"); }
   else toast("🐣 Пополнение! Малыш " + a.em + " вырастет через 5 минут");
   save(); render(); checkAchs(); save();
+}
+function crossAnimal(p){
+  const c = CROSS[p]; if (!c) return;
+  const adults = (S.animals.chupa || 0) - (S.young.chupa || []).length;
+  if (adults < 1) { toast("Нужна взрослая чупакабра 👽"); return; }
+  if (p !== "cat" && ((S.animals[p] || 0) - (S.young[p] || []).length) < 1) { toast("Нужен взрослый партнёр " + ANIMALS[p].em); return; }
+  if (S.coins < 1000) { toast("Не хватает монет 🪙"); return; }
+  S.coins -= 1000;
+  (S.hybrids = S.hybrids || []).push({ p: p, readyAt: now() + 300000 });
+  toast("🧬 Родился малыш " + c.em + " " + c.name + "! Вырастет через 5 минут");
+  save(); render();
+}
+function collectHybrids(){
+  let n = Math.floor(S.hybridAcc || 0);
+  if (n <= 0) { toast("Пока ничего не накопилось"); return; }
+  const space = barnCap() - barnUsed();
+  if (space <= 0) { toast("🏠 Амбар полон!"); return; }
+  const take = Math.min(n, space);
+  S.hybridAcc -= take; stockAdd("stardust", take); countGood("stardust", take);
+  toast("✨ Собрано звёздной пыли: " + take);
+  save(); render();
+}
+function sellHybrid(i){
+  const h = (S.hybrids || [])[i]; if (!h) return;
+  S.hybrids.splice(i, 1); S.coins += 2500; S.stats.earned += 2500;
+  toast("💰 " + CROSS[h.p].name + " продан за 2500 🪙");
+  save(); render(); checkAchs(); save();
+}
+function renderHybrids(){
+  const has = (S.animals.chupa || 0) > 0 || (S.hybrids || []).length > 0;
+  $("hybridSec").style.display = has ? "" : "none";
+  $("hybridCard").style.display = has ? "" : "none";
+  if (!has) return;
+  const cb = $("crossBox"); cb.innerHTML = "";
+  if (crossOpen) {
+    let html = '<div class="mini" style="margin-bottom:7px">С кем скрестить чупакабру? Нужен взрослый партнёр, а кот — соседский, сам приходит 🐱 Скрещивание — 1000 🪙</div><div style="display:flex;gap:6px;flex-wrap:wrap">';
+    Object.entries(CROSS).forEach(([p,c])=>{
+      const ok = p === "cat" || ((S.animals[p] || 0) - (S.young[p] || []).length) >= 1;
+      html += '<button class="btn small" data-crossp="' + p + '"' + (ok ? "" : " disabled") + ">" + c.em + " " + c.name + "</button>";
+    });
+    html += "</div>";
+    cb.innerHTML = html;
+    cb.querySelectorAll("[data-crossp]").forEach(b=>b.onclick = ()=>crossAnimal(b.dataset.crossp));
+  } else {
+    cb.innerHTML = '<div class="mini">Чупакабра скрещивается с другими животными кнопкой «🧬 Скрестить» на её карточке. Гибриды копят ✨ звёздную пыль (продаётся по 1000 🪙), а самого гибрида можно продать за 2500 🪙.</div>';
+  }
+  const hl = $("hybridList"); hl.innerHTML = "";
+  (S.hybrids || []).forEach((h,i)=>{
+    const c = CROSS[h.p]; if (!c) return;
+    const left = Math.ceil((h.readyAt - now()) / 60000);
+    const div = document.createElement("div");
+    div.className = "animal";
+    div.style.marginTop = "8px";
+    div.innerHTML = '<span class="big">' + c.em + "</span> <b>" + c.name + "</b>" +
+      '<div class="mini">' + (left > 0 ? "🐣 Малыш — вырастет через " + left + " мин" : "Взрослый — копит ✨ звёздную пыль") + "</div>" +
+      '<div style="display:flex;gap:6px;margin-top:7px"><button class="btn small gold" data-sellh="' + i + '">Продать за 2500 🪙</button></div>';
+    hl.appendChild(div);
+  });
+  hl.querySelectorAll("[data-sellh]").forEach(b=>b.onclick = ()=>sellHybrid(+b.dataset.sellh));
+  const dust = Math.floor(S.hybridAcc || 0);
+  const row = document.createElement("div");
+  row.style.marginTop = "8px";
+  row.innerHTML = "✨ Звёздной пыли от гибридов: <b>" + dust + '</b> <button class="btn small" id="collectHyb"' + (dust ? "" : " disabled") + ">Собрать ✨</button>";
+  hl.appendChild(row);
+  const chb = $("collectHyb"); if (chb) chb.onclick = collectHybrids;
 }
 function buyDecor(k){
   const d = DECOR.find(x=>x.k === k);
@@ -693,13 +883,16 @@ function render(){
       '<button class="btn small" ' + (locked || !S.animals[k] || !readyN ? "disabled" : "") + ' data-collect="' + k + '">Собрать ' + GOODS[a.good].em + '</button>' +
       '<button class="btn small gold" ' + (locked ? "disabled" : "") + ' data-buy="' + k + '">Купить за ' + a.price + ' 🪙</button>' +
       '<button class="btn small" ' + (locked || !S.animals[k] || fedLeft ? "disabled" : "") + ' data-feed="' + k + '">🌽 Кормить ' + 5 * Math.max(1, S.animals[k]) + ' 🪙</button>' +
-      '<button class="btn small" ' + (locked || (S.animals[k] - youngN) < 2 || youngN >= 2 ? "disabled" : "") + ' data-breed="' + k + '">💕 Разводить ' + Math.round(a.price * 0.5) + ' 🪙</button></div>';
+      '<button class="btn small" ' + (locked || (S.animals[k] - youngN) < 2 || youngN >= 2 ? "disabled" : "") + ' data-breed="' + k + '">💕 Разводить ' + Math.round(a.price * 0.5) + ' 🪙</button>' +
+      (k === "chupa" ? '<button class="btn small" ' + (locked || !S.animals[k] ? "disabled" : "") + ' data-cross="1">🧬 Скрестить 1000 🪙</button>' : "") + '</div>';
     an.appendChild(div);
   });
   an.querySelectorAll("[data-collect]").forEach(b=>b.onclick = ()=>collectAnimal(b.dataset.collect));
   an.querySelectorAll("[data-buy]").forEach(b=>b.onclick = ()=>buyAnimal(b.dataset.buy));
   an.querySelectorAll("[data-feed]").forEach(b=>b.onclick = ()=>feedAnimal(b.dataset.feed));
   an.querySelectorAll("[data-breed]").forEach(b=>b.onclick = ()=>breedAnimal(b.dataset.breed));
+  an.querySelectorAll("[data-cross]").forEach(b=>b.onclick = ()=>{ crossOpen = !crossOpen; render(); });
+  renderHybrids();
 
   // двор
   const yard = ["🌳"];
@@ -719,6 +912,8 @@ function render(){
   DECOR.forEach(d=>{ if (S.decor[d.k]) yard.push(d.em); });
   if (S.upg.linda) yard.push("🐕");
   if (S.upg.tractor) yard.push("🚜");
+  if (S.animals.chupa) yard.push("👽");
+  (S.hybrids || []).slice(0, 3).forEach(h=>{ if (CROSS[h.p]) yard.push(CROSS[h.p].em); });
   $("yard").textContent = yard.join(" ");
   const bd = $("buildings"); bd.innerHTML = "";
   Object.entries(BUILDINGS).forEach(([k,b])=>{
@@ -883,11 +1078,17 @@ function render(){
     const d = document.createElement("div");
     d.className = "rate-row" + (r.me ? " me" : "");
     d.innerHTML = '<span class="pos">' + (i + 1) + '</span><span>' + r.em + " " + r.name + '</span><span class="xp">' + r.xp + " ⭐</span>";
+    if (!r.me) {
+      const vb = document.createElement("button");
+      vb.className = "btn small visit-btn"; vb.textContent = "🚶 В гости";
+      vb.onclick = () => openVisit(r.name);
+      d.appendChild(vb);
+    }
     rt.appendChild(d);
   });
   const note = document.createElement("div");
   note.className = "mini"; note.style.marginTop = "6px";
-  note.textContent = "Соседи тоже не спят: их опыт потихоньку растёт. Обгоняй их, президент! 👑";
+  note.textContent = "Соседи тоже не спят: их опыт потихоньку растёт. Жми «🚶 В гости» — зайдёшь посмотреть их фермы. Обгоняй их, президент! 👑";
   rt.appendChild(note);
 
   // достижения
@@ -960,6 +1161,8 @@ function tick(){
     const ff = (S.fed[k] && S.fed[k] > t) ? 2 : 1;
     S.acc[k] = Math.min(a.cap * total, S.acc[k] + eff * hf * ff * dt / (a.rate * 1000));
   });
+  const grownH = (S.hybrids || []).filter(h=>h.readyAt <= t).length;
+  if (grownH) S.hybridAcc = Math.min(5 * grownH, (S.hybridAcc || 0) + grownH * dt / 600000);
   if (matured) toast("🐣 Малыши выросли и теперь дают продукцию!");
   if (!S.weather || t > S.weather.until) rollWeather();
   if (!S.season || t > S.season.until) { rollSeason(); toast(seasonObj().em + " Наступил сезон: " + seasonObj().name + "!"); }
