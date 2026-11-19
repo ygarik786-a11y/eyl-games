@@ -33,6 +33,9 @@
   #field.night .bug { filter:drop-shadow(0 0 7px rgba(255,255,120,.95)); }
   .splat { position:absolute; transform:translate(-50%,-50%); font-size:30px; pointer-events:none; z-index:5; animation:splatA .45s ease-out forwards; }
   @keyframes splatA { 0%{transform:translate(-50%,-50%) scale(.5); opacity:1;} 100%{transform:translate(-50%,-50%) scale(1.5); opacity:0;} }
+  .slap { position:absolute; transform:translate(-50%,-50%) rotate(-30deg); font-size:46px; pointer-events:none; z-index:6; animation:slapA .32s ease-out forwards; }
+  @keyframes slapA { 0%{transform:translate(-50%,-60%) rotate(-30deg) scale(1.35); opacity:1;} 100%{transform:translate(-50%,-50%) rotate(-30deg) scale(1); opacity:0;} }
+  #wcur { position:absolute; transform:translate(-50%,-50%) rotate(-25deg); font-size:38px; pointer-events:none; z-index:4; opacity:.85; display:none; }
   .floater { position:absolute; transform:translate(-50%,-50%); font-size:16px; font-weight:700; color:#ffd93d; text-shadow:0 1px 3px #000; pointer-events:none; z-index:6; animation:floatA 1s ease-out forwards; white-space:nowrap; }
   @keyframes floatA { 0%{opacity:1; margin-top:0;} 100%{opacity:0; margin-top:-44px;} }
   .helper { position:absolute; font-size:34px; z-index:2; pointer-events:none; }
@@ -99,6 +102,7 @@
 
   <div id="field">
     <div id="banner"></div>
+    <div id="wcur"></div>
     <div id="frogEl" class="helper" style="display:none">🐸</div>
     <div id="tapeEl" class="helper" style="display:none">🪤</div>
     <div id="centerMsg"><div class="big">🪰 Мухобойка</div><div class="small">Бей комаров и мух, получай монеты! Золотая муха — 10 монет, комар-король — 50. Пчёл тут нет, не бойся 😄</div></div>
@@ -413,6 +417,13 @@ function floater(x, y, txt) {
   field.appendChild(f);
   setTimeout(function(){ if (f.parentNode) f.parentNode.removeChild(f); }, 1000);
 }
+function showSlap(x, y) {
+  var s = document.createElement('div');
+  s.className = 'slap'; s.textContent = weaponDef().e;
+  s.style.left = x + 'px'; s.style.top = y + 'px';
+  field.appendChild(s);
+  setTimeout(function(){ if (s.parentNode) s.parentNode.removeChild(s); }, 340);
+}
 function splat(x, y) {
   var s = document.createElement('div');
   s.className = 'splat'; s.textContent = '💥';
@@ -472,6 +483,7 @@ function fieldTap(ev) {
   var cx = (ev.touches && ev.touches[0] ? ev.touches[0].clientX : ev.clientX) - rect.left;
   var cy = (ev.touches && ev.touches[0] ? ev.touches[0].clientY : ev.clientY) - rect.top;
   var R = weaponDef().r;
+  showSlap(cx, cy);
   var best = null, bd = 1e9;
   bugs.forEach(function(b){
     var dd = Math.hypot(b.x - cx, b.y - cy) - b.size * 0.55;
@@ -489,6 +501,16 @@ function fieldTap(ev) {
   }
 }
 field.addEventListener('pointerdown', fieldTap);
+field.addEventListener('pointermove', function(ev){
+  var c = $('wcur');
+  if (!G.playing || G.paused) { c.style.display = 'none'; return; }
+  var rect = field.getBoundingClientRect();
+  c.style.left = (ev.clientX - rect.left) + 'px';
+  c.style.top = (ev.clientY - rect.top) + 'px';
+  c.textContent = weaponDef().e;
+  c.style.display = 'block';
+});
+field.addEventListener('pointerleave', function(){ $('wcur').style.display = 'none'; });
 
 function useSpray() {
   if (!G.playing || G.paused || G.sprays <= 0) return;
@@ -530,6 +552,7 @@ function startRound() {
 }
 function endRound() {
   G.playing = false;
+  $('wcur').style.display = 'none';
   bugs.slice().forEach(removeBug);
   if (G.roundCoins > S.best) S.best = G.roundCoins;
   var myHits = G.hits, myCoins = G.roundCoins;
