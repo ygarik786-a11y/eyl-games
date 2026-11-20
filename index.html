@@ -8,7 +8,7 @@
 <script>
 // Самообновление каталога: телефон Erik держал старую копию страницы
 // из кэша и не видел новые игры. Сверяемся с gversion.txt на сервере.
-var GAMES_VER = 26;
+var GAMES_VER = 27;
 fetch("gversion.txt?x=" + Date.now()).then(function(r){ return r.text(); }).then(function(t){
   var rv = parseInt(t, 10);
   if (rv && rv > GAMES_VER && sessionStorage.getItem("gamesUpd") !== String(rv)) {
@@ -143,7 +143,7 @@ fetch("gversion.txt?x=" + Date.now()).then(function(r){ return r.text(); }).then
     <h1><span class="gold">E.Y.L</span> GAMES</h1>
     <p class="sub">Игровая империя президента <b>Erik Lebed</b> 🎮<br>Бесплатные игры прямо в браузере — без скачивания и регистрации.<br>Открыл — и играешь. Прогресс сохраняется в телефоне.</p>
     <div class="chips">
-      <span class="chip gold">👑 98 игр</span>
+      <span class="chip gold">👑 99 игр</span>
       <span class="chip">🎄 С наступающим Новым годом!</span>
       <span class="chip">💸 Полностью бесплатно</span>
       <span class="chip">📱 С телефона и компьютера</span>
@@ -179,6 +179,18 @@ fetch("gversion.txt?x=" + Date.now()).then(function(r){ return r.text(); }).then
 
   <h2 class="sec">🎮 Все игры</h2>
   <div class="grid">
+    <a class="game" href="les-tain/?u=27">
+      <div class="cover c-yolochka">
+        <span class="tag">Приключение • исследуй лес</span><span class="new">НОВОЕ</span>
+        <span class="main">🌲</span>
+      </div>
+      <div class="gbody">
+        <h3>🌲 Лес Тайн</h3>
+        <p>Огромный загадочный лес: 12 локаций, 10 животных, лагерь, торговец, погода и время суток, ежедневные подарки и главная тайна — исчезнувшая деревня. Исследуй, находи артефакты и выбери концовку!</p>
+        <div class="meta">🗺️ 12 локаций • 🦊 10 животных • 🏕️ Лагерь • 📖 История • 🏆 100 уровней</div>
+        <div class="play">Играть →</div>
+      </div>
+    </a>
     <a class="game" href="yolochka/?u=26">
       <div class="cover c-yolochka">
         <span class="tag">Ёлка • наряжай и собирай</span><span class="new">НОВОЕ</span>
