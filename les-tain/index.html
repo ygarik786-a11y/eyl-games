@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#0b2e1a">
 <title>🌲 Лес Тайн — E.Y.L Games</title>
 <script>
-var PAGE_VER=1;
+var PAGE_VER=2;
 fetch("../gversion.txt?x="+Date.now()).then(function(r){return r.text()}).then(function(t){
   var rv=parseInt(t,10);
   if(rv&&rv>PAGE_VER&&sessionStorage.getItem("upd-les-tain")!==String(rv)){
@@ -65,6 +65,29 @@ h1{flex:1;text-align:center;font-size:21px;color:#fde68a;text-shadow:0 2px 12px 
 .quest.done{border-color:#34d399;background:rgba(52,211,153,.07)}
 .foot{text-align:center;color:#6b7280;font-size:12px;margin-top:14px;line-height:1.6}
 .foot button{background:none;border:0;color:#6b7280;text-decoration:underline;font-size:12px;cursor:pointer}
+/* ===== МАГИЯ v2 ===== */
+@keyframes petwalk{0%{left:2%;transform:scaleX(1)}45%{left:78%;transform:scaleX(1)}50%{left:80%;transform:scaleX(-1)}95%{left:4%;transform:scaleX(-1)}100%{left:2%;transform:scaleX(1)}}
+@keyframes petbounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-14px)}}
+@keyframes petfloat{0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-10px) rotate(3deg)}}
+@keyframes bubble{0%{transform:translateY(0) scale(.6);opacity:0}30%{opacity:1}100%{transform:translateY(-46px) scale(1.2);opacity:0}}
+@keyframes smoke{0%{transform:translateY(0) scale(1);opacity:.7}100%{transform:translateY(-60px) scale(2.2);opacity:0}}
+@keyframes sparkle{0%,100%{opacity:.2;transform:scale(.7)}50%{opacity:1;transform:scale(1.3)}}
+@keyframes wheelspin{from{transform:rotate(0)}to{transform:rotate(720deg)}}
+.meadow{position:relative;height:74px;background:linear-gradient(180deg,#0d3b22,#0a2e1a);border:1px solid rgba(255,255,255,.1);border-radius:16px;overflow:hidden;margin-bottom:10px}
+.meadow .petwalk{position:absolute;bottom:8px;font-size:34px;animation:petwalk 12s linear infinite;cursor:pointer}
+.meadow .ground{position:absolute;bottom:0;left:0;right:0;text-align:center;font-size:18px;letter-spacing:6px;opacity:.6}
+.cauldron{position:relative;text-align:center;padding:10px 0 4px;font-size:64px}
+.cauldron .bub{position:absolute;bottom:18px;font-size:18px;animation:bubble 2.2s ease-in infinite}
+.cauldron .smk{position:absolute;bottom:30px;left:50%;font-size:26px;animation:smoke 3s ease-out infinite;opacity:0}
+.cauldron .spk{position:absolute;font-size:16px;animation:sparkle 1.6s ease-in-out infinite}
+.slot{display:inline-block;width:56px;height:56px;line-height:56px;text-align:center;font-size:30px;background:#0d2417;border:2px dashed rgba(255,255,255,.25);border-radius:14px;margin:3px;vertical-align:middle;cursor:pointer}
+.slot.full{border-style:solid;border-color:#f59e0b;background:#2a1e05}
+.wheel{font-size:72px;text-align:center;animation:wheelspin 1.2s ease-out}
+.wheel.spin{animation:wheelspin .8s linear infinite}
+.rar0{color:#d1fae5}.rar1{color:#7dd3fc}.rar2{color:#c084fc}.rar3{color:#fbbf24}.rar4{color:#f472b6}.rar5{color:#f87171}
+.petcard{display:flex;gap:10px;align-items:center;background:#0d2417;border:1px solid rgba(255,255,255,.09);border-radius:14px;padding:10px 12px;margin-bottom:7px}
+.petcard .pe{font-size:40px;animation:petbounce 2.4s ease-in-out infinite}
+.petcard .pe.fly{animation:petfloat 3s ease-in-out infinite}
 </style>
 </head>
 <body>
@@ -77,6 +100,7 @@ h1{flex:1;text-align:center;font-size:21px;color:#fde68a;text-shadow:0 2px 12px 
     <div class="stat">⭐ <span id="stLvl">1</span> ур.</div>
     <div class="stat">⚡ <span id="stEnergy">100</span>/<span id="stEnergyMax">100</span></div>
     <div class="stat">🎒 <span id="stItems">0</span></div>
+    <div class="stat">✨ <span id="stMana">10</span></div>
   </div>
   <div class="xpbar"><i id="xpFill" style="width:0%"></i></div>
   <div class="tabs" id="tabs"></div>
@@ -93,12 +117,15 @@ function defaultState(){return{
   camp:{house:0,fire:0,storage:0,garden:0,pet:null,decor:0},
   tools:{},story:0,storyDone:{},quests:{},daily:{date:'',claimed:false,streak:0},
   ach:{},found:0,explores:0,meets:0,secrets:0,lastSeen:0,
+  ing:{},pot:{},alch:{lv:1,xp:0},pets2:{},eggs:{},petGift:{},spells:{},mana:10,
+  buffs:{},wheelDate:'',bookClaim:{},knownPot:{},unlocked:{},energyBonus:0,gardenDate:'',questsDate:'',
   log:['🌲 Ты вошёл в Лес Тайн. Где-то здесь исчезла целая деревня…']
 }}
 var S;
 try{S=JSON.parse(localStorage.getItem(SAVE_KEY))||defaultState()}catch(e){S=defaultState()}
 if(!S.inv)S=defaultState();
 if(S.lastSeen===undefined)S.lastSeen=0;
+(function(){var _d=defaultState();for(var _k in _d)if(S[_k]===undefined)S[_k]=_d[_k];if(!S.alch)S.alch={lv:1,xp:0};if(!S.buffs)S.buffs={}})();
 function save(){S.lastSeen=Date.now();try{localStorage.setItem(SAVE_KEY,JSON.stringify(S))}catch(e){}}
 function $(id){return document.getElementById(id)}
 function esc(s){return String(s)}
@@ -110,7 +137,7 @@ function pick(arr){return arr[rnd(arr.length)]}
 function chance(p){return Math.random()<p}
 function todayStr(){return new Date().toDateString()}
 function xpNeed(l){return l*100}
-function maxEnergy(){return 100+S.camp.house*15+(S.camp.pet==='dog'?5:0)}
+function maxEnergy(){return 100+S.camp.house*15+(S.camp.pet==='dog'?5:0)+(S.energyBonus||0)}
 function addXp(n){
   S.xp+=n;
   while(S.level<100&&S.xp>=xpNeed(S.level)){
@@ -262,7 +289,9 @@ var ACH=[
 var DAILY_QUESTS=[
   {id:'dq1',t:'Исследовать 3 раза',check:function(){return (S.quests.dq1||0)>=3},prog:function(){return Math.min(S.quests.dq1||0,3)+'/3'},r:30},
   {id:'dq2',t:'Найти 5 предметов',check:function(){return (S.quests.dq2||0)>=5},prog:function(){return Math.min(S.quests.dq2||0,5)+'/5'},r:30},
-  {id:'dq3',t:'Встретить 2 животных',check:function(){return (S.quests.dq3||0)>=2},prog:function(){return Math.min(S.quests.dq3||0,2)+'/2'},r:40}
+  {id:'dq3',t:'Встретить 2 животных',check:function(){return (S.quests.dq3||0)>=2},prog:function(){return Math.min(S.quests.dq3||0,2)+'/2'},r:40},
+  {id:'dq4',t:'Сварить 1 зелье',check:function(){return (S.quests.dq4||0)>=1},prog:function(){return Math.min(S.quests.dq4||0,1)+'/1'},r:40},
+  {id:'dq5',t:'Погладить питомца 3 раза',check:function(){return (S.quests.dq5||0)>=3},prog:function(){return Math.min(S.quests.dq5||0,3)+'/3'},r:30}
 ];
 
 // ================= ВРЕМЯ, ПОГОДА, ЭНЕРГИЯ =================
@@ -274,6 +303,7 @@ function newWeather(){
 }
 function advanceHour(n){
   S.hour+=n||1;
+  S.mana=Math.min(maxMana(),(S.mana||0)+(n||1));
   while(S.hour>=24){S.hour-=24;S.day++;newWeather();log('🌅 День '+S.day+'. Погода: '+WEATHERS[S.weather].e+' '+WEATHERS[S.weather].n)}
 }
 function energyCost(loc){
@@ -292,7 +322,7 @@ function regenEnergy(){
 }
 // ================= ЭКРАНЫ =================
 var TAB='map',LOC=null,ENC=null;
-var TABS=[['map','🗺️ Карта'],['inv','🎒 Рюкзак'],['camp','🏕️ Лагерь'],['shop','🛒 Торговец'],['story','📖 История'],['ach','🏆 Достижения']];
+var TABS=[['map','🗺️ Карта'],['inv','🎒 Рюкзак'],['camp','🏕️ Лагерь'],['shop','🛒 Торговец'],['alch','🧪 Алхимия'],['pets','🐾 Питомцы'],['book','📖 Книга'],['story','📖 История'],['ach','🏆 Достижения']];
 function renderTabs(){
   $('tabs').innerHTML=TABS.map(function(t){
     return '<button class="tab'+(TAB===t[0]?' sel':'')+'" data-tab="'+t[0]+'">'+t[1]+'</button>';
@@ -307,6 +337,7 @@ function renderStats(){
   $('stEnergyMax').textContent=maxEnergy();
   var items=0;for(var k in S.inv)items+=S.inv[k];
   $('stItems').textContent=items;
+  $('stMana').textContent=S.mana+'/'+maxMana();
   var need=xpNeed(S.level);
   $('xpFill').style.width=Math.min(100,Math.round(S.xp/need*100))+'%';
 }
@@ -322,10 +353,15 @@ function render(){
   else if(TAB==='shop')h=shopScreen();
   else if(TAB==='story')h=storyScreen();
   else if(TAB==='ach')h=achScreen();
+  else if(TAB==='alch')h=alchScreen();
+  else if(TAB==='pets')h=petsScreen();
+  else if(TAB==='book')h=bookScreen();
   $('screen').innerHTML=h;
 }
 function locById(id){return LOCATIONS.filter(function(l){return l.id===id})[0]}
 function locLocked(l){
+  if(S.unlocked&&S.unlocked[l.id])return null;
+  if(l.needPot)return 'Нужно зелье: '+POTIONS[l.needPot].n+' (свари в 🧪 Алхимии)';
   if(S.level<l.lvl)return 'Нужен '+l.lvl+' уровень';
   if(l.need&&!S.tools[l.need])return 'Нужен 🔦 Фонарь (у торговца)';
   if(l.night&&!isNight())return 'Только ночью (21:00–5:00)';
@@ -334,11 +370,16 @@ function locLocked(l){
 function mapScreen(){
   var h='<div class="card"><h2>🗺️ Карта Леса Тайн</h2><p>'+WEATHERS[S.weather].txt+'</p>';
   h+='<div class="row"><button class="btn gold" id="dailyBtn">🎁 Подарок за вход'+(S.daily.date===todayStr()?' — завтра':'')+'</button></div>';
+  h+='<div class="row"><button class="btn gold" data-wheel="1">🎡 Колесо удачи'+(S.wheelDate===todayStr()?' — завтра':' (1 бесплатно в день!)')+'</button></div>';
+  var _op=Object.keys(S.pets2||{});
+  if(_op.length){
+    h+='<div class="meadow">'+_op.slice(0,6).map(function(id,i){var P=PETS2[id];var pt=S.pets2[id];return '<span class="petwalk" style="animation-delay:'+(i*1.7)+'s;animation-duration:'+(9+i*2)+'s" data-petjump="'+id+'">'+(pt.skin||P.e)+'</span>'}).join('')+'<div class="ground">🌱🌼🍄🌿🌸</div></div>';
+  }
   h+='<p class="muted" style="margin-top:8px">Серия дней подряд: 🔥 '+S.daily.streak+' • Исследований: '+S.explores+' • Найдено предметов: '+S.found+' • Встреч с животными: '+S.meets+'</p></div>';
   h+='<div class="card"><h2>📋 Задания на сегодня</h2>';
   DAILY_QUESTS.forEach(function(q){
     var done=q.check(),claimed=!!S.quests['c_'+q.id];
-    h+='<div class="quest'+(done?' done':'')+'">'+(claimed?'✅ ':done?'🎉 ':'📌 ')+q.t+' <span class="muted">('+q.prog()+' • награда ❄️ нет, 💰 '+q.r+')</span>';
+    h+='<div class="quest'+(done?' done':'')+'">'+(claimed?'✅ ':done?'🎉 ':'📌 ')+q.t+' <span class="muted">('+q.prog()+' • награда 💰 '+q.r+')</span>';
     if(done&&!claimed)h+=' <button class="btn small gold" data-dq="'+q.id+'">Забрать +'+q.r+'💰</button>';
     h+='</div>';
   });
@@ -386,6 +427,12 @@ function invScreen(){
   ['artifact1','artifact2','artifact3'].forEach(function(a){
     h+='<span class="badge" style="'+(S.artifacts[a]?'':'opacity:.4')+'">'+ITEMS[a].e+' '+ITEMS[a].n+'</span>';
   });
+  h+='</p><h2 style="margin-top:10px">🌿 Ингредиенты: '+ingTotal()+'</h2><p>';
+  for(var iid in S.ing){if(!S.ing[iid])continue;var I=ING[iid];h+='<span class="badge" style="'+(I.r>=2?'':'opacity:.7')+'">'+I.e+' '+I.n+' ×'+S.ing[iid]+'</span>';}
+  h+='</p><h2 style="margin-top:10px">🧪 Зелья</h2><p>';
+  var _hp=false;
+  for(var pid in S.pot){if(!S.pot[pid])continue;_hp=true;var P=POTIONS[pid];h+='<span class="badge">'+P.e+' '+P.n+' ×'+S.pot[pid]+'</span>';}
+  if(!_hp)h+='<span class="muted">Зелий нет — вари в 🧪 Алхимии!</span>';
   h+='</p></div>';
   return h;
 }
@@ -435,6 +482,11 @@ function shopScreen(){
   }
   if(!has)h+='<p class="muted">Пока нечего продавать.</p>';
   h+='</div>';
+  h+='<div class="card"><h2>🧙 Странствующий алхимик</h2><p class="muted">Загадочный торговец магией. Товар меняется каждый день!</p>';
+  var _mg=magicGoods();
+  _mg.ings.forEach(function(g){h+='<div class="item"><span class="e">'+ING[g.id].e+'</span><span class="n">'+ING[g.id].n+'<small>'+RARN[ING[g.id].r]+'</small></span><button class="btn small gold" data-mbuying="'+g.id+'">'+g.p+'💰</button></div>'});
+  h+='<div class="item"><span class="e">'+POTIONS[_mg.pot].e+'</span><span class="n">'+POTIONS[_mg.pot].n+'<small>'+POTIONS[_mg.pot].d+'</small></span><button class="btn small gold" data-mbuypot="'+_mg.pot+'">5💎</button></div>';
+  h+='</div>';
   return h;
 }
 function storyScreen(){
@@ -478,10 +530,17 @@ function doExplore(loc,mode){
   S.explores++;S.quests.dq1=(S.quests.dq1||0)+1;
   advanceHour(1);
   resetDaily();
+  // магия: яйца питомцев
+  var eggCh=S.buffs.luck?0.08:0.04;
+  if(chance(eggCh)){var eggId=rollEgg();S.eggs[eggId]=(S.eggs[eggId]||0)+1;log('🥚 Ты нашёл магическое яйцо! Загляни в 🐾 Питомцы — там его можно вылупить.');toast('🥚 Магическое яйцо! Загляни к питомцам!')}
+  // расход баффов зелий
+  ['luck','friend','treasure','invis','portal'].forEach(function(b){if(S.buffs[b])S.buffs[b]--});
   if(mode==='animal'){startEncounter(loc);return}
   if(mode==='secret'){doSecret(loc);return}
   // случайное событие
   if(chance(0.09)){if(rollEvent(loc))return}
+  // магическое событие
+  if(chance(0.05)){if(magicEvent(loc))return}
   var roll=Math.random();
   var animalChance=S.camp.pet==='owl'&&isNight()?0.35:0.25;
   if(roll<animalChance){startEncounter(loc);return}
@@ -505,10 +564,18 @@ function findItem(loc){
   var msg='Нашёл: '+ITEMS[it].e+' '+ITEMS[it].n+(n>1?' ×'+n:'')+'!';
   log('🔍 '+loc.n+': '+msg);
   toast(msg);
+  // магические ингредиенты
+  var ingCh=S.buffs.luck?0.45:0.25;
+  if(chance(ingCh)){var ing=pickIng(loc);if(ing){addIng(ing,1);log('✨ Магический ингредиент: '+ING[ing].e+' '+ING[ing].n);toast('✨ +'+ING[ing].e+' '+ING[ing].n+'!')}}
+  // питомец находит что-то
+  var _op2=Object.keys(S.pets2||{});
+  if(_op2.length&&chance(0.12)){var pid=pick(_op2);var ing2=pickIng(loc);if(ing2){addIng(ing2,1);var pt=S.pets2[pid];log('🐾 '+(pt.name||PETS2[pid].n)+' нашёл: '+ING[ing2].e+' '+ING[ing2].n+'!');toast('🐾 '+(pt.name||PETS2[pid].n)+' нашёл '+ING[ing2].e+'!')}}
   save();render();
 }
 function doSecret(loc){
   var bonus=(S.tools.lantern?0.1:0)+(S.weather==='fog'?0.1:0)+(S.tools.compass?0.1:0);
+  if(S.buffs.treasure){bonus+=0.3;S.buffs.treasure--}
+  if(S.buffs.clair){bonus=1;S.buffs.clair=0}
   if(!chance(0.35+bonus)){
     log('🗝️ Тайн не нашлось… Попробуй в туман или с фонарём.');
     toast('🗝️ Пока пусто… Попробуй ещё раз!');
@@ -560,7 +627,12 @@ function resolveEnc(kind){
   var A=ANIMALS[ENC.animal];
   var ok=false,msg='';
   if(kind==='leave'){log('🚶 Ты тихо ушёл. '+A.n+' остался в лесу.');ENC=null;save();render();return}
-  if(kind==='quiet')ok=chance(A.r2>=2?0.5:0.7);
+  if(kind==='quiet'){
+    var base=A.r2>=2?0.5:0.7;
+    if(S.buffs.friend)base+=0.3;
+    if(S.buffs.wolf&&(ENC.animal==='wolf'||ENC.animal==='bear'))ok=true;
+    else ok=chance(Math.min(0.95,base));
+  }
   if(kind==='feed'){
     if(S.inv.honey){S.inv.honey--;if(S.inv.honey<=0)delete S.inv.honey;ok=chance(0.95)}
     else if(S.inv.berry){S.inv.berry--;if(S.inv.berry<=0)delete S.inv.berry;ok=chance(0.7)}
@@ -767,6 +839,568 @@ document.addEventListener('click',function(e){
     S=defaultState();TAB='map';LOC=null;ENC=null;save();render();
     toast('🌲 Новый лес ждёт тебя!');
     return;
+  }
+});
+
+// ================= МАГИЯ v2: ДАННЫЕ =================
+var RARN=['Обычное','Необычное','Редкое','Эпическое','Легендарное','Мифическое'];
+var ING={
+ mushmagic:{e:'🍄',n:'Волшебный гриб',r:0,d:'Светится в темноте. Основа многих зелий.',w:'all'},
+ moonflower:{e:'🌙',n:'Лунный цветок',r:0,d:'Распускается только ночью.',w:'all'},
+ goldberry:{e:'🍇',n:'Золотая ягода',r:0,d:'Сладкая, с золотым соком.',w:'all'},
+ crystalpetal:{e:'🌸',n:'Кристальный лепесток',r:0,d:'Прозрачный, как стекло.',w:'all'},
+ starpollen:{e:'✨',n:'Звёздная пыльца',r:0,d:'Сыпется с крыльев бабочек.',w:'all'},
+ ancientroot:{e:'🌳',n:'Корень древнего дерева',r:0,d:'Пахнет дождём и веками.',w:'all'},
+ rainbowmoss:{e:'🌿',n:'Радужный мох',r:0,d:'Переливается всеми цветами.',w:'all'},
+ glowleaf:{e:'🍃',n:'Светящийся лист',r:0,d:'Светит, как маленький фонарь.',w:'all'},
+ magicfeather:{e:'🪶',n:'Магическое перо',r:0,d:'Тёплое, даже зимой.',w:'all'},
+ magicdew:{e:'💧',n:'Волшебная роса',r:0,d:'Собрана на рассвете.',w:'all'},
+ rareseed:{e:'🌼',n:'Редкое семя',r:0,d:'Из него вырастет что-то удивительное.',w:'all'},
+ fireseed:{e:'🔥',n:'Огненное семя',r:0,d:'Горячее на ощупь!',w:'cave,underlab,temple'},
+ iceshard:{e:'❄️',n:'Ледяной кристалл',r:1,d:'Холодный, не тает в руках.',w:'mountain,cave'},
+ dragonscale:{e:'🐉',n:'Драконья чешуя',r:1,d:'Прочная, как сталь.',w:'cave,mountain,temple'},
+ fairydust:{e:'🧚',n:'Пыльца фей',r:1,d:'Щекочет нос и исполняет желания.',w:'magic,mgarden'},
+ moonstone:{e:'🌙',n:'Лунный камень',r:1,d:'Светится при луне.',w:'night,lake,temple'},
+ sunpetal:{e:'🌻',n:'Солнечный лепесток',r:1,d:'Тёплый, как лето.',w:'mgarden,mushroom'},
+ shadowmoss:{e:'🕸️',n:'Теневой мох',r:1,d:'Растёт там, где нет света.',w:'cave,underlab'},
+ crystalwater:{e:'💎',n:'Кристальная вода',r:1,d:'Чище любого родника.',w:'lake,temple'},
+ phoenixfeather:{e:'🔥',n:'Перо феникса',r:1,d:'Пахнет дымом и возрождением.',w:'mountain,temple'},
+ unicornhair:{e:'🦄',n:'Волос единорога',r:1,d:'Светится серебром.',w:'magic,mgarden'},
+ ghostflower:{e:'👻',n:'Цветок призрака',r:1,d:'Полупрозрачный. Жутко красивый.',w:'village,night,cave'},
+ thunderberry:{e:'⚡',n:'Грозовая ягода',r:1,d:'Трещит, как молния.',w:'mountain,storm'},
+ silverleaf:{e:'🍂',n:'Серебряный лист',r:1,d:'Шуршит даже без ветра.',w:'forest,ancient'},
+ dragonblood:{e:'🩸',n:'Кровь дракона',r:2,d:'Горячая и красная. Редкость!',w:'cave,temple'},
+ starcrystal:{e:'💠',n:'Звёздный кристалл',r:2,d:'Внутри — маленькая звезда.',w:'mountain,portal,treasure'},
+ moonpetal:{e:'🌙',n:'Лепесток луны',r:2,d:'Серебрится в темноте.',w:'night,magic'},
+ fireflower:{e:'🌺',n:'Огненный цветок',r:2,d:'Не обжигает, но греет.',w:'underlab,temple'},
+ iceflower:{e:'❄️',n:'Ледяной цветок',r:2,d:'Хрустальный и холодный.',w:'mountain,cave'},
+ windfeather:{e:'🌬️',n:'Перо ветра',r:2,d:'Лёгкое, улетает само.',w:'mountain,portal'},
+ earthroot:{e:'🌱',n:'Корень земли',r:2,d:'Пахнет свежей землёй.',w:'forest,thicket'},
+ soulgem:{e:'💜',n:'Камень души',r:2,d:'Теплится, как сердце.',w:'temple,hall'},
+ timeflower:{e:'⏳',n:'Цветок времени',r:2,d:'Лепестки крутятся, как часы.',w:'portal,temple'},
+ portalstone:{e:'🌀',n:'Камень портала',r:2,d:'Дрожит и мерцает.',w:'portal'},
+ lightorb:{e:'💫',n:'Сфера света',r:2,d:'Светит ярче фонаря.',w:'temple,hall'},
+ darkmushroom:{e:'🍄',n:'Тёмный гриб',r:2,d:'Фиолетовый. С ним — осторожно!',w:'cave,underlab'},
+ kingcrown:{e:'👑',n:'Лепесток короля',r:3,d:'Золотой. Растёт раз в сто лет.',w:'hall,temple'},
+ natureheart:{e:'💚',n:'Сердце природы',r:3,d:'Бьётся, как живое.',w:'hall,mgarden'},
+ wolfspirit:{e:'🐺',n:'Дух волка',r:3,d:'Воет по ночам.',w:'night,thicket'},
+ ancientegg:{e:'🥚',n:'Яйцо древнего',r:3,d:'Тёплое. Кто-то внутри?',w:'cave,misland'},
+ phoenixash:{e:'🔥',n:'Пепел феникса',r:3,d:'Ещё тёплый. Возрождает.',w:'mountain,temple'},
+ mermaidtear:{e:'🧜',n:'Слеза русалки',r:3,d:'Светится голубым.',w:'lake,misland'},
+ griffinfeather:{e:'🦅',n:'Перо грифона',r:3,d:'Большое и золотое.',w:'mountain,portal'},
+ elixirleaf:{e:'🍃',n:'Лист эликсира',r:3,d:'Пахнет мёдом и тайной.',w:'hall,mgarden'},
+ stardust:{e:'🌠',n:'Звёздная пыль',r:3,d:'Падает с неба по ночам.',w:'night,portal'},
+ rainbowdrop:{e:'🌈',n:'Капля радуги',r:3,d:'Семь цветов в одной капле.',w:'mgarden,magic'},
+ dragonheart:{e:'🐲',n:'Сердце дракона',r:4,d:'Легенда! Пульсирует огнём.',w:'temple,cave'},
+ timessand:{e:'⏳',n:'Песок времени',r:4,d:'Сыплется вверх!',w:'portal,temple'},
+ fairyqueen:{e:'🧚‍♀️',n:'Крыло королевы фей',r:4,d:'Переливается, как радуга.',w:'mgarden,magic'},
+ eternalseed:{e:'🪷',n:'Семя вечности',r:4,d:'Не стареет никогда.',w:'hall,mgarden'},
+ godtear:{e:'💧',n:'Слеза бога леса',r:5,d:'Миф! Одна капля — целое чудо.',w:'temple'},
+ voidcrystal:{e:'🌌',n:'Кристалл пустоты',r:5,d:'Внутри — целая галактика.',w:'portal'}
+};
+var POTIONS={
+ luck:{e:'🍀',n:'Зелье удачи',r:1,d:'5 следующих исследований: редкие находки чаще!',rec:{goldberry:2,starpollen:1},fx:'luck'},
+ growth:{e:'🌿',n:'Зелье роста',r:1,d:'Сад мгновенно даёт урожай!',rec:{ancientroot:1,magicdew:1},fx:'growth'},
+ friend:{e:'🦊',n:'Зелье дружбы',r:1,d:'3 следующие встречи с животными — на 30% удачнее!',rec:{magicfeather:1,goldberry:1},fx:'friend'},
+ treasure:{e:'💎',n:'Зелье сокровищ',r:1,d:'3 следующие тайны — на 30% легче найти!',rec:{crystalpetal:2,starpollen:1},fx:'treasure'},
+ restore:{e:'💚',n:'Зелье восстановления',r:0,d:'Восстанавливает +50⚡ энергии!',rec:{moonflower:1,magicdew:1},fx:'restore'},
+ energy:{e:'⚡',n:'Зелье энергии',r:1,d:'Навсегда +10 к максимуму энергии!',rec:{fireseed:1,thunderberry:1},fx:'energy'},
+ transform:{e:'🌈',n:'Зелье превращения',r:2,d:'Меняет внешность случайного питомца!',rec:{rainbowmoss:2,crystalpetal:1},fx:'transform'},
+ explorer:{e:'🧭',n:'Зелье исследователя',r:1,d:'Открывает одну закрытую локацию раньше времени!',rec:{glowleaf:2,ancientroot:1},fx:'explorer'},
+ moon:{e:'🌙',n:'Лунное зелье',r:2,d:'Луна осветила тайник: +100💰 +5💎!',rec:{moonflower:2,moonstone:1},fx:'moon'},
+ dragon:{e:'🐉',n:'Зелье дракона',r:3,d:'Драконьи испытания: даёт яйцо дракончика!',rec:{dragonscale:2,dragonblood:1},fx:'dragon'},
+ clair:{e:'🔮',n:'Зелье ясновидения',r:2,d:'Следующая тайна найдётся точно!',rec:{crystalwater:1,soulgem:1},fx:'clair'},
+ ice:{e:'❄️',n:'Ледяное зелье',r:2,d:'Открывает ледяные территории!',rec:{iceshard:2,iceflower:1},fx:'ice'},
+ fire:{e:'🔥',n:'Огненное зелье',r:2,d:'Открывает огненные территории!',rec:{fireseed:2,fireflower:1},fx:'fire'},
+ fly:{e:'🕊️',n:'Зелье полёта',r:2,d:'Открывает воздушные локации!',rec:{windfeather:2,magicfeather:1},fx:'fly'},
+ invis:{e:'🪄',n:'Зелье невидимости',r:2,d:'3 исследования: скрытые существа попадаются чаще!',rec:{shadowmoss:2,ghostflower:1},fx:'invis'},
+ stars:{e:'🌌',n:'Зелье звёзд',r:2,d:'Звёздное сокровище: +10💎!',rec:{starpollen:2,starcrystal:1},fx:'stars'},
+ king:{e:'👑',n:'Зелье короля леса',r:3,d:'+500💰 +10💎 +100⭐! Достойно короля!',rec:{kingcrown:1,natureheart:1},fx:'king'},
+ nature:{e:'🦋',n:'Зелье волшебной природы',r:3,d:'Сад +1 уровень и +30⚡ энергии!',rec:{natureheart:1,rainbowdrop:1},fx:'nature'},
+ wolf:{e:'🐺',n:'Зелье волчьего духа',r:3,d:'Волк и медведь больше не убегают от тебя!',rec:{wolfspirit:1,ancientroot:1},fx:'wolf'},
+ ancient:{e:'🐲',n:'Зелье древнего дракона',r:4,d:'Даёт случайный артефакт или +200💰!',rec:{dragonheart:1,dragonscale:2},fx:'ancient'},
+ time:{e:'⏳',n:'Зелье времени',r:4,d:'Энергия полная, время — снова утро! +50⭐',rec:{timessand:1,timeflower:2},fx:'time'},
+ portal:{e:'🌀',n:'Зелье портала',r:3,d:'Следующее исследование — бесплатно!',rec:{portalstone:1,stardust:1},fx:'portal'},
+ light:{e:'💫',n:'Зелье вечного света',r:3,d:'+300💰 и бесплатный поиск тайны!',rec:{lightorb:1,sunpetal:2},fx:'light'},
+ magic:{e:'💜',n:'Зелье магической силы',r:3,d:'+10✨ магической энергии!',rec:{soulgem:1,magicdew:2},fx:'magic'},
+ startravel:{e:'🌠',n:'Зелье звёздного путешествия',r:4,d:'+20💎! Звёзды благоволят тебе.',rec:{stardust:2,starcrystal:1},fx:'startravel'},
+ spring:{e:'🪷',n:'Зелье вечной весны',r:3,d:'Сад +1 уровень, +5🫐 ягод, +30⚡!',rec:{eternalseed:1,moonflower:2},fx:'spring'},
+ rainbow:{e:'🌈',n:'Зелье радуги',r:2,d:'+400💰! Радуга приносит удачу.',rec:{rainbowdrop:1,rainbowmoss:1},fx:'rainbow'},
+ fairy:{e:'🧚',n:'Зелье фей',r:3,d:'Феи дарят яйцо маленькой феи!',rec:{fairydust:2,fairyqueen:1},fx:'fairy'}
+};
+var SPELLS=[
+ {id:'light',e:'✨',n:'Заклинание света',cost:3,lv:1,d:'2 следующих исследования — редкие находки чаще!'},
+ {id:'growth',e:'🌱',n:'Заклинание роста',cost:3,lv:1,d:'Сад мгновенно даёт урожай!'},
+ {id:'rain',e:'🌧️',n:'Заклинание дождя',cost:4,lv:2,d:'Вызывает дождь! Грибов станет больше.'},
+ {id:'snow',e:'❄️',n:'Заклинание снега',cost:4,lv:2,d:'Вызывает снег! Кристаллы появятся чаще.'},
+ {id:'rainbow',e:'🌈',n:'Заклинание радуги',cost:5,lv:3,d:'+200💰! Радуга приносит монеты.'},
+ {id:'butterflies',e:'🦋',n:'Призыв бабочек',cost:5,lv:3,d:'+30⭐ опыта! Бабочки кружат вокруг тебя.'},
+ {id:'tree',e:'🌳',n:'Заклинание древнего дерева',cost:6,lv:4,d:'+5🪵 древесины! Дерево поделилось.'},
+ {id:'portal',e:'🌀',n:'Заклинание портала',cost:8,lv:4,d:'Следующее исследование — бесплатно!'},
+ {id:'secrets',e:'🔮',n:'Поиск секретов',cost:8,lv:5,d:'Бесплатный поиск тайны в текущей локации!'},
+ {id:'moonlight',e:'🌙',n:'Лунный свет',cost:6,lv:5,d:'Ночью +5💎, днём +50💰!'}
+];
+var PETS2={
+ bunny:{e:'🐰',n:'Зайчик',r:0,d:'Прыгает выше всех! Любит морковку и солнце.'},
+ hedgehog:{e:'🦔',n:'Ёжик',r:0,d:'Колючий, но добрый. Собирает грибы.'},
+ frog:{e:'🐸',n:'Лягушонок',r:0,d:'Квакает песенки у озера.'},
+ fox:{e:'🦊',n:'Лисёнок',r:1,d:'Хитрый и рыжий. Находит тайники!'},
+ cat:{e:'🐱',n:'Лесной котик',r:1,d:'Мурлычет и ловит бабочек.'},
+ owl:{e:'🦉',n:'Совёнок',r:1,d:'Мудрый. Видит ночью, как днём.'},
+ squirrel:{e:'🐿️',n:'Бельчонок',r:1,d:'Прыгает по веткам и прячет орехи.'},
+ raccoon:{e:'🦝',n:'Енотик',r:1,d:'Моет всё, что найдёт. Любопытный!'},
+ bird:{e:'🐦',n:'Волшебная птичка',r:1,d:'Поёт волшебные песни.'},
+ wolf:{e:'🐺',n:'Волчонок',r:2,d:'Верный друг. Воет на луну.'},
+ bear:{e:'🐻',n:'Медвежонок',r:2,d:'Любит мёд и обнимашки.'},
+ deer:{e:'🦌',n:'Оленёнок',r:2,d:'Грациозный. Рога светятся.'},
+ butterfly:{e:'🦋',n:'Волшебная бабочка',r:2,d:'Крылья переливаются радугой.'},
+ panda:{e:'🐼',n:'Панда',r:3,d:'Ест бамбук и обожает спать.'},
+ dragon:{e:'🐉',n:'Дракончик',r:4,d:'Маленький, но уже дышит огоньком!'},
+ unicorn:{e:'🦄',n:'Единорог',r:4,d:'Рог исполняет желания.'},
+ fairy:{e:'🧚',n:'Маленькая фея',r:5,d:'Мифическая! Её пыльца — чудо.'}
+};
+var PETSKINS={fox:['🦊','🦊','🦊'],wolf:['🐺','🐺'],cat:['🐱','🐈','🐈‍⬛'],bunny:['🐰','🐇'],owl:['🦉','🦉'],bear:['🐻','🐻‍❄️'],dragon:['🐉','🐲'],unicorn:['🦄','🦄'],fairy:['🧚','🧚‍♀️','🧚‍♂️']};
+// новые локации
+LOCATIONS.push(
+ {id:'tower',e:'🏚️',n:'Башня алхимика',d:'Заброшенная башня. Пахнет травами и тайнами.',lvl:5,cost:12,items:[['herb',3],['shard',2],['flower',2]],ings:['moonflower','magicdew','crystalpetal'],animals:['owl','butterfly'],secret:{item:'note2',txt:'📜 В башне — старая запись алхимика: «Рецепт короля леса спрятан в храме…»'}},
+ {id:'library',e:'📚',n:'Тайная библиотека',d:'Книги шепчутся сами. Здесь учат магию.',lvl:8,cost:14,items:[['feather',2],['shard',2],['note1',1]],ings:['ancientroot','starpollen','magicfeather'],animals:['owl','fox'],secret:{item:'artifact2',txt:'🏺 За книгами — второй артефакт!'}},
+ {id:'mgarden',e:'🌺',n:'Секретный сад',d:'Цветы здесь цветут даже зимой. Волшебство!',lvl:10,cost:14,items:[['flower',3],['berry',3],['herb',2]],ings:['moonflower','goldberry','rainbowmoss','fairydust'],animals:['butterfly','rabbit','squirrel'],secret:{item:'goldmush',txt:'🍄 В саду — золотой гриб! Редкая удача.'}},
+ {id:'temple',e:'🛕',n:'Древний магический храм',d:'Камни светятся. Здесь спит древняя сила.',lvl:12,cost:16,items:[['shard',3],['goldmush',1],['key',1]],ings:['kingcrown','soulgem','lightorb'],animals:['deer','owl'],secret:{item:'artifact3',txt:'🏺 В храме — третий артефакт! Деревня всё ближе…'}},
+ {id:'hall',e:'👑',n:'Зал легендарных зелий',d:'Полки с сияющими склянками. Запах магии!',lvl:15,cost:18,items:[['shard',3],['chest',1]],ings:['kingcrown','natureheart','rainbowdrop'],animals:['fox'],secret:{item:'artifact1',txt:'🏺 Легендарный зал хранит первый артефакт!'}},
+ {id:'underlab',e:'⚗️',n:'Подземная лаборатория',d:'Котлы бурлят сами. Осторожно — дым!',lvl:18,cost:18,items:[['mushroom',3],['shard',2],['herb',2]],ings:['dragonscale','fireseed','shadowmoss','darkmushroom'],animals:['hedgehog','raccoon'],secret:{item:'key',txt:'🗝️ В лаборатории — старый ключ от сундуков!'}},
+ {id:'portal',e:'🌀',n:'Скрытые порталы',d:'Воздух дрожит. Шагни — и окажешься неизвестно где!',lvl:20,cost:20,items:[['shard',3],['feather',2]],ings:['portalstone','stardust','voidcrystal'],animals:['butterfly','owl'],secret:{item:'chest',txt:'📦 Портал выплюнул сундук! Вот так удача.'}},
+ {id:'treasure',e:'💎',n:'Комната сокровищ',d:'Золото, кристаллы и… что-то ещё светится.',lvl:22,cost:20,items:[['goldmush',2],['shard',3],['chest',1]],ings:['starcrystal','dragonblood','goldberry'],animals:['fox','raccoon'],secret:{item:'artifact2',txt:'🏺 Среди сокровищ — артефакт!'}},
+ {id:'misland',e:'🏝️',n:'Тайный остров',d:'Остров, которого нет на картах. Здесь живут диковинные звери!',lvl:25,cost:22,items:[['berry',3],['honey',2],['feather',2]],ings:['mermaidtear','fairydust','glowleaf'],animals:['deer','wolf','butterfly'],secret:{item:'artifact3',txt:'🏺 На острове — древний артефакт!'}}
+);
+// новые достижения
+ACH.push(
+ {id:'m_pot1',e:'🧪',n:'Первый алхимик',d:'Сварить первое зелье',r:5,check:function(){return (S.alch.brewed||0)>=1}},
+ {id:'m_pot5',e:'⚗️',n:'Мастер зелий',d:'Сварить 5 зелий',r:8,check:function(){return (S.alch.brewed||0)>=5}},
+ {id:'m_pet1',e:'🐾',n:'Первый друг',d:'Вылупить первого питомца',r:5,check:function(){return Object.keys(S.pets2||{}).length>=1}},
+ {id:'m_pet5',e:'🏡',n:'Домик питомцев',d:'Собрать 5 питомцев',r:10,check:function(){return Object.keys(S.pets2||{}).length>=5}},
+ {id:'m_spell1',e:'✨',n:'Первое заклинание',d:'Произнести заклинание',r:5,check:function(){return Object.keys(S.spells||{}).length>=1}},
+ {id:'m_alch3',e:'🧙',n:'Алхимик 3 уровня',d:'Достичь 3 уровня алхимика',r:8,check:function(){return (S.alch.lv||1)>=3}},
+ {id:'m_wheel',e:'🎡',n:'Счастливчик',d:'Выиграть яйцо в Колесе удачи',r:8,check:function(){return !!S.wheelEgg}},
+ {id:'m_eggleg',e:'🐉',n:'Легендарный друг',d:'Вылупить легендарного питомца',r:10,check:function(){return !!S.hatchedLeg}},
+ {id:'m_ing20',e:'🌿',n:'Собиратель',d:'Найти 20 ингредиентов',r:5,check:function(){return ingTotal()>=20}},
+ {id:'m_king',e:'👑',n:'Королевский алхимик',d:'Сварить Зелье короля леса',r:10,check:function(){return !!S.knownPot.king}}
+);
+var WHEEL_PRIZES=[
+ {w:30,t:'+50💰',go:function(){S.coins+=50}},
+ {w:20,t:'+3💎',go:function(){S.crys+=3}},
+ {w:20,t:'Ингредиенты ×2',go:function(){var a=pickIng(null);addIng(a,2)}},
+ {w:15,t:'Случайное зелье',go:function(){var ks=Object.keys(POTIONS).filter(function(k){return POTIONS[k].r<=1});var p=pick(ks);S.pot[p]=(S.pot[p]||0)+1}},
+ {w:10,t:'🥚 Магическое яйцо!',go:function(){var e=rollEgg();S.eggs[e]=(S.eggs[e]||0)+1;S.wheelEgg=true}},
+ {w:5,t:'+200💰 ДЖЕКПОТ!',go:function(){S.coins+=200}}
+];
+
+// новые территории стихий (открываются зельями)
+LOCATIONS.push(
+ {id:'icecave',e:'❄️',n:'Ледяная пещера',d:'Всё из льда! Кристаллы сверкают.',lvl:16,cost:18,items:[['shard',3],['flower',2]],ings:['iceshard','iceflower','starcrystal'],animals:['owl','fox'],secret:{item:'shard',txt:'❄️ В пещере — ледяной кристалл!'},needPot:'ice'},
+ {id:'firevalley',e:'🌋',n:'Огненная долина',d:'Горячо! Лава светится.',lvl:19,cost:18,items:[['goldmush',1],['shard',2]],ings:['fireseed','fireflower','dragonblood'],animals:['fox','hedgehog'],secret:{item:'goldmush',txt:'🔥 В долине — огненный гриб!'},needPot:'fire'},
+ {id:'airisle',e:'☁️',n:'Воздушные острова',d:'Острова парят в небе! Только с зельем полёта.',lvl:21,cost:20,items:[['feather',3],['flower',2]],ings:['windfeather','stardust','fairydust'],animals:['butterfly','owl'],secret:{item:'feather',txt:'🪶 На острове — перо ветра!'},needPot:'fly'}
+);
+// ================= МАГИЯ v2: ПОМОЩНИКИ =================
+function maxMana(){return 10+((S.alch&&S.alch.lv)||1)*2}
+function addIng(id,n){S.ing[id]=(S.ing[id]||0)+(n||1);S.found+=(n||1)}
+function ingTotal(){var t=0;for(var k in S.ing)t+=S.ing[k];return t}
+function pickIng(loc){
+  if(loc&&loc.ings&&loc.ings.length)return pick(loc.ings);
+  var w=[10,6,3,1.5,0.6,0.2],pool=[],tot=0;
+  for(var id in ING){var ww=w[ING[id].r];pool.push([id,ww]);tot+=ww}
+  var r=Math.random()*tot;
+  for(var i=0;i<pool.length;i++){r-=pool[i][1];if(r<=0)return pool[i][0]}
+  return pool[0][0];
+}
+function rollEgg(){
+  var w=[40,30,18,8,3,1],pool=[],tot=0;
+  for(var id in PETS2){var ww=w[PETS2[id].r];pool.push([id,ww]);tot+=ww}
+  var r=Math.random()*tot;
+  for(var i=0;i<pool.length;i++){r-=pool[i][1];if(r<=0)return pool[i][0]}
+  return pool[0][0];
+}
+function addAlchXp(n){
+  S.alch.xp+=n;
+  while(S.alch.lv<20&&S.alch.xp>=S.alch.lv*50){
+    S.alch.xp-=S.alch.lv*50;S.alch.lv++;
+    toast('🧙 Уровень алхимика: '+S.alch.lv+'! +2✨ маны, новые заклинания!');
+    log('🧙 Ты — алхимик '+S.alch.lv+' уровня!');
+  }
+}
+function magicEvent(loc){
+  var r=Math.random();
+  if(r<0.35){var a=pickIng(loc);addIng(a,2);log('🧚 Фея пролетела мимо и подарила: '+ING[a].e+' '+ING[a].n+' ×2!');toast('🧚 Фея подарила '+ING[a].e+' ×2!')}
+  else if(r<0.7){var ks=Object.keys(POTIONS).filter(function(k){return POTIONS[k].r<=1});var p=pick(ks);S.pot[p]=(S.pot[p]||0)+1;log('🧙 Странствующий алхимик оставил тебе '+POTIONS[p].e+' '+POTIONS[p].n+'!');toast('🧙 Алхимик подарил зелье!')}
+  else{S.crys+=2;addXp(15);log('🌠 Звездопад! Ты загадал желание: +2💎 +15⭐');toast('🌠 Звездопад! +2💎')}
+  save();render();return true;
+}
+function petFrTitle(fr){if(fr<20)return 'Знакомый';if(fr<50)return 'Друг';if(fr<80)return 'Лучший друг';return 'Душа леса'}
+function petGiftCheck(id){
+  var fr=S.pets2[id].fr,got=S.petGift[id]||0;
+  if(fr>=80&&got<80){S.petGift[id]=80;var a=pickIng(null);addIng(a,3);log('🎁 '+(S.pets2[id].name||PETS2[id].n)+' принёс тебе подарок: '+ING[a].e+' ×3!');toast('🎁 Питомец принёс подарок!')}
+  else if(fr>=50&&got<50){S.petGift[id]=50;S.crys+=3;log('🎁 '+(S.pets2[id].name||PETS2[id].n)+' принёс тебе +3💎!');toast('🎁 Питомец принёс +3💎!')}
+  else if(fr>=20&&got<20){S.petGift[id]=20;S.coins+=50;log('🎁 '+(S.pets2[id].name||PETS2[id].n)+' принёс тебе +50💰!');toast('🎁 Питомец принёс +50💰!')}
+}
+function usePotion(id){
+  var P=POTIONS[id];
+  if(!P||!S.pot[id]){toast('🧪 Нет такого зелья!');return}
+  S.pot[id]--;if(S.pot[id]<=0)delete S.pot[id];
+  var msg='';
+  switch(P.fx){
+    case 'luck':S.buffs.luck=5;msg='🍀 Удача с тобой на 5 исследований!';break;
+    case 'growth':S.gardenDate='';msg='🌿 Сад мгновенно поспел! Собирай урожай!';break;
+    case 'friend':S.buffs.friend=3;msg='🦊 Животные полюбят тебя на 3 встречи!';break;
+    case 'treasure':S.buffs.treasure=3;msg='💎 Тайны откроются легче 3 раза!';break;
+    case 'restore':S.energy=Math.min(maxEnergy(),S.energy+50);msg='💚 +50⚡ энергии!';break;
+    case 'energy':S.energyBonus=Math.min(50,(S.energyBonus||0)+10);msg='⚡ Максимум энергии +10 навсегда!';break;
+    case 'transform':{var _op=Object.keys(S.pets2||{});if(_op.length){var pid=pick(_op);var skins=PETSKINS[pid];if(skins){S.pets2[pid].skin=pick(skins)}msg='🌈 '+(S.pets2[pid].name||PETS2[pid].n)+' изменил внешность!'}else msg='🌈 Некого превращать — заведи питомца!';break}
+    case 'explorer':{var cands=LOCATIONS.filter(function(l){return !S.unlocked[l.id]&&S.level<l.lvl&&l.lvl<=15});if(cands.length){var c=pick(cands);S.unlocked[c.id]=true;msg='🧭 Открыта локация: '+c.e+' '+c.n+'!'}else{S.coins+=100;msg='🧭 Все локации до 15 уровня уже открыты! +100💰'}break}
+    case 'moon':S.coins+=100;S.crys+=5;msg='🌙 Луна осветила тайник! +100💰 +5💎';break;
+    case 'dragon':S.eggs.dragon=(S.eggs.dragon||0)+1;msg='🐉 Драконьи испытания! Получено яйцо дракончика!';break;
+    case 'clair':S.buffs.clair=1;msg='🔮 Следующая тайна найдётся точно!';break;
+    case 'ice':S.unlocked['icecave']=true;msg='❄️ Открыта Ледяная пещера!';break;
+    case 'fire':S.unlocked['firevalley']=true;msg='🔥 Открыта Огненная долина!';break;
+    case 'fly':S.unlocked['airisle']=true;msg='🕊️ Открыты Воздушные острова!';break;
+    case 'invis':S.buffs.invis=3;msg='🪄 3 исследования: скрытые существа попадаются чаще!';break;
+    case 'stars':S.crys+=10;msg='🌌 Звёздное сокровище! +10💎';break;
+    case 'king':S.coins+=500;S.crys+=10;addXp(100);msg='👑 +500💰 +10💎 +100⭐! Король леса!';break;
+    case 'nature':S.camp.garden=Math.min(3,S.camp.garden+1);S.energy=Math.min(maxEnergy(),S.energy+30);msg='🦋 Сад вырос! +30⚡ энергии!';break;
+    case 'wolf':S.buffs.wolf=5;msg='🐺 Волк и медведь не убегут 5 встреч!';break;
+    case 'ancient':{var miss=['artifact1','artifact2','artifact3'].filter(function(a){return !S.artifacts[a]});if(miss.length){var a=pick(miss);S.artifacts[a]=true;addItem(a,1);msg='🐲 Древний дракон подарил артефакт: '+ITEMS[a].e+' '+ITEMS[a].n+'!'}else{S.coins+=200;msg='🐲 +200💰 от древнего дракона!'}break}
+    case 'time':S.energy=maxEnergy();S.hour=8;addXp(50);msg='⏳ Время повернулось вспять! Энергия полная, снова утро!';break;
+    case 'portal':S.buffs.portal=1;msg='🌀 Следующее исследование — бесплатно!';break;
+    case 'light':S.coins+=300;msg='💫 +300💰! Вечный свет сияет!';if(LOC){log('💫 Свет указал на тайну…');doSecret(locById(LOC));return}break;
+    case 'magic':S.mana=Math.min(maxMana(),S.mana+10);msg='💜 +10✨ магической энергии!';break;
+    case 'startravel':S.crys+=20;msg='🌠 +20💎! Звёзды благоволят тебе.';break;
+    case 'spring':S.camp.garden=Math.min(3,S.camp.garden+1);addItem('berry',5);S.energy=Math.min(maxEnergy(),S.energy+30);msg='🪷 Вечная весна! Сад вырос, +5🫐, +30⚡!';break;
+    case 'rainbow':S.coins+=400;msg='🌈 +400💰! Радуга приносит удачу.';break;
+    case 'fairy':S.eggs.fairy=(S.eggs.fairy||0)+1;msg='🧚 Феи подарили яйцо маленькой феи!';break;
+  }
+  log(P.e+' '+P.n+': '+msg);
+  toast(msg);
+  save();render();
+}
+function castSpell(sp){
+  if(S.alch.lv<sp.lv){toast('🔒 Нужно звание алхимика '+sp.lv+' уровня!');return}
+  if(S.mana<sp.cost){toast('✨ Не хватает маны! Нужно '+sp.cost+'✨');return}
+  S.mana-=sp.cost;S.spells[sp.id]=true;
+  var msg='';
+  switch(sp.id){
+    case 'light':S.buffs.luck=2;msg='✨ Свет озарил лес! 2 исследования — удачнее!';break;
+    case 'growth':S.gardenDate='';msg='🌱 Сад мгновенно поспел!';break;
+    case 'rain':S.weather='rain';msg='🌧️ Пошёл дождь! Грибов станет больше.';break;
+    case 'snow':S.weather='snow';msg='❄️ Пошёл снег! Кристаллы появятся чаще.';break;
+    case 'rainbow':S.coins+=200;msg='🌈 Радуга! +200💰';break;
+    case 'butterflies':addXp(30);msg='🦋 Бабочки кружат! +30⭐';break;
+    case 'tree':addItem('wood',5);msg='🌳 Древнее дерево поделилось: +5🪵';break;
+    case 'portal':S.buffs.portal=1;msg='🌀 Следующее исследование — бесплатно!';break;
+    case 'secrets':if(LOC){log('🔮 Заклинание указало на тайну…');doSecret(locById(LOC));addXp(10);save();render();return}msg='🔮 Выбери локацию на карте — заклинание укажет тайну!';S.mana+=sp.cost;delete S.spells[sp.id];toast(msg);save();render();return;
+    case 'moonlight':if(isNight()){S.crys+=5;msg='🌙 Лунный свет! +5💎'}else{S.coins+=50;msg='🌙 Луна днём слаба… +50💰'}break;
+  }
+  addXp(10);
+  log(sp.e+' '+sp.n+': '+msg);
+  toast(msg);
+  save();render();
+}
+function spinWheel(){
+  if(S.wheelDate===todayStr()){toast('🎡 Колесо уже крутили сегодня — приходи завтра!');return}
+  S.wheelDate=todayStr();
+  var tot=0;WHEEL_PRIZES.forEach(function(p){tot+=p.w});
+  var r=Math.random()*tot,pr=WHEEL_PRIZES[0];
+  for(var i=0;i<WHEEL_PRIZES.length;i++){r-=WHEEL_PRIZES[i].w;if(r<=0){pr=WHEEL_PRIZES[i];break}}
+  pr.go();addXp(10);
+  log('🎡 Колесо удачи: '+pr.t);
+  toast('🎡 '+pr.t);
+  save();render();
+}
+function bookStats(){
+  return{
+    pot:{got:Object.keys(S.knownPot).length,tot:28},
+    ing:{got:Object.keys(S.ing).length,tot:52},
+    pets:{got:Object.keys(S.pets2||{}).length,tot:17},
+    spells:{got:Object.keys(S.spells).length,tot:10},
+    art:{got:Object.keys(S.artifacts).length,tot:3},
+    sec:{got:S.secrets,tot:20}
+  };
+}
+// ================= МАГИЯ v2: ЭКРАНЫ =================
+var CAULD=[];
+function alchScreen(){
+  var A=S.alch;
+  var h='<div class="card"><h2>🧪 Алхимическая лаборатория</h2><p>Алхимик: <b>'+A.lv+' уровень</b> • Опыт: '+A.xp+'/'+(A.lv*50)+'⭐ • ✨ Мана: '+S.mana+'/'+maxMana()+'</p><div class="bar"><i style="width:'+Math.min(100,Math.round(A.xp/(A.lv*50)*100))+'%"></i></div><p class="muted">Вари зелья в котле — за каждое +20⭐ алхимика. Экспериментируй: неизвестные рецепты открываются смешиванием!</p></div>';
+  h+='<div class="card"><div class="cauldron">🧪<span class="bub" style="left:38%">🫧</span><span class="bub" style="left:52%;animation-delay:.7s">🫧</span><span class="bub" style="left:64%;animation-delay:1.3s">🫧</span><span class="smk" style="animation-delay:.4s">💨</span><span class="spk" style="left:30%;top:8px">✨</span><span class="spk" style="right:28%;top:16px;animation-delay:.8s">✨</span></div>';
+  h+='<p style="text-align:center" class="muted">Магический котёл • Выбери до 3 ингредиентов</p><div style="text-align:center">';
+  for(var s=0;s<3;s++){
+    var ing=CAULD[s];
+    h+='<span class="slot'+(ing?' full':'')+'" data-slot="'+s+'">'+(ing?ING[ing].e:'+')+'</span>';
+  }
+  h+='</div><div class="row"><button class="btn gold" data-brew="1">🌀 Смешать зелья!</button><button class="btn ghost" data-clearpot="1">Очистить котёл</button></div></div>';
+  h+='<div class="card"><h2>🌿 Ингредиенты ('+ingTotal()+')</h2><p class="muted">Нажимай на ингредиент, чтобы положить его в котёл.</p>';
+  var hasIng=false;
+  for(var id in S.ing){
+    if(!S.ing[id])continue;hasIng=true;
+    var I=ING[id];
+    h+='<button class="btn small" data-ing="'+id+'">'+I.e+' '+I.n+' ×'+S.ing[id]+'</button> ';
+  }
+  if(!hasIng)h+='<p class="muted">Пока пусто. Ингредиенты находятся при исследовании леса!</p>';
+  h+='</div>';
+  h+='<div class="card"><h2>📖 Книга рецептов</h2>';
+  var ids=Object.keys(POTIONS).sort(function(a,b){return POTIONS[a].r-POTIONS[b].r});
+  ids.forEach(function(pid){
+    var P=POTIONS[pid],known=!!S.knownPot[pid];
+    var canBrew=true;
+    if(known){for(var ri in P.rec)if((S.ing[ri]||0)<P.rec[ri])canBrew=false}
+    h+='<div class="item"><span class="e">'+P.e+'</span><span class="n"><span class="rar'+P.r+'">'+P.n+'</span> • '+RARN[P.r]+'<small>'+(known?P.d+'<br>Рецепт: '+Object.keys(P.rec).map(function(k){return ING[k].e+' '+ING[k].n+' ×'+P.rec[k]}).join(', '):'??? — рецепт не открыт. Смешивай ингредиенты в котле!')+'</small></span>';
+    if(known)h+=(S.pot[pid]?'<span class="cnt">×'+S.pot[pid]+'</span>':'')+'<button class="btn small gold" data-brewrec="'+pid+'" '+(canBrew?'':'disabled')+'>Сварить</button>';
+    h+='</div>';
+  });
+  h+='</div>';
+  h+='<div class="card"><h2>🧪 Твои зелья</h2>';
+  var hasPot=false;
+  for(var pid in S.pot){
+    if(!S.pot[pid])continue;hasPot=true;
+    var P=POTIONS[pid];
+    h+='<div class="item"><span class="e">'+P.e+'</span><span class="n">'+P.n+'<small>'+P.d+'</small></span><button class="btn small gold" data-uspot="'+pid+'">Использовать</button><span class="cnt">×'+S.pot[pid]+'</span></div>';
+  }
+  if(!hasPot)h+='<p class="muted">Зелий пока нет — свари первое в котле!</p>';
+  h+='</div>';
+  h+='<div class="card"><h2>🪄 Заклинания</h2><p class="muted">Мана: ✨ '+S.mana+'/'+maxMana()+' (восстанавливается со временем). Новые заклинания открываются с уровнем алхимика.</p>';
+  SPELLS.forEach(function(sp){
+    var open=S.alch.lv>=sp.lv,learned=!!S.spells[sp.id];
+    h+='<div class="item"><span class="e">'+sp.e+'</span><span class="n">'+sp.n+'<small>'+sp.d+' • Цена: '+sp.cost+'✨'+(open?'':' • 🔒 нужен алхимик '+sp.lv+' ур.')+'</small></span>'+(open?'<button class="btn small gold" data-cast="'+sp.id+'">Произнести</button>':'<span class="muted">🔒</span>')+'</div>';
+  });
+  h+='</div>';
+  return h;
+}
+function petsScreen(){
+  var owned=Object.keys(S.pets2||{});
+  var h='<div class="card"><h2>🐾 Домик питомцев</h2><p>Твои питомцы живут здесь и гуляют по лагерю. Гладить, кормить и играть — дружба растёт, а питомцы приносят подарки!</p></div>';
+  h+='<div class="meadow">';
+  owned.slice(0,8).forEach(function(id,i){var P=PETS2[id];var pt=S.pets2[id];h+='<span class="petwalk" style="animation-delay:'+(i*1.3)+'s;animation-duration:'+(9+i*1.5)+'s" data-petjump="'+id+'">'+(pt.skin||P.e)+'</span>'});
+  h+='<div class="ground">'+(S.labDecor>=1?'🏠':'')+(S.labDecor>=2?'🛏️':'')+(S.labDecor>=3?'🎾':'')+(S.labDecor>=4?'🥣':'')+(S.labDecor>=5?'🌸':'')+'🌱🌼🍄🌿🌸</div></div>';
+  h+='<div class="card"><h2>🥚 Яйца ('+Object.keys(S.eggs).filter(function(k){return S.eggs[k]}).length+' видов)</h2>';
+  var hasEgg=false;
+  for(var eid in S.eggs){
+    if(!S.eggs[eid])continue;hasEgg=true;
+    var P=PETS2[eid];
+    h+='<div class="item"><span class="e">🥚</span><span class="n">Яйцо: '+P.n+'<small>'+RARN[P.r]+' • Вылупление стоит 10⚡</small></span><button class="btn small gold" data-hatch="'+eid+'">Вылупить</button><span class="cnt">×'+S.eggs[eid]+'</span></div>';
+  }
+  if(!hasEgg)h+='<p class="muted">Яиц пока нет. Они находятся при исследовании леса (4% шанс) и в Колесе удачи!</p>';
+  h+='</div>';
+  if(!owned.length)h+='<div class="card"><p>Питомцев пока нет. Найди яйцо — и вылупи первого друга! 🥚</p></div>';
+  owned.forEach(function(id){
+    var P=PETS2[id],pt=S.pets2[id];
+    var fly=(id==='butterfly'||id==='fairy'||id==='bird'||id==='dragon');
+    h+='<div class="petcard"><span class="pe'+(fly?' fly':'')+'">'+(pt.skin||P.e)+'</span><span class="n" style="flex:1"><b>'+(pt.name||P.n)+'</b> • '+P.n+'<small>'+RARN[P.r]+' • '+petFrTitle(pt.fr)+' • Дружба: '+pt.fr+'/100</small><div class="bar" style="margin:4px 0 0"><i style="width:'+pt.fr+'%"></i></div></span></div>';
+    h+='<div class="row" style="margin-bottom:10px"><button class="btn small" data-petpet="'+id+'">🥰 Гладить</button><button class="btn small" data-feed="'+id+'">🍖 Кормить</button><button class="btn small" data-play="'+id+'">🎮 Играть</button><button class="btn small" data-bath="'+id+'">🛁 Купать</button><button class="btn small" data-rename="'+id+'">✏️ Имя</button></div>';
+  });
+  h+='<div class="card"><h2>🏡 Украшения домика</h2><p class="muted">Украшений: '+(S.labDecor||0)+'/5 • Каждое — +10⭐ и радость питомцев.</p><button class="btn" data-labdecor="1">Купить украшение (50💰, +10⭐)</button></div>';
+  return h;
+}
+function bookScreen(){
+  var bs=bookStats();
+  var h='<div class="card"><h2>📖 Книга магии</h2><p>Заполняй страницы открытий — за каждые 25% награда +5💎!</p></div>';
+  var cats=[
+    {k:'pot',e:'🧪',n:'Зелья',got:bs.pot.got,tot:bs.pot.tot},
+    {k:'ing',e:'🌿',n:'Ингредиенты',got:bs.ing.got,tot:bs.ing.tot},
+    {k:'pets',e:'🐾',n:'Питомцы',got:bs.pets.got,tot:bs.pets.tot},
+    {k:'spells',e:'🪄',n:'Заклинания',got:bs.spells.got,tot:bs.spells.tot},
+    {k:'art',e:'🏺',n:'Артефакты',got:bs.art.got,tot:bs.art.tot},
+    {k:'sec',e:'🗝️',n:'Секреты',got:bs.sec.got,tot:bs.sec.tot}
+  ];
+  cats.forEach(function(c){
+    var pct=Math.min(100,Math.round(c.got/c.tot*100));
+    var mile=Math.floor(pct/25);
+    var claimed=S.bookClaim[c.k]||0;
+    h+='<div class="card"><h2>'+c.e+' '+c.n+'</h2><p>'+c.got+'/'+c.tot+' • '+pct+'%</p><div class="bar"><i style="width:'+pct+'%"></i></div>';
+    if(mile>claimed)h+='<button class="btn small gold" data-bookclaim="'+c.k+'">Забрать награду +'+(5*(mile-claimed))+'💎</button>';
+    else h+='<p class="muted">Следующая награда — на '+(claimed+1)*25+'%</p>';
+    h+='</div>';
+  });
+  h+='<div class="card"><h2>🎡 Колесо удачи</h2><p class="muted">Одно бесплатное вращение в день! Призы: монеты, кристаллы, ингредиенты, зелья и даже магические яйца.</p><button class="btn gold" data-wheel="1">🎡 Крутить колесо'+(S.wheelDate===todayStr()?' — завтра':'')+'</button></div>';
+  h+='<div class="card"><h2>🧪 Коллекция зелий</h2><p>';
+  Object.keys(POTIONS).forEach(function(pid){
+    var P=POTIONS[pid];
+    h+='<span class="badge" style="'+(S.knownPot[pid]?'':'opacity:.4')+'">'+P.e+' '+P.n+'</span>';
+  });
+  h+='</p><h2 style="margin-top:10px">🌿 Найденные ингредиенты</h2><p>';
+  var ingIds=Object.keys(S.ing);
+  if(!ingIds.length)h+='<span class="muted">Пока ничего не найдено.</span>';
+  ingIds.forEach(function(iid){
+    var I=ING[iid];
+    h+='<span class="badge" style="'+(ING[iid].r>=2?'':'opacity:.7')+'">'+I.e+' '+I.n+' ×'+S.ing[iid]+'</span>';
+  });
+  h+='</p></div>';
+  return h;
+}
+// ================= МАГИЯ v2: ДЕЙСТВИЯ =================
+function magicGoods(){
+  var keys=Object.keys(ING).filter(function(k){return ING[k].r<=2});
+  var base=(S.day*3)%keys.length,ings=[];
+  for(var i=0;i<3;i++){var id=keys[(base+i)%keys.length];ings.push({id:id,p:[20,35,50][ING[id].r]})}
+  var pots=Object.keys(POTIONS).filter(function(k){return POTIONS[k].r<=1});
+  return{ings:ings,pot:pots[S.day%pots.length]};
+}
+function brewFromRecipe(pid){
+  var P=POTIONS[pid];
+  if(!P)return false;
+  if(P.r>=4&&S.alch.lv<5){toast('🔒 Легендарные зелья — с 5 уровня алхимика!');return false}
+  if(P.r>=3&&S.alch.lv<3){toast('🔒 Эпические зелья — с 3 уровня алхимика!');return false}
+  for(var ri in P.rec)if((S.ing[ri]||0)<P.rec[ri]){toast('🌿 Не хватает: '+ING[ri].n);return false}
+  for(var ri in P.rec){S.ing[ri]-=P.rec[ri];if(S.ing[ri]<=0)delete S.ing[ri]}
+  S.pot[pid]=(S.pot[pid]||0)+1;
+  S.knownPot[pid]=true;
+  S.alch.brewed=(S.alch.brewed||0)+1;
+  S.quests.dq4=(S.quests.dq4||0)+1;
+  addAlchXp(20);
+  log('🧪 Сварено: '+P.e+' '+P.n+'!');
+  toast('🧪 '+P.n+' готово!');
+  return true;
+}
+document.addEventListener('click',function(e){
+  var t=e.target.closest('[data-ing],[data-slot],[data-brew],[data-clearpot],[data-brewrec],[data-uspot],[data-cast],[data-wheel],[data-hatch],[data-petpet],[data-feed],[data-play],[data-bath],[data-rename],[data-petjump],[data-labdecor],[data-bookclaim],[data-mbuying],[data-mbuypot]');
+  if(!t)return;
+  if(t.dataset.ing){
+    var id=t.dataset.ing;
+    var ix=CAULD.indexOf(id);
+    if(ix>=0){CAULD.splice(ix,1)}
+    else{
+      if(CAULD.length>=3){toast('🧪 В котле уже 3 ингредиента!');return}
+      if(!S.ing[id])return;
+      CAULD.push(id);
+    }
+    save();render();return;
+  }
+  if(t.dataset.slot!==undefined){CAULD.splice(+t.dataset.slot,1);save();render();return}
+  if(t.dataset.clearpot){CAULD=[];save();render();return}
+  if(t.dataset.brew){
+    if(!CAULD.length){toast('🧪 Котёл пуст! Выбери ингредиенты.');return}
+    var match=null;
+    Object.keys(POTIONS).forEach(function(pid){
+      var rec=POTIONS[pid].rec,keys=Object.keys(rec);
+      if(keys.length!==CAULD.length)return;
+      var ok=true,tmp=CAULD.slice();
+      keys.forEach(function(k){for(var i=0;i<rec[k];i++){var ix=tmp.indexOf(k);if(ix<0){ok=false;return}tmp.splice(ix,1)}});
+      if(ok&&!tmp.length)match=pid;
+    });
+    if(match){
+      var P=POTIONS[match];
+      if(P.r>=4&&S.alch.lv<5){toast('🔒 Легендарные зелья — с 5 уровня алхимика!');return}
+      if(P.r>=3&&S.alch.lv<3){toast('🔒 Эпические зелья — с 3 уровня алхимика!');return}
+      CAULD.forEach(function(ing){S.ing[ing]--;if(S.ing[ing]<=0)delete S.ing[ing]});
+      CAULD=[];
+      S.pot[match]=(S.pot[match]||0)+1;
+      S.knownPot[match]=true;
+      S.alch.brewed=(S.alch.brewed||0)+1;
+      S.quests.dq4=(S.quests.dq4||0)+1;
+      addAlchXp(20);
+      log('🧪 Сварено: '+P.e+' '+P.n+'! Рецепт открыт в книге!');
+      toast('🧪 '+P.n+' готово! Рецепт открыт!');
+    }else{
+      CAULD.forEach(function(ing){S.ing[ing]--;if(S.ing[ing]<=0)delete S.ing[ing]});
+      CAULD=[];
+      if(chance(0.3)){
+        var ks=Object.keys(POTIONS).filter(function(k){return POTIONS[k].r<=1});
+        var p=pick(ks);S.pot[p]=(S.pot[p]||0)+1;
+        S.alch.brewed=(S.alch.brewed||0)+1;S.quests.dq4=(S.quests.dq4||0)+1;addAlchXp(10);
+        log('🧪 Эксперимент удался! Получилось: '+POTIONS[p].e+' '+POTIONS[p].n);
+        toast('🧪 Случайное зелье: '+POTIONS[p].n+'!');
+      }else{
+        addAlchXp(5);
+        log('💩 Эксперимент не удался… Получилась слизь. Попробуй другой рецепт!');
+        toast('💩 Получилась слизь… Попробуй иначе!');
+      }
+    }
+    save();render();return;
+  }
+  if(t.dataset.brewrec){if(brewFromRecipe(t.dataset.brewrec)){save();render()}return}
+  if(t.dataset.uspot){usePotion(t.dataset.uspot);return}
+  if(t.dataset.cast){var sp=SPELLS.filter(function(x){return x.id===t.dataset.cast})[0];if(sp)castSpell(sp);return}
+  if(t.dataset.wheel){spinWheel();return}
+  if(t.dataset.hatch){
+    var eid=t.dataset.hatch;
+    if(!S.eggs[eid])return;
+    if(S.energy<10){toast('⚡ Не хватает энергии! Нужно 10⚡');return}
+    S.energy-=10;S.eggs[eid]--;if(S.eggs[eid]<=0)delete S.eggs[eid];
+    S.pets2[eid]={name:PETS2[eid].n,fr:10,lvl:1};
+    if(PETS2[eid].r>=4)S.hatchedLeg=true;
+    addXp(30);
+    log('🐣 Вылупился питомец: '+PETS2[eid].e+' '+PETS2[eid].n+'! Теперь он твой друг!');
+    toast('🐣 Вылупился: '+PETS2[eid].n+'!');
+    save();render();return;
+  }
+  if(t.dataset.petpet){
+    var pt=S.pets2[t.dataset.petpet];if(!pt)return;
+    pt.fr=Math.min(100,pt.fr+5);
+    S.quests.dq5=(S.quests.dq5||0)+1;
+    petGiftCheck(t.dataset.petpet);
+    toast('🥰 '+(pt.name||PETS2[t.dataset.petpet].n)+' доволен! Дружба: '+pt.fr+'/100');
+    save();render();return;
+  }
+  if(t.dataset.feed){
+    var pt=S.pets2[t.dataset.feed];if(!pt)return;
+    if(S.inv.berry){S.inv.berry--;if(!S.inv.berry)delete S.inv.berry}
+    else if(S.inv.mushroom){S.inv.mushroom--;if(!S.inv.mushroom)delete S.inv.mushroom}
+    else{toast('🍖 Нечем кормить! Нужны ягоды или грибы.');return}
+    pt.fr=Math.min(100,pt.fr+10);
+    petGiftCheck(t.dataset.feed);
+    toast('🍖 '+(pt.name||PETS2[t.dataset.feed].n)+' поел! Дружба: '+pt.fr+'/100');
+    save();render();return;
+  }
+  if(t.dataset.play){
+    var pt=S.pets2[t.dataset.play];if(!pt)return;
+    if(S.energy<5){toast('⚡ Не хватает энергии для игры!');return}
+    S.energy-=5;pt.fr=Math.min(100,pt.fr+8);
+    petGiftCheck(t.dataset.play);
+    toast('🎮 Играете вместе! Дружба: '+pt.fr+'/100');
+    save();render();return;
+  }
+  if(t.dataset.bath){
+    var pt=S.pets2[t.dataset.bath];if(!pt)return;
+    pt.fr=Math.min(100,pt.fr+5);
+    petGiftCheck(t.dataset.bath);
+    toast('🛁 '+(pt.name||PETS2[t.dataset.bath].n)+' чистый и довольный!');
+    save();render();return;
+  }
+  if(t.dataset.rename){
+    var pt=S.pets2[t.dataset.rename];if(!pt)return;
+    var nm=prompt('Имя для питомца:',pt.name||PETS2[t.dataset.rename].n);
+    if(nm&&nm.trim()){pt.name=nm.trim().slice(0,20);toast('✏️ Теперь его зовут '+pt.name+'!')}
+    save();render();return;
+  }
+  if(t.dataset.petjump){
+    var pt=S.pets2[t.dataset.petjump];if(!pt)return;
+    toast('🐾 '+(pt.name||PETS2[t.dataset.petjump].n)+' рад тебя видеть! '+petFrTitle(pt.fr)+' • Дружба: '+pt.fr+'/100');
+    return;
+  }
+  if(t.dataset.labdecor){
+    if((S.labDecor||0)>=5){toast('🏡 Домик уже полностью украшен!');return}
+    if(S.coins<50){toast('💰 Не хватает монет! Нужно 50💰');return}
+    S.coins-=50;S.labDecor=(S.labDecor||0)+1;addXp(10);
+    toast('🏡 Украшение куплено! Питомцы в восторге! +10⭐');
+    save();render();return;
+  }
+  if(t.dataset.bookclaim){
+    var k=t.dataset.bookclaim,bs=bookStats()[k];
+    var mile=Math.floor(Math.min(100,Math.round(bs.got/bs.tot*100))/25);
+    var claimed=S.bookClaim[k]||0;
+    if(mile>claimed){var rw=(mile-claimed)*5;S.crys+=rw;S.bookClaim[k]=mile;log('📖 Награда за Книгу магии: +'+rw+'💎');toast('📖 +'+rw+'💎 за открытия!')}
+    save();render();return;
+  }
+  if(t.dataset.mbuying){
+    var id=t.dataset.mbuying,g=magicGoods().ings.filter(function(x){return x.id===id})[0];
+    if(!g)return;
+    if(S.coins<g.p){toast('💰 Не хватает монет! Нужно '+g.p+'💰');return}
+    S.coins-=g.p;addIng(id,1);
+    toast('🧙 Куплено: '+ING[id].e+' '+ING[id].n+'!');
+    save();render();return;
+  }
+  if(t.dataset.mbuypot){
+    var id=t.dataset.mbuypot;
+    if(S.crys<5){toast('💎 Не хватает кристаллов! Нужно 5💎');return}
+    S.crys-=5;S.pot[id]=(S.pot[id]||0)+1;
+    toast('🧙 Куплено: '+POTIONS[id].e+' '+POTIONS[id].n+'!');
+    save();render();return;
   }
 });
 // ================= СТАРТ =================
