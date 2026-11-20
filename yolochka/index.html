@@ -7,7 +7,7 @@
 <title>🎄 Ёлочка — E.Y.L Games</title>
 <script>
 // самообновление: если на сайте версия новее — один раз перезагрузиться с новым номером
-var PAGE_VER=25;
+var PAGE_VER=26;
 fetch("../gversion.txt?x="+Date.now()).then(function(r){return r.text()}).then(function(t){
   var rv=parseInt(t,10);
   if(rv&&rv>PAGE_VER&&sessionStorage.getItem("upd-yolochka")!==String(rv)){
@@ -24,7 +24,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .top{display:flex;align-items:center;gap:10px;margin-bottom:10px}
 .back{color:#9c9cae;text-decoration:none;font-size:15px;font-weight:600;white-space:nowrap}
 h1{font-size:22px;flex:1;text-align:center}
-.stats{display:flex;gap:8px;justify-content:center;margin-bottom:8px}
+.stats{display:flex;gap:8px;justify-content:center;margin-bottom:8px;flex-wrap:wrap}
 .stat{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);border-radius:999px;padding:7px 13px;font-size:14px;font-weight:700;white-space:nowrap}
 .stat small{color:#9c9cae;font-weight:500}
 .meter{height:10px;background:rgba(255,255,255,.08);border-radius:99px;overflow:hidden;margin:0 4px 4px}
@@ -82,6 +82,7 @@ canvas{display:block;width:100%;height:auto;touch-action:none}
     <div class="stat">❄️ <span id="flakes">0</span></div>
     <div class="stat">⭐ <span id="lvlName">Ёлочка-малышка</span></div>
     <div class="stat">✨ <span id="beauty">0</span> <small>красоты</small></div>
+    <div class="stat">🧸 <span id="toyCount">0</span></div>
   </div>
   <div class="meter"><i id="meterFill" style="width:0%"></i></div>
   <div class="lvl" id="lvlHint"></div>
@@ -94,9 +95,12 @@ canvas{display:block;width:100%;height:auto;touch-action:none}
     <button class="btn ghost bgBtn" data-bg="1">🏙️ Город</button>
     <button class="btn ghost bgBtn" data-bg="2">🔥 Камин</button>
   </div>
-  <div class="sec">🐶 Ёлочка Линды</div>
-  <div class="tree-wrap mini-wrap" id="miniWrap"><canvas id="miniTree" width="300" height="420"></canvas></div>
-  <div class="hint" style="margin-top:6px">🐶 Выбери игрушку в коробке ниже — и тапни по кружочку на ёлочке Линды!</div>
+  <div class="btns" style="margin-top:10px">
+    <button class="btn gold" id="autoBtn">🪄 Наряди за меня</button>
+    <button class="btn" id="evenBtn">✨ Ровно</button>
+    <button class="btn ghost" id="garModeBtn">💡 Гирлянда: цветная</button>
+    <button class="btn ghost" id="snowBtn">❄️ Снегопад: вкл</button>
+  </div>
   <div class="hint" id="hint">Выбери игрушку из коробки — и тапни по ёлке, куда её повесить 🎄</div>
   <div class="sec">🎒 Моя коробка с игрушками</div>
   <div class="strip" id="box"></div>
@@ -114,7 +118,7 @@ canvas{display:block;width:100%;height:auto;touch-action:none}
     <div style="text-align:center;font-size:15px;margin:8px 0" id="wheelText">Крути раз в день — приз твой!</div>
     <button class="btn gold" id="spinBtn" style="width:100%">🎡 Крутить!</button>
   </div>
-  <div class="how"><b>Как играть:</b> лови падающие снежинки ❄️ — это монетки. Покупай игрушки в магазине, вешай их на ёлку и собирай красоту. Тапни по висящей игрушке — снимешь её обратно в коробку. Тапни по подарку под ёлкой — откроешь его! Каждый день — подарок дня, а за задания — награды. Чем наряднее ёлка, тем выше уровень — от малышки до Ёлки президента 👑</div>
+  <div class="how"><b>Как играть:</b> лови падающие снежинки ❄️ — это монетки. Покупай игрушки в магазине, вешай их на ёлку и собирай красоту. Тапни по висящей игрушке — снимешь её обратно в коробку. Тапни по подарку под ёлкой — откроешь его! Каждый день — подарок дня, а за задания — награды. Чем наряднее ёлка, тем выше уровень — от малышки до Легендарной 👑</div>
   <div class="foot">🎄 Ёлочка • E.Y.L Games • прогресс сохраняется в телефоне<br><button id="resetBtn">начать заново</button></div>
 </div>
 <div class="toast" id="toast"></div>
@@ -136,24 +140,36 @@ var TOYS={
   clock:{e:'🕐',n:'Часы',p:70,b:22},
   santa:{e:'🎅',n:'Дед Мороз',p:80,b:25},
   deer:{e:'🦌',n:'Оленёнок',p:90,b:26},
+  ballO:{e:'🟠',n:'Оранжевый шарик',p:10,b:5},
+  ballPk:{e:'🩷',n:'Розовый шарик',p:10,b:5},
+  snowflake:{e:'❄️',n:'Снежинка',p:40,b:8},
+  bow:{e:'🎀',n:'Бантик',p:45,b:8},
+  miniTreeToy:{e:'🎄',n:'Ёлочка-малютка',p:80,b:12},
+  teddy:{e:'🧸',n:'Мишка',p:100,b:15},
+  angel:{e:'👼',n:'Ангелочек',p:120,b:15},
+  diamond:{e:'💎',n:'Бриллиант',p:150,b:20},
   garland:{e:'💡',n:'Гирлянда',p:100,b:30},
   star:{e:'⭐',n:'Звезда наверх',p:150,b:40}
 };
-var ORDER=['garland','star','ballR','ballY','ballB','ballG','ballP','candy','lolly','bell','sock','snowman','candle','maiden','clock','santa','deer'];
+var ORDER=['garland','star','ballR','ballY','ballB','ballG','ballP','candy','lolly','bell','sock','snowman','candle','maiden','clock','santa','deer','ballO','ballPk','snowflake','bow','miniTreeToy','teddy','angel','diamond'];
 var LEVELS=[
   {at:0,n:'Ёлочка-малышка'},
   {at:50,n:'Нарядная'},
   {at:150,n:'Красавица'},
   {at:300,n:'Роскошная'},
-  {at:500,n:'Ёлка президента 👑'}
+  {at:500,n:'Ёлка президента 👑'},
+  {at:800,n:'✨ Сказочная'},
+  {at:1200,n:'👑 Легендарная'}
 ];
 var SAVE_KEY='eyl-yolochka-v1';
-function defaultState(){return{flakes:50,box:{ballR:2,ballY:1,ballB:1},placed:[],gifts:1,garlandOn:false,lastDaily:'',clickFlakes:0,bought:0,opened:0,claimed:{},level:0,santaDay:'',wheelDay:'',lastSeen:0,bg:0,placedMini:[]}}
+function defaultState(){return{flakes:50,box:{ballR:2,ballY:1,ballB:1},placed:[],gifts:1,garlandOn:false,lastDaily:'',clickFlakes:0,bought:0,opened:0,claimed:{},level:0,santaDay:'',wheelDay:'',lastSeen:0,bg:0,garMode:0,snowOn:true}}
 var S;
 try{S=JSON.parse(localStorage.getItem(SAVE_KEY))||defaultState()}catch(e){S=defaultState()}
 if(!S.box)S=defaultState();
-// Миграция старых сейвов (v1): новые поля, иначе ёлочка Линды и фишки падают
-if(!S.placedMini)S.placedMini=[];
+// Миграция старых сейвов: новые поля; игрушки со второй ёлочки возвращаются в коробку
+if(S.garMode===undefined)S.garMode=0;
+if(S.snowOn===undefined)S.snowOn=true;
+if(S.placedMini&&S.placedMini.length){S.placedMini.forEach(function(p){S.box[p.id]=(S.box[p.id]||0)+1});delete S.placedMini}
 if(S.bg===undefined)S.bg=0;
 if(!S.santaDay)S.santaDay='';
 if(!S.wheelDay)S.wheelDay='';
@@ -207,18 +223,21 @@ for(var fi=0;fi<30;fi++)flakes.push({x:rnd()*W,y:rnd()*H,r:1.5+rnd()*2,s:0.4+rnd
 var sparks=[];
 function drawStar(c,x,y,R,r,rot){c.beginPath();for(var i=0;i<10;i++){var rad=i%2===0?R:r,a=rot+i*Math.PI/5,px=x+Math.cos(a)*rad,py=y+Math.sin(a)*rad;if(i===0)c.moveTo(px,py);else c.lineTo(px,py)}c.closePath()}
 var GIFT_SPOTS=[{x:150,y:782},{x:300,y:802},{x:450,y:782}];
-function beauty(){var b=0;S.placed.forEach(function(p){b+=TOYS[p.id].b});(S.placedMini||[]).forEach(function(p){b+=TOYS[p.id].b});if(S.garlandOn)b+=30;return b}
+function beauty(){var b=0;S.placed.forEach(function(p){b+=TOYS[p.id].b});if(S.garlandOn)b+=30;return b}
 function levelIdx(){var idx=0;LEVELS.forEach(function(L,i){if(beauty()>=L.at)idx=i});return idx}
 function draw(t){
   ctx.clearRect(0,0,W,H);
   ctx.drawImage(off,0,0);
-  // гирлянда (если куплена и включена) — вся меняет цвет, как на сайте
+  // гирлянда (если куплена и включена): 0 — цветная, 1 — золотая, 2 — вспышка всем разом
   if(S.garlandOn){
-    var col=garColors[Math.floor(t/350)%garColors.length];
+    var gm=S.garMode||0;
+    var col=gm===1?'#ffd76a':garColors[Math.floor(t/350)%garColors.length];
     ctx.strokeStyle='rgba(255,215,0,0.7)';ctx.lineWidth=3;ctx.beginPath();
     gar.forEach(function(p,i){if(i===0)ctx.moveTo(p.x,p.y);else ctx.lineTo(p.x,p.y)});ctx.stroke();
     for(var i=0;i<gar.length;i+=3){
-      var p=gar[i],s=Math.sin(t*0.005+p.ph),blink=Math.pow(0.5+0.5*s,2),a=0.25+0.75*blink;
+      var p=gar[i],a;
+      if(gm===2){var pulse=0.5+0.5*Math.sin(t*0.012);a=0.25+0.75*pulse*pulse}
+      else{var s=Math.sin(t*0.005+p.ph),blink=Math.pow(0.5+0.5*s,2);a=0.25+0.75*blink}
       ctx.globalAlpha=a*0.4;ctx.fillStyle=col;ctx.beginPath();ctx.arc(p.x,p.y,20,0,Math.PI*2);ctx.fill();
       ctx.globalAlpha=a;ctx.fillStyle=col;ctx.shadowColor=col;ctx.shadowBlur=32;
       ctx.beginPath();ctx.arc(p.x,p.y,9,0,Math.PI*2);ctx.fill();
@@ -246,13 +265,18 @@ function draw(t){
   ctx.globalAlpha=1;
   ctx.font='52px sans-serif';
   ctx.fillText('⛄',512,756);
+  // Линда сидит под ёлочкой 🐶
+  ctx.font='34px sans-serif';
+  ctx.fillText('🐶',560,800);
   // снег
+  if(S.snowOn){
   ctx.fillStyle='rgba(255,255,255,0.9)';
   flakes.forEach(function(fl){
     fl.y+=fl.s;fl.x+=Math.sin((t*0.001)+fl.ph)*0.4;
     if(fl.y>H){fl.y=-4;fl.x=rnd()*W}
     ctx.globalAlpha=0.75;ctx.beginPath();ctx.arc(fl.x,fl.y,fl.r,0,Math.PI*2);ctx.fill();
   });
+  }
   ctx.globalAlpha=1;
   sparks=sparks.filter(function(s){return s.life>0});
   sparks.forEach(function(s){
@@ -261,7 +285,6 @@ function draw(t){
     drawStar(ctx,s.x,s.y,7*s.life+2,3,-Math.PI/2);ctx.fill();
   });
   ctx.globalAlpha=1;
-  drawMini(t);
 }
 function burst(x,y,n){for(var i=0;i<(n||22);i++){var a=Math.random()*Math.PI*2,s=1+Math.random()*3;sparks.push({x:x,y:y,vx:Math.cos(a)*s,vy:Math.sin(a)*s-1,life:1})}}
 if(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches){draw(0)}
@@ -281,6 +304,7 @@ function render(){
   $('flakes').textContent=S.flakes;
   var b=beauty(),li=levelIdx();
   $('beauty').textContent=b;
+  $('toyCount').textContent=S.placed.length;
   $('lvlName').textContent=LEVELS[li].n;
   var next=LEVELS[li+1];
   if(next){
@@ -318,6 +342,9 @@ function render(){
   $('wheelBtn').disabled=(S.wheelDay===today);
   $('wheelBtn').textContent=(S.wheelDay===today)?'🎡 Колесо — завтра':'🎡 Колесо фортуны';
   var deco=['🌲🎄🌲','🏙️🌃🌆','🔥🕯️🎄'];$('bgDeco').textContent=deco[S.bg||0];
+  var gmNames=['💡 Гирлянда: цветная','💡 Гирлянда: золотая','💡 Гирлянда: вспышка'];
+  $('garModeBtn').textContent=gmNames[S.garMode||0];
+  $('snowBtn').textContent=S.snowOn?'❄️ Снегопад: вкл':'❄️ Снегопад: выкл';
   $('treeWrap').className='tree-wrap'+(S.bg===1?' bg1':S.bg===2?' bg2':'');
   document.querySelectorAll('.bgBtn').forEach(function(b){b.classList.toggle('sel',+b.getAttribute('data-bg')===(S.bg||0))});
   renderTasks();
@@ -514,77 +541,55 @@ function spinWheel(){
 }
 $('wheelBtn').addEventListener('click',function(){$('wheelPanel').classList.toggle('open')});
 $('spinBtn').addEventListener('click',spinWheel);
-// 5) Фоны — лес / город / камин
+// 4) Фоны — лес / город / камин
 document.querySelectorAll('.bgBtn').forEach(function(b){
   b.addEventListener('click',function(){S.bg=+b.getAttribute('data-bg');save();render();beep(900)});
 });
-// 4) Ёлочка Линды — маленькая, со своими местами
-var mcv=$('miniTree'),mctx=mcv.getContext('2d');
-var MINI_SLOTS=[{x:150,y:110},{x:118,y:175},{x:182,y:175},{x:100,y:245},{x:200,y:245},{x:150,y:305}];
-function drawMini(t){
-  if(!mcv||!mctx)return;
-  mctx.clearRect(0,0,300,420);
-  mctx.drawImage(off,0,0,300,420);
-  mctx.textAlign='center';mctx.textBaseline='middle';
-  // гирлянда Линды — та же, что и на большой ёлке: загорается вместе с ней
-  if(S.garlandOn){
-    var col=garColors[Math.floor(t/350)%garColors.length];
-    for(var gi2=0;gi2<gar.length;gi2+=6){
-      var gp=gar[gi2];
-      mctx.globalAlpha=0.9;mctx.fillStyle=col;mctx.shadowColor=col;mctx.shadowBlur=10;
-      mctx.beginPath();mctx.arc(gp.x/2,gp.y/2,4,0,Math.PI*2);mctx.fill();
-    }
-    mctx.shadowBlur=0;mctx.globalAlpha=1;
+// ===== Новые фишки v3 =====
+// ровные места на ёлке: симметрично, парами слева-справа, рядами сверху вниз
+function evenPositions(n){
+  var pos=[],rows=Math.ceil(n/2);
+  for(var i=0;i<n;i++){
+    var row=Math.floor(i/2),side=i%2===0?-1:1;
+    var y=190+Math.round(row*(500/Math.max(rows-1,1)));
+    if(y>700)y=700;
+    var off=halfW(y)*0.52;
+    pos.push({x:CX+side*off,y:y});
   }
-  MINI_SLOTS.forEach(function(s,i){
-    var taken=(S.placedMini||[]).some(function(p){return p.slot===i});
-    if(!taken){mctx.globalAlpha=0.5;mctx.strokeStyle='#fff';mctx.setLineDash([4,4]);mctx.beginPath();mctx.arc(s.x,s.y,20,0,Math.PI*2);mctx.stroke();mctx.setLineDash([]);mctx.globalAlpha=1}
-  });
-  (S.placedMini||[]).forEach(function(p){
-    if(p.slot===-1){mctx.font='30px sans-serif';mctx.fillText(TOYS[p.id].e,p.x,p.y)}
-    else{mctx.font='26px sans-serif';mctx.fillText(TOYS[p.id].e,MINI_SLOTS[p.slot].x,MINI_SLOTS[p.slot].y)}
-  });
+  return pos;
 }
-mcv.addEventListener('pointerdown',function(e){
-  e.preventDefault();
-  if(!S.placedMini)S.placedMini=[];
-  var r=mcv.getBoundingClientRect();
-  var x=(e.clientX-r.left)*(300/r.width),y=(e.clientY-r.top)*(420/r.height);
-  // снять висящую игрушку — только если тапнул ТОЧНО по ней
-  for(var i=0;i<(S.placedMini||[]).length;i++){
-    var p=S.placedMini[i],s=p.slot===-1?{x:p.x,y:p.y}:MINI_SLOTS[p.slot];
-    if(Math.abs(x-s.x)<16&&Math.abs(y-s.y)<16){
-      S.placedMini.splice(i,1);S.box[p.id]=(S.box[p.id]||0)+1;
-      save();render();beep(500);toast('Игрушка вернулась в коробку 🎒');return;
-    }
-  }
-  // ничего не выбрано — берём первую игрушку из коробки и вешаем её
-  if(!selected){autoSelect()}
-  if(!selected){toast('Коробка пуста — купи игрушки в магазине! 🛍️');return}
-  if(!boxCount(selected)){selected=null;autoSelect();if(!selected){toast('Коробка пуста — купи игрушки в магазине! 🛍️');return}}
-  // звезда — на макушку маленькой ёлки
-  if(selected==='star'){
-    S.placedMini.push({id:'star',slot:-1,x:150,y:52});
-  }
-  // гирлянда — зажигается сразу на обеих ёлочках
-  else if(selected==='garland'){
-    S.garlandOn=true;
-    S.box[selected]--;if(S.box[selected]<=0){delete S.box[selected];selected=null}
-    save();render();beep(990);toast('Гирлянда зажглась на обеих ёлочках! 💡');return;
-  }
-  else{
-    var best=-1,bd=1e9;
-    MINI_SLOTS.forEach(function(s,i){
-      var taken=(S.placedMini||[]).some(function(p){return p.slot===i});
-      if(taken)return;
-      var d=Math.hypot(x-s.x,y-s.y);
-      if(d<bd){bd=d;best=i}
-    });
-    if(best<0||bd>60){toast('Тапни по кружочку на маленькой ёлке 🐶');return}
-    S.placedMini.push({id:selected,slot:best});
-  }
-  S.box[selected]--;if(S.box[selected]<=0){delete S.box[selected];selected=null}
-  save();render();beep(990);toast('Линда рада! 🐶 Красота ёлки: '+beauty());
+// 🪄 Наряди за меня: все игрушки из коробки — ровно на ёлку
+$('autoBtn').addEventListener('click',function(){
+  var items=[];
+  ORDER.forEach(function(id){
+    if(id==='star'||id==='garland')return;
+    for(var k=0;k<boxCount(id);k++)items.push(id);
+  });
+  if(!items.length&&!boxCount('star')&&!boxCount('garland')){toast('Коробка пуста — купи игрушки в магазине! 🛍️');return}
+  if(boxCount('star')&&!S.placed.some(function(p){return p.id==='star'})){S.placed.push({id:'star',x:CX,y:66});S.box.star--;if(S.box.star<=0)delete S.box.star}
+  if(boxCount('garland')){S.garlandOn=true;S.box.garland--;if(S.box.garland<=0)delete S.box.garland}
+  var pos=evenPositions(items.length);
+  items.forEach(function(id,i){S.placed.push({id:id,x:pos[i].x,y:pos[i].y});S.box[id]--;if(S.box[id]<=0)delete S.box[id]});
+  selected=null;save();render();beep(1300);burst(CX,300,40);
+  toast('Готово! Ёлка наряжена ровно и красиво ✨ Красота: '+beauty());
+});
+// ✨ Ровно: переставить уже висящие игрушки симметрично
+$('evenBtn').addEventListener('click',function(){
+  var toys=S.placed.filter(function(p){return p.id!=='star'});
+  if(toys.length<2){toast('Сначала повесь хотя бы две игрушки 🎄');return}
+  var pos=evenPositions(toys.length);
+  toys.forEach(function(p,i){p.x=pos[i].x;p.y=pos[i].y});
+  save();render();beep(1100);
+  toast('Всё ровно, как у Дурова ✨');
+});
+// 💡 Режимы гирлянды: цветная → золотая → вспышка
+$('garModeBtn').addEventListener('click',function(){
+  S.garMode=((S.garMode||0)+1)%3;save();render();beep(900);
+  toast('Режим гирлянды: '+['цветная','золотая','вспышка'][S.garMode]+' 💡');
+});
+// ❄️ Снегопад вкл/выкл
+$('snowBtn').addEventListener('click',function(){
+  S.snowOn=!S.snowOn;save();render();beep(900);
 });
 setInterval(spawnFlake,1300);
 spawnFlake();spawnFlake();
