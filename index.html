@@ -8,7 +8,7 @@
 <script>
 // Самообновление каталога: телефон Erik держал старую копию страницы
 // из кэша и не видел новые игры. Сверяемся с gversion.txt на сервере.
-var GAMES_VER = 21;
+var GAMES_VER = 22;
 fetch("gversion.txt?x=" + Date.now()).then(function(r){ return r.text(); }).then(function(t){
   var rv = parseInt(t, 10);
   if (rv && rv > GAMES_VER && sessionStorage.getItem("gamesUpd") !== String(rv)) {
@@ -113,6 +113,7 @@ fetch("gversion.txt?x=" + Date.now()).then(function(r){ return r.text(); }).then
   .c-gorod { background:linear-gradient(150deg,#ffb3c8,#e75480 55%,#5c1030); }
   .c-neonrace{ background:linear-gradient(150deg,#e84e8a,#6236e8 55%,#0b0624); }
   .c-moto  { background:linear-gradient(150deg,#ef8f1f,#94406e 55%,#1d0f38); }
+  .c-yolochka{ background:linear-gradient(150deg,#2fbf71,#0a6b34 60%,#032b16); }
 
   .gbody { padding:15px 17px 17px; display:flex; flex-direction:column; gap:7px; flex:1; }
   .gbody h3 { font-size:18px; font-weight:700; letter-spacing:-.2px; min-height:44px; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
@@ -138,7 +139,7 @@ fetch("gversion.txt?x=" + Date.now()).then(function(r){ return r.text(); }).then
     <h1><span class="gold">E.Y.L</span> GAMES</h1>
     <p class="sub">Игровая империя президента <b>Erik Lebed</b> 🎮<br>Бесплатные игры прямо в браузере — без скачивания и регистрации.<br>Открыл — и играешь. Прогресс сохраняется в телефоне.</p>
     <div class="chips">
-      <span class="chip gold">👑 93 игры</span>
+      <span class="chip gold">👑 94 игры</span>
       <span class="chip">🎄 С наступающим Новым годом!</span>
       <span class="chip">💸 Полностью бесплатно</span>
       <span class="chip">📱 С телефона и компьютера</span>
@@ -174,6 +175,18 @@ fetch("gversion.txt?x=" + Date.now()).then(function(r){ return r.text(); }).then
 
   <h2 class="sec">🎮 Все игры</h2>
   <div class="grid">
+    <a class="game" href="yolochka/">
+      <div class="cover c-yolochka">
+        <span class="tag">Ёлка • наряжай и собирай</span><span class="new">НОВОЕ</span>
+        <span class="main">🎄</span>
+      </div>
+      <div class="gbody">
+        <h3>🎄 Ёлочка</h3>
+        <p>Как та самая игра из ВКонтакте! Наряжай свою ёлочку: лови снежинки, покупай игрушки в магазине, вешай шарики, Деда Мороза, Снегурочку и звезду наверх. Подарки под ёлкой, задания и уровни — от малышки до Ёлки президента!</p>
+        <div class="meta">❄️ Снежинки • 🛍️ Магазин • 🎁 Подарки • 🏆 Уровни</div>
+        <div class="play">Играть →</div>
+      </div>
+    </a>
     <a class="game" href="garage/">
       <div class="cover c-garage">
         <span class="tag">Гараж • тачку на прокачку</span><span class="new">НОВОЕ</span>
