@@ -8,7 +8,7 @@
 <script>
 // Самообновление каталога: телефон Erik держал старую копию страницы
 // из кэша и не видел новые игры. Сверяемся с gversion.txt на сервере.
-var GAMES_VER = 27;
+var GAMES_VER = 28;
 fetch("gversion.txt?x=" + Date.now()).then(function(r){ return r.text(); }).then(function(t){
   var rv = parseInt(t, 10);
   if (rv && rv > GAMES_VER && sessionStorage.getItem("gamesUpd") !== String(rv)) {
@@ -143,7 +143,7 @@ fetch("gversion.txt?x=" + Date.now()).then(function(r){ return r.text(); }).then
     <h1><span class="gold">E.Y.L</span> GAMES</h1>
     <p class="sub">Игровая империя президента <b>Erik Lebed</b> 🎮<br>Бесплатные игры прямо в браузере — без скачивания и регистрации.<br>Открыл — и играешь. Прогресс сохраняется в телефоне.</p>
     <div class="chips">
-      <span class="chip gold">👑 99 игр</span>
+      <span class="chip gold">👑 100 игр</span>
       <span class="chip">🎄 С наступающим Новым годом!</span>
       <span class="chip">💸 Полностью бесплатно</span>
       <span class="chip">📱 С телефона и компьютера</span>
@@ -188,6 +188,18 @@ fetch("gversion.txt?x=" + Date.now()).then(function(r){ return r.text(); }).then
         <h3>🌲 Лес Тайн</h3>
         <p>Огромный загадочный лес: 12 локаций, 10 животных, лагерь, торговец, погода и время суток, ежедневные подарки и главная тайна — исчезнувшая деревня. Исследуй, находи артефакты и выбери концовку!</p>
         <div class="meta">🗺️ 12 локаций • 🦊 10 животных • 🏕️ Лагерь • 📖 История • 🏆 100 уровней</div>
+        <div class="play">Играть →</div>
+      </div>
+    </a>
+    <a class="game" href="emoji-world/?u=28">
+      <div class="cover c-yolochka">
+        <span class="tag">5 игр в одной • целый мир</span><span class="new">НОВОЕ</span>
+        <span class="main">🌍</span>
+      </div>
+      <div class="gbody">
+        <h3>🌍🎮 EMOJI WORLD</h3>
+        <p>Целый мир из эмодзи: расследуй дела как детектив 🕵️, выживи в апокалипсисе зомби 🧟, стань миллиардером 💰, построй корабль на необитаемом острове 🏝️ и создай свою страну 👑. Пять больших игр — каждая со своим сейвом!</p>
+        <div class="meta">🕵️ Детектив • 🧟 Зомби • 💰 Миллионер • 🏝️ Остров • 👑 Страна</div>
         <div class="play">Играть →</div>
       </div>
     </a>

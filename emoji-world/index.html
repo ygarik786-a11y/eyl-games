@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#1b1035">
+<title>🌍🎮 EMOJI WORLD — E.Y.L Games</title>
+<script>
+var PAGE_VER=1;
+fetch("../gversion.txt?x="+Date.now()).then(function(r){return r.text()}).then(function(t){
+  var rv=parseInt(t,10);
+  if(rv&&rv>PAGE_VER&&sessionStorage.getItem("upd-emoji-world")!==String(rv)){
+    sessionStorage.setItem("upd-emoji-world",String(rv));
+    location.replace(location.pathname+"?u="+rv);
+  }
+}).catch(function(){});
+</script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{background:#12081f radial-gradient(1000px 500px at 50% -10%,#6d28d955,transparent);color:#f3e8ff;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;min-height:100vh}
+.wrap{max-width:480px;margin:0 auto;padding:10px 12px 90px}
+.top{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.back{color:#c4b5fd;text-decoration:none;font-size:15px;font-weight:700;white-space:nowrap}
+h1{flex:1;text-align:center;font-size:20px;color:#fde68a;text-shadow:0 2px 14px rgba(253,230,138,.4)}
+.sub{text-align:center;font-size:13px;color:#c4b5fd;margin-bottom:10px}
+.stats{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin-bottom:10px}
+.stat{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:999px;padding:6px 11px;font-size:13.5px;font-weight:700;white-space:nowrap}
+.card{background:linear-gradient(180deg,#241239,#1a0b2e);border:1px solid rgba(255,255,255,.1);border-radius:18px;padding:14px;margin-bottom:10px}
+.card h2{font-size:17px;margin-bottom:6px;color:#fde68a}
+.card p{font-size:14px;line-height:1.5;color:#e9d5ff}
+.muted{color:#a78bfa;font-size:13px;line-height:1.45}
+.game{display:flex;gap:12px;align-items:center;background:linear-gradient(135deg,#2e1065,#1e1b4b);border:1px solid rgba(255,255,255,.12);border-radius:18px;padding:14px;margin-bottom:10px;cursor:pointer}
+.game .ic{font-size:40px}
+.game .nm{font-size:16.5px;font-weight:800}
+.game .ds{font-size:12.5px;color:#c4b5fd;line-height:1.4}
+.game .pr{font-size:12px;color:#fde68a;font-weight:700}
+.game .go{margin-left:auto;font-size:22px;color:#fbbf24}
+.btn{display:block;width:100%;background:linear-gradient(92deg,#7c3aed,#4f46e5);color:#fff;border:0;border-radius:14px;padding:13px 10px;font-size:15px;font-weight:800;cursor:pointer;margin-top:8px;box-shadow:0 6px 18px rgba(124,58,237,.4)}
+.btn.gold{background:linear-gradient(92deg,#f59e0b,#d97706);box-shadow:0 6px 18px rgba(245,158,11,.35)}
+.btn.green{background:linear-gradient(92deg,#059669,#047857);box-shadow:0 6px 18px rgba(5,150,105,.35)}
+.btn.red{background:linear-gradient(92deg,#dc2626,#991b1b);box-shadow:0 6px 18px rgba(220,38,38,.35)}
+.btn.ghost{background:rgba(255,255,255,.08);box-shadow:none;border:1px solid rgba(255,255,255,.14)}
+.btn.small{width:auto;display:inline-block;padding:9px 14px;font-size:13.5px;margin:4px 4px 0 0}
+.btn:disabled{opacity:.45;cursor:default}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+.row .btn{flex:1;min-width:140px}
+.item{display:flex;align-items:center;gap:10px;background:#1e1033;border:1px solid rgba(255,255,255,.09);border-radius:14px;padding:10px 12px;margin-bottom:7px}
+.item .e{font-size:28px}
+.item .n{flex:1;font-size:14.5px;font-weight:700;line-height:1.3}
+.item .n small{display:block;color:#a78bfa;font-weight:500;font-size:12px}
+.item .cnt{font-weight:800;color:#fde68a}
+.badge{display:inline-block;background:rgba(253,230,138,.15);border:1px solid rgba(253,230,138,.4);color:#fde68a;border-radius:999px;padding:3px 9px;font-size:12px;font-weight:700;margin:2px 2px 0 0}
+.log{background:#150826;border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:10px 12px;font-size:13.5px;line-height:1.6;color:#e9d5ff;max-height:220px;overflow-y:auto}
+.log div{margin-bottom:4px}
+.toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%) translateY(20px);background:#4c1d95;border:1px solid #a78bfa;color:#fff;padding:12px 18px;border-radius:999px;font-size:14.5px;font-weight:700;opacity:0;pointer-events:none;transition:.25s;z-index:50;max-width:92vw;text-align:center;box-shadow:0 10px 30px rgba(0,0,0,.5)}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.choice{display:block;width:100%;text-align:left;background:#1e1033;border:1px solid rgba(255,255,255,.14);color:#f3e8ff;border-radius:14px;padding:13px;font-size:15px;font-weight:700;cursor:pointer;margin-top:8px}
+.choice small{display:block;color:#a78bfa;font-weight:500;font-size:12.5px;margin-top:3px}
+.quest{border-left:3px solid #f59e0b;padding:8px 10px;background:rgba(245,158,11,.07);border-radius:0 12px 12px 0;margin-bottom:8px;font-size:14px;line-height:1.5}
+.quest.done{border-color:#34d399;background:rgba(52,211,153,.07)}
+.bar{height:9px;background:rgba(255,255,255,.1);border-radius:99px;overflow:hidden;margin:4px 0 8px}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,#f59e0b,#fde68a);border-radius:99px}
+.bar.hp i{background:linear-gradient(90deg,#ef4444,#f87171)}
+.bar.hun i{background:linear-gradient(90deg,#f97316,#fdba74)}
+.foot{text-align:center;color:#6b7280;font-size:12px;margin-top:14px;line-height:1.6}
+.foot button{background:none;border:0;color:#6b7280;text-decoration:underline;font-size:12px;cursor:pointer}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top"><a class="back" href="../">← Игры</a><h1>🌍 EMOJI WORLD</h1><span style="width:52px"></span></div>
+  <div class="sub">Пять миров. Пять жизней. Один твой выбор. 🎮</div>
+  <div id="screen"></div>
+  <div class="foot">🌍 EMOJI WORLD • E.Y.L Games • прогресс каждой игры сохраняется отдельно<br><button id="resetBtn">начать всё заново</button></div>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+// ================= СОСТОЯНИЕ =================
+var SAVE_KEY='eyl-emoji-world-v1';
+function defDet(){return{rep:0,money:200,ci:0,clues:{},talked:{},solved:0,failed:0}}
+function defZom(){return{day:1,hp:100,hun:100,food:3,meds:1,mats:2,shelter:0,surv:0,dead:false,win:false,log:[]}}
+function defMil(){return{cash:1000,bank:0,day:1,props:[],biz:[],cars:[],worth:1000}}
+function defIsl(){return{day:1,hp:100,hun:100,wood:0,food:2,stone:0,vine:0,zones:{beach:true},camp:0,house:0,boat:0,win:false,dead:false,log:[]}}
+function defCtr(){return{set:false,name:'',flag:'🏳️',money:1000,pop:1000,happy:60,cities:1,schools:0,hosp:0,roads:0,laws:[],allies:[],month:1,over:false,rating:0}}
+function defaultState(){return{ach:{},det:defDet(),zom:defZom(),mil:defMil(),isl:defIsl(),ctr:defCtr()}}
+var S;
+try{S=JSON.parse(localStorage.getItem(SAVE_KEY))||defaultState()}catch(e){S=defaultState()}
+if(!S.det)S=defaultState();
+function save(){try{localStorage.setItem(SAVE_KEY,JSON.stringify(S))}catch(e){}}
+function $(id){return document.getElementById(id)}
+var toastTimer=null;
+function toast(t){var el=$('toast');el.textContent=t;el.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(function(){el.classList.remove('show')},2600)}
+function rnd(n){return Math.floor(Math.random()*n)}
+function pick(a){return a[rnd(a.length)]}
+function chance(p){return Math.random()<p}
+function fmt(n){return String(Math.floor(n)).replace(/\B(?=(\d{3})+(?!\d))/g,' ')}
+function ach(id,n,r){
+  if(S.ach[id])return;
+  S.ach[id]=true;
+  toast('🏆 Достижение: '+n+'!');
+}
+// ================= ХАБ =================
+var VIEW='hub',SUB=null;
+var GAMES=[
+  {id:'det',e:'🕵️',n:'Криминальный город',d:'Стань детективом: ищи улики, допрашивай подозреваемых и раскрывай дела.',pr:function(){return 'Дел раскрыто: '+S.det.solved+'/5 • Репутация: '+S.det.rep}},
+  {id:'zom',e:'🧟',n:'Апокалипсис',d:'Мир зомби: ищи припасы, строй убежище и выживи 30 дней.',pr:function(){return S.zom.dead?'💀 Погиб на день '+S.zom.day:S.zom.win?'🏆 Выжил! День '+S.zom.day:'День '+S.zom.day+'/30 • ❤️ '+S.zom.hp}},
+  {id:'mil',e:'💰',n:'Стань миллионером',d:'Начни с $1000: недвижимость, бизнес, машины. Стань миллиардером!',pr:function(){return 'Состояние: $'+fmt(netWorth())}},
+  {id:'isl',e:'🏝️',n:'Необитаемый остров',d:'Один на острове: строй лагерь, исследуй и построй корабль домой.',pr:function(){return S.isl.win?'🏆 Вернулся домой!':'День '+S.isl.day+' • Корабль: '+Math.min(100,Math.round(S.isl.boat/40*100))+'%'}},
+  {id:'ctr',e:'👑',n:'Создай свою страну',d:'Ты — президент: строй города, принимай законы и веди страну к счастью.',pr:function(){return S.ctr.set?S.ctr.flag+' '+S.ctr.name+' • 😊 '+S.ctr.happy+'% • Месяц '+S.ctr.month+'/12':'Страна ещё не создана'}}
+];
+function hubScreen(){
+  var h='<div class="card" style="text-align:center"><div style="font-size:56px">🌍🎮</div><h2>Добро пожаловать в EMOJI WORLD!</h2><p>Выбери мир — и проживи в нём свою жизнь. Прогресс каждой игры сохраняется отдельно, достижения — общие.</p><p class="muted">🏆 Достижений: '+Object.keys(S.ach).length+'</p></div>';
+  GAMES.forEach(function(g){
+    h+='<div class="game" data-game="'+g.id+'"><span class="ic">'+g.e+'</span><span><span class="nm">'+g.n+'</span><br><span class="ds">'+g.d+'</span><br><span class="pr">'+g.pr()+'</span></span><span class="go">›</span></div>';
+  });
+  h+='<div class="card"><h2>🏆 Достижения мира</h2><p>';
+  ACHLIST.forEach(function(a){
+    h+='<span class="badge" style="'+(S.ach[a.id]?'':'opacity:.4')+'">'+a.e+' '+a.n+'</span>';
+  });
+  h+='</p></div>';
+  return h;
+}
+var ACHLIST=[
+  {id:'d1',e:'🕵️',n:'Первое дело'},{id:'d5',e:'🔍',n:'Легенда сыска'},
+  {id:'z7',e:'🧟',n:'Неделя в аду'},{id:'z30',e:'🏆',n:'Выживший'},
+  {id:'m1',e:'💰',n:'Первый миллион'},{id:'m9',e:'🤑',n:'Миллиардер'},
+  {id:'i1',e:'🏝️',n:'Робинзон'},{id:'i2',e:'⛵',n:'Домой!'},
+  {id:'c1',e:'👑',n:'Основатель'},{id:'c2',e:'🌟',n:'Легендарный лидер'}
+];
+function render(){
+  var h='';
+  if(VIEW==='hub')h=hubScreen();
+  else if(VIEW==='det')h=detScreen();
+  else if(VIEW==='zom')h=zomScreen();
+  else if(VIEW==='mil')h=milScreen();
+  else if(VIEW==='isl')h=islScreen();
+  else if(VIEW==='ctr')h=ctrScreen();
+  $('screen').innerHTML=h;
+  save();
+}
+function backBtn(){return '<button class="btn ghost" id="backHub">← В главное меню EMOJI WORLD</button>'}
+
+// ================= 1. 🕵️ КРИМИНАЛЬНЫЙ ГОРОД =================
+var CASES=[
+ {t:'Дело №1: Пропавший кот Барсик',d:'У бабушки Зины пропал кот Барсик. Подозреваются все соседи. Найди улики и вычисли похитителя.',
+  places:[{n:'🏠 Квартира бабушки',c:'Кошачьи следы ведут к двери соседки.'},{n:'🌳 Двор',c:'Объявление о пропаже кто-то сорвал.'},{n:'🏚️ Подвал',c:'Миска с молоком — свежая, кто-то кормит кота здесь.'}],
+  sus:[{e:'👵',n:'Соседка Вера',s:'«Я котов терпеть не могу! У меня аллергия!»'},{e:'🧹',n:'Дворник Петрович',s:'«Видел Барсика утром. Он за мной до подъезда шёл.»'},{e:'📮',n:'Почтальон',s:'«Я в дом даже не заходил, только ящик.»'}],
+  cul:0,proof:'На пальто соседки Веры — рыжая шерсть Барсика, а в её подвале — его миска. Она «спасала» кота от улицы!'},
+ {t:'Дело №2: Ограбление ювелирного',d:'Ночью обчистили ювелирный магазин. Витрина разбита, сейф пуст. Кто это сделал?',
+  places:[{n:'💎 Магазин',c:'Витрина разбита ИЗНУТРИ — вор был внутри.'},{n:'🔐 Сейф',c:'Сейф открыт ключом. Взлома не было!'},{n:'🌃 Переулок',c:'След ботинка 44 размера ведёт к чёрному ходу.'}],
+  sus:[{e:'💂',n:'Охранник Гриша',s:'«Я всю ночь спал на посту. Ничего не слышал.»'},{e:'🧹',n:'Уборщица Люда',s:'«Я ушла в шесть вечера. Дома была.»'},{e:'🛍️',n:'Продавец Игорь',s:'«Меня камера видела — я в кафе был.»'}],
+  cul:0,proof:'У охранника Гриши ботинки 44 размера, а ключ от сейфа был только у него. Он сам разбил витрину изнутри!'},
+ {t:'Дело №3: Отравленный торт',d:'На дне рождения именинник отравился тортом. Кто подсыпал яд?',
+  places:[{n:'🍰 Кухня',c:'Пустая банка из-под яда — в шкафчике кондитера.'},{n:'🎂 Стол',c:'Отравлен только кусок именинника. Кто-то знал, где он сядет.'},{n:'🌿 Сад',c:'Следы ведут к кухонному окну — кто-то подглядывал.'}],
+  sus:[{e:'👨‍🍳',n:'Кондитер Антон',s:'«Я к торту после выпечки не подходил!»'},{e:'🍽️',n:'Официант Олег',s:'«Я только разносил тарелки.»'},{e:'🎩',n:'Гость Виктор',s:'«Я с именинником дружу с детства!»'}],
+  cul:0,proof:'Банка из-под яда лежала в шкафчике кондитера Антона, а яд был только в куске именинника — Антон знал рассадку!'},
+ {t:'Дело №4: Письмо с угрозами',d:'Директор фирмы получил письмо с угрозами. Отправитель — кто-то из своих.',
+  places:[{n:'🗄️ Кабинет',c:'Письмо напечатано на машинке из этого кабинета.'},{n:'📮 Почта',c:'Марка куплена в киоске рядом с офисом.'},{n:'📁 Архив',c:'Пропал документ, который невыгоден отправителю.'}],
+  sus:[{e:'📝',n:'Секретарь Марина',s:'«Я ничего не печатала! У меня алиби!»'},{e:'💼',n:'Замдиректора',s:'«Мне угрозы невыгодны, я сам в деле.»'},{e:'🚴',n:'Курьер',s:'«Я просто развожу письма, не читаю.»'}],
+  cul:0,proof:'На машинке секретаря Марины — та же лента, что и на письме. А пропал документ о её махинациях!'},
+ {t:'Дело №5: Призрак театра',d:'Перед премьерой в театре появился «призрак» и сорвал спектакль. Кто за этим стоит?',
+  places:[{n:'🎭 Сцена',c:'Верёвка люстры перерезана — аккуратно, ножом.'},{n:'💄 Гримёрка',c:'Парик «призрака» и белый грим.'},{n:'🎟️ Зал',c:'Билет с места режиссёра — он был в зале во время «явления».'}],
+  sus:[{e:'🎬',n:'Режиссёр Стас',s:'«Я хочу, чтобы премьера состоялась! Это не я!»'},{e:'🎭',n:'Актёр Денис',s:'«Мне призрак тоже угрожал!»'},{e:'👗',n:'Костюмер Алла',s:'«Парик пропал из моей костюмерной…»'}],
+  cul:0,proof:'Верёвку перерезали ножом из гримёрки, а билет доказывает: режиссёр Стас был в зале и дёргал её сам. Он хотел сорвать премьеру конкурента!'}
+];
+var RANKS=[[0,'🕵️ Новичок'],[20,'🔍 Сыщик'],[50,'⭐ Старший детектив'],[90,'👑 Легенда сыска']];
+function detRank(){var r=RANKS[0][1];RANKS.forEach(function(x){if(S.det.rep>=x[0])r=x[1]});return r}
+function detScreen(){
+  var D=S.det;
+  var h='<div class="card"><h2>🕵️ Криминальный город</h2><p>Репутация: <b>'+D.rep+'</b> • Звание: <b>'+detRank()+'</b> • 💰 '+fmt(D.money)+'</p><div class="bar"><i style="width:'+Math.min(100,D.rep)+'%"></i></div><p class="muted">Дел раскрыто: '+D.solved+'/5 • Ошибок: '+D.failed+'</p></div>';
+  if(D.solved>=5){
+    var end=D.rep>=90?'👑 Ты — Легенда сыска! Город спит спокойно, ведь ты на страже. Мэр вручил тебе ключ от города!':D.rep>=50?'⭐ Ты — старший детектив! Газеты пишут о тебе, преступники боятся твоего имени.':'🕵️ Все дела раскрыты! Ты — настоящий детектив, город гордится тобой.';
+    h+='<div class="card"><h2>🎭 Финал карьеры</h2><p>'+end+'</p><button class="btn gold" data-detreset="1">Начать карьеру заново</button></div>'+backBtn();
+    return h;
+  }
+  var c=CASES[D.ci];
+  h+='<div class="card"><h2>'+c.t+'</h2><p>'+c.d+'</p>';
+  h+='<p class="muted">Улик найдено: '+Object.keys(D.clues).length+'/3 • Допрошено: '+Object.keys(D.talked).length+'/3</p></div>';
+  h+='<div class="card"><h2>🔍 Места преступления</h2>';
+  c.places.forEach(function(p,i){
+    var got=D.clues[i];
+    h+='<button class="choice" data-clue="'+i+'">'+p.n+'<small>'+(got?('✅ '+p.c):'Осмотреть место')+'</small></button>';
+  });
+  h+='</div><div class="card"><h2>💬 Подозреваемые</h2>';
+  c.sus.forEach(function(s,i){
+    var got=D.talked[i];
+    h+='<button class="choice" data-talk="'+i+'">'+s.e+' '+s.n+'<small>'+(got?('💬 «'+s.s+'»'):'Допросить')+'</small></button>';
+  });
+  h+='</div><div class="card"><h2>⚖️ Обвинение</h2><p class="muted">Сначала найди все улики и допроси всех — тогда обвинение будет точным!</p>';
+  c.sus.forEach(function(s,i){
+    h+='<button class="btn '+(i===0?'gold':'')+'" data-accuse="'+i+'">👉 Это '+s.n+'!</button>';
+  });
+  h+='</div>'+backBtn();
+  return h;
+}
+// ================= 2. 🧟 АПОКАЛИПСИС =================
+function zomScreen(){
+  var Z=S.zom;
+  var h='<div class="card"><h2>🧟 Апокалипсис</h2><p>День <b>'+Z.day+'</b>/30 • 🏠 Убежище: ур. '+Z.shelter+' • 👥 Выжившие: '+Z.surv+'</p>';
+  h+='<p>❤️ Здоровье</p><div class="bar hp"><i style="width:'+Z.hp+'%"></i></div>';
+  h+='<p>🍖 Сытость</p><div class="bar hun"><i style="width:'+Z.hun+'%"></i></div>';
+  h+='<div class="stats"><div class="stat">🍖 Еда: '+Z.food+'</div><div class="stat">💊 Лекарства: '+Z.meds+'</div><div class="stat">🔧 Материалы: '+Z.mats+'</div></div></div>';
+  if(Z.dead){
+    h+='<div class="card"><h2>💀 Ты погиб…</h2><p>Зомби добрались до тебя на день '+Z.day+'. Ты продержался '+(Z.day-1)+' дней. Город запомнит тебя.</p><button class="btn red" data-zomreset="1">Начать выживание заново</button></div>'+backBtn();
+    return h;
+  }
+  if(Z.win){
+    h+='<div class="card"><h2>🏆 Ты выжил!</h2><p>30 дней! Вертолёт спасателей забрал тебя и твоих выживших. Апокалипсис позади — ты легенда!</p><button class="btn gold" data-zomreset="1">Играть ещё раз</button></div>'+backBtn();
+    return h;
+  }
+  if(SUB&&SUB.type==='fight'){
+    h+='<div class="card" style="text-align:center"><div style="font-size:56px">🧟</div><h2>Зомби рядом!</h2><p>Он заметил тебя и идёт прямо на тебя! Что делать?</p>';
+    h+='<button class="btn red" data-zfight="1">⚔️ Драться</button><button class="btn" data-zrun="1">🏃 Бежать</button></div>'+backBtn();
+    return h;
+  }
+  h+='<div class="card"><h2>🎒 Действия на день</h2><p class="muted">Выбери одно действие, потом ложись спать. Еда и лекарства — в любой момент.</p>';
+  h+='<button class="btn" data-zact="scav">🔍 Искать припасы<small style="font-weight:500">Еда, лекарства, материалы. Опасно!</small></button>';
+  h+='<button class="btn" data-zact="build">🏠 Улучшить убежище <small style="font-weight:500">3🔧 за уровень (сейчас ур. '+Z.shelter+')</small></button>';
+  h+='<button class="btn" data-zact="surv">👥 Искать выживших</button>';
+  h+='<button class="btn gold" data-zact="sleep">😴 Лечь спать → следующий день</button></div>';
+  h+='<div class="card"><h2>🍖 Еда и лечение</h2><div class="row"><button class="btn small green" data-zeat="1" '+(Z.food<=0?'disabled':'')+'>🍖 Поесть ('+Z.food+')</button><button class="btn small green" data-zheal="1" '+(Z.meds<=0?'disabled':'')+'>💊 Лечиться ('+Z.meds+')</button></div></div>';
+  h+='<div class="card"><h2>📜 Дневник выжившего</h2><div class="log">'+(Z.log.length?Z.log.slice(-12).reverse().map(function(x){return '<div>'+x+'</div>'}).join(''):'<div>День 1. Город мёртв. Ты — жив. Пока что…</div>')+'</div></div>';
+  h+=backBtn();
+  return h;
+}
+function zlog(t){S.zom.log.push(t);if(S.zom.log.length>40)S.zom.log.length=40}
+function zNight(){
+  var Z=S.zom;
+  Z.hun=Math.max(0,Z.hun-20);
+  if(Z.hun<=0){Z.hp-=10;zlog('🍖 Ты голоден! −10❤️')}
+  var dmg=Math.max(0,15-Z.shelter*3);
+  if(chance(0.5)&&dmg>0){Z.hp-=dmg;zlog('🧟 Ночью зомби ломились в убежище! −'+dmg+'❤️')}
+  else zlog('🌙 Ночь прошла спокойно.');
+  if(Z.hp<=0){Z.hp=0;Z.dead=true;zlog('💀 Ты не пережил эту ночь…');return}
+  Z.day++;
+  if(Z.day>30){Z.win=true;ach('z30','Выживший');zlog('🚁 Вертолёт! Спасение!')}
+  if(Z.day===7)ach('z7','Неделя в аду');
+}
+
+// ================= 3. 💰 СТАНЬ МИЛЛИОНЕРОМ =================
+var PROPS=[
+ {id:'garage',e:'🛠️',n:'Гараж',p:500,inc:20},
+ {id:'flat',e:'🏠',n:'Квартира',p:2000,inc:80},
+ {id:'house',e:'🏡',n:'Дом',p:8000,inc:300},
+ {id:'shop',e:'🏪',n:'Магазин',p:20000,inc:900},
+ {id:'office',e:'🏢',n:'Офис',p:60000,inc:2500},
+ {id:'tower',e:'🌆',n:'Небоскрёб',p:200000,inc:9000}
+];
+var BIZ=[
+ {id:'cafe',e:'☕',n:'Кафе',p:5000,inc:400},
+ {id:'taxi',e:'🚕',n:'Такси',p:12000,inc:900},
+ {id:'market',e:'🛒',n:'Супермаркет',p:50000,inc:3500},
+ {id:'it',e:'💻',n:'IT-компания',p:150000,inc:12000}
+];
+var CARS=[
+ {id:'bike',e:'🚲',n:'Велосипед',p:300},
+ {id:'car',e:'🚗',n:'Машина',p:5000},
+ {id:'sport',e:'🏎️',n:'Спорткар',p:80000},
+ {id:'limo',e:'🚘',n:'Лимузин',p:200000},
+ {id:'jet',e:'✈️',n:'Самолёт',p:500000}
+];
+function netWorth(){
+  var M=S.mil,w=M.cash+M.bank;
+  PROPS.forEach(function(p){if(M.props.indexOf(p.id)>=0)w+=p.p});
+  BIZ.forEach(function(b){if(M.biz.indexOf(b.id)>=0)w+=b.p});
+  CARS.forEach(function(c){if(M.cars.indexOf(c.id)>=0)w+=c.p});
+  return w;
+}
+function milIncome(){
+  var M=S.mil,inc=0;
+  PROPS.forEach(function(p){if(M.props.indexOf(p.id)>=0)inc+=p.inc});
+  BIZ.forEach(function(b){if(M.biz.indexOf(b.id)>=0)inc+=b.inc});
+  return inc;
+}
+function milScreen(){
+  var M=S.mil;
+  var h='<div class="card"><h2>💰 Стань миллионером</h2><p>💵 Наличные: <b>$'+fmt(M.cash)+'</b> • 🏦 Банк: <b>$'+fmt(M.bank)+'</b> • 📅 День '+M.day+'</p><p>💎 Состояние: <b>$'+fmt(netWorth())+'</b> • Доход в день: <b>$'+fmt(milIncome())+'</b></p><div class="bar"><i style="width:'+Math.min(100,netWorth()/10000000*100)+'%"></i></div><p class="muted">Цель: $1 000 000 000 — стань миллиардером!</p></div>';
+  if(netWorth()>=1000000000){
+    h+='<div class="card"><h2>🤑 МИЛЛИАРДЕР!</h2><p>Ты это сделал! Из $1000 — в миллиардеры! Твоё имя — в списке Forbes. Самолёт, небоскрёбы, империя — всё твоё!</p><button class="btn gold" data-milreset="1">Начать сначала</button></div>'+backBtn();
+    return h;
+  }
+  h+='<div class="card"><h2>💼 Заработок</h2><div class="row"><button class="btn small" data-mwork="1">💼 Работать +$200</button><button class="btn small" data-mbank="1">🏦 В банк / из банка</button><button class="btn small gold" data-mday="1">📅 Следующий день →</button></div></div>';
+  h+='<div class="card"><h2>🏠 Недвижимость</h2>';
+  PROPS.forEach(function(p){
+    var owned=M.props.indexOf(p.id)>=0;
+    h+='<div class="item"><span class="e">'+p.e+'</span><span class="n">'+p.n+'<small>Доход: $'+p.inc+'/день</small></span>'+(owned?'<span class="cnt">Твоё ✅</span>':'<button class="btn small gold" data-mprop="'+p.id+'">$'+fmt(p.p)+'</button>')+'</div>';
+  });
+  h+='</div><div class="card"><h2>🏢 Бизнес</h2>';
+  BIZ.forEach(function(b){
+    var owned=M.biz.indexOf(b.id)>=0;
+    h+='<div class="item"><span class="e">'+b.e+'</span><span class="n">'+b.n+'<small>Доход: $'+b.inc+'/день</small></span>'+(owned?'<span class="cnt">Твоё ✅</span>':'<button class="btn small gold" data-mbiz="'+b.id+'">$'+fmt(b.p)+'</button>')+'</div>';
+  });
+  h+='</div><div class="card"><h2>🚗 Автомобили</h2>';
+  CARS.forEach(function(c){
+    var owned=M.cars.indexOf(c.id)>=0;
+    h+='<div class="item"><span class="e">'+c.e+'</span><span class="n">'+c.n+'<small>Коллекция • +к состоянию</small></span>'+(owned?'<span class="cnt">Твоё ✅</span>':'<button class="btn small gold" data-mcar="'+c.id+'">$'+fmt(c.p)+'</button>')+'</div>';
+  });
+  h+='</div>'+backBtn();
+  return h;
+}
+// ================= 4. 🏝️ НЕОБИТАЕМЫЙ ОСТРОВ =================
+var ZONES=[
+ {id:'beach',e:'🏖️',n:'Пляж',d:'Песок, пальмы и обломки твоего корабля.',need:null},
+ {id:'forest',e:'🌳',n:'Лес',d:'Фрукты, дерево и странные звуки.',need:'Исследуй пляж 2 раза'},
+ {id:'cave',e:'🕳️',n:'Пещера',d:'Темно и сыро. Что-то блестит в глубине.',need:'5🪵 дерева в запасе'},
+ {id:'volcano',e:'🌋',n:'Вулкан',d:'Горячо! Зато здесь редкие камни.',need:'Построй дом'}
+];
+function islScreen(){
+  var I=S.isl;
+  var h='<div class="card"><h2>🏝️ Необитаемый остров</h2><p>День <b>'+I.day+'</b> • 🏕️ Лагерь: ур. '+I.camp+' • 🏠 Дом: '+(I.house?'построен ✅':'нет')+'</p>';
+  h+='<p>❤️ Здоровье</p><div class="bar hp"><i style="width:'+I.hp+'%"></i></div>';
+  h+='<p>🍖 Сытость</p><div class="bar hun"><i style="width:'+I.hun+'%"></i></div>';
+  h+='<div class="stats"><div class="stat">🪵 Дерево: '+I.wood+'</div><div class="stat">🍖 Еда: '+I.food+'</div><div class="stat">🪨 Камень: '+I.stone+'</div><div class="stat">🌿 Лианы: '+I.vine+'</div></div>';
+  h+='<p>⛵ Корабль домой: '+Math.min(100,Math.round(I.boat/40*100))+'%</p><div class="bar"><i style="width:'+Math.min(100,I.boat/40*100)+'%"></i></div></div>';
+  if(I.dead){
+    h+='<div class="card"><h2>💀 Остров победил…</h2><p>Ты продержался '+I.day+' дней. Но история не закончена — попробуй ещё раз!</p><button class="btn red" data-islreset="1">Начать заново</button></div>'+backBtn();
+    return h;
+  }
+  if(I.win){
+    h+='<div class="card"><h2>⛵ ТЫ ДОМА!</h2><p>Корабль готов! Ты уплыл с острова на день '+I.day+'. Дома тебя ждали. Ты — настоящий Робинзон!</p><button class="btn gold" data-islreset="1">Играть ещё раз</button></div>'+backBtn();
+    return h;
+  }
+  h+='<div class="card"><h2>🌴 Действия</h2>';
+  h+='<button class="btn" data-iact="gather">🌴 Собирать ресурсы</button>';
+  h+='<button class="btn" data-iact="fish">🎣 Рыбачить</button>';
+  h+='<button class="btn" data-iact="explore">🔍 Исследовать остров</button>';
+  h+='<button class="btn gold" data-iact="build">🏕️ Строить (лагерь/дом/корабль)</button>';
+  h+='<div class="row"><button class="btn small green" data-ieat="1" '+(I.food<=0?'disabled':'')+'>🍖 Поесть ('+I.food+')</button><button class="btn small gold" data-isleep="1">😴 Спать → следующий день</button></div></div>';
+  h+='<div class="card"><h2>🗺️ Территории</h2>';
+  ZONES.forEach(function(z){
+    var open=!!I.zones[z.id];
+    h+='<div class="item"><span class="e">'+z.e+'</span><span class="n">'+z.n+'<small>'+(open?z.d:'🔒 '+z.need)+'</small></span>'+(open?'<span class="cnt">Открыто ✅</span>':'')+'</div>';
+  });
+  h+='</div><div class="card"><h2>📜 Дневник Робинзона</h2><div class="log">'+(I.log.length?I.log.slice(-12).reverse().map(function(x){return '<div>'+x+'</div>'}).join(''):'<div>День 1. Я очнулся на пляже. Корабля нет. Надо выжить…</div>')+'</div></div>';
+  h+=backBtn();
+  return h;
+}
+function ilog(t){S.isl.log.push(t);if(S.isl.log.length>40)S.isl.log.length=40}
+// ================= 5. 👑 СОЗДАЙ СВОЮ СТРАНУ =================
+var FLAGPICK=['🌲','🦁','🌞','🌊','⭐','🦅'];
+var NAMEPICK=['Эмирия','Лесная Республика','Остров Свободы'];
+var NEIGHBORS=[{e:'🐻',n:'Медведия'},{e:'🦊',n:'Лисия'},{e:'🦅',n:'Орландия'}];
+function ctrIncome(){
+  var C=S.ctr;
+  return C.pop*2+C.roads*50+C.schools*30+C.allies.length*100;
+}
+function ctrScreen(){
+  var C=S.ctr;
+  if(!C.set){
+    var h='<div class="card" style="text-align:center"><div style="font-size:56px">👑</div><h2>Создай свою страну!</h2><p>Придумай название, выбери флаг — и стань президентом!</p></div>';
+    h+='<div class="card"><h2>📛 Название страны</h2>';
+    NAMEPICK.forEach(function(n){h+='<button class="choice" data-cname="'+n+'">'+n+'</button>'});
+    h+='</div><div class="card"><h2>🚩 Флаг</h2><p class="muted">Сначала выбери название, потом флаг.</p><div class="row">';
+    FLAGPICK.forEach(function(f){h+='<button class="btn small" data-cflag="'+f+'" style="font-size:26px">'+f+'</button>'});
+    h+='</div></div>'+backBtn();
+    return h;
+  }
+  var h='<div class="card"><h2>'+C.flag+' '+C.name+'</h2><p>💰 Бюджет: <b>'+fmt(C.money)+'</b> • 👥 Население: <b>'+fmt(C.pop)+'</b> • 😊 Счастье: <b>'+C.happy+'%</b></p><p>🏙️ Города: '+C.cities+' • 🏫 Школы: '+C.schools+' • 🏥 Больницы: '+C.hosp+' • 🛣️ Дороги: '+C.roads+' • 🤝 Союзники: '+(C.allies.length?C.allies.join(', '):'нет')+'</p><p class="muted">Месяц '+C.month+'/12 • Доход в месяц: +'+fmt(ctrIncome())+'</p></div>';
+  if(C.over){
+    var r=C.rating;
+    var end=r>=200?'🌟 ЛЕГЕНДАРНЫЙ ЛИДЕР! Твоя страна — самая счастливая в мире! Тебя переизбрали единогласно!':r>=100?'👍 Хороший президент! Страна живёт неплохо, народ тебя любит.':'😞 Страна в кризисе… Народ недоволен. Может, в следующий раз получится лучше?';
+    h+='<div class="card"><h2>🎭 Итог правления</h2><p>'+end+'</p><p class="muted">Рейтинг: '+r+' (счастье '+C.happy+' + население '+Math.round(C.pop/100)+' + бюджет '+Math.round(C.money/100)+')</p><button class="btn gold" data-ctrreset="1">Основать новую страну</button></div>'+backBtn();
+    return h;
+  }
+  h+='<div class="card"><h2>🏗️ Стройка (1 действие в месяц)</h2>';
+  h+='<button class="btn" data-cbuild="city">🏙️ Новый город — 500💰<small style="font-weight:500">+500 жителей</small></button>';
+  h+='<button class="btn" data-cbuild="school">🏫 Школа — 300💰<small style="font-weight:500">+5😊, +доход</small></button>';
+  h+='<button class="btn" data-cbuild="hosp">🏥 Больница — 400💰<small style="font-weight:500">+8😊</small></button>';
+  h+='<button class="btn" data-cbuild="road">🛣️ Дорога — 200💰<small style="font-weight:500">+доход</small></button></div>';
+  h+='<div class="card"><h2>📜 Законы</h2>';
+  h+='<button class="choice" data-claw="tax">💰 Повысить налоги<small>+300💰 в месяц, −5😊</small></button>';
+  h+='<button class="choice" data-claw="fest">🎉 Народный праздник<small>−200💰, +10😊</small></button>';
+  h+='<button class="choice" data-claw="green">🌿 Зелёный закон<small>+8😊, −100💰 в месяц</small></button></div>';
+  h+='<div class="card"><h2>🤝 Дипломатия</h2>';
+  NEIGHBORS.forEach(function(nb){
+    var has=C.allies.indexOf(nb.n)>=0;
+    h+='<button class="choice" data-cally="'+nb.n+'">'+nb.e+' '+nb.n+'<small>'+(has?'✅ Союзник — торговля +100💰/мес':'Заключить союз — 200💰')+'</small></button>';
+  });
+  h+='<button class="btn gold" data-cmonth="1">📅 Следующий месяц →</button></div>';
+  h+=backBtn();
+  return h;
+}
+
+// ================= ДЕЙСТВИЯ =================
+var PENDING_NAME=null;
+document.addEventListener('click',function(e){
+  var t=e.target.closest('[data-game],[data-clue],[data-talk],[data-accuse],[data-detreset],[data-zact],[data-zeat],[data-zheal],[data-zfight],[data-zrun],[data-zomreset],[data-mwork],[data-mbank],[data-mday],[data-mprop],[data-mbiz],[data-mcar],[data-milreset],[data-iact],[data-ieat],[data-isleep],[data-islreset],[data-cname],[data-cflag],[data-cbuild],[data-claw],[data-cally],[data-cmonth],[data-ctrreset],#backHub,#resetBtn');
+  if(!t)return;
+  // хаб
+  if(t.dataset.game){VIEW=t.dataset.game;SUB=null;save();render();return}
+  if(t.id==='backHub'){VIEW='hub';SUB=null;save();render();return}
+  if(t.id==='resetBtn'){
+    if(!confirm('Начать всё заново? Прогресс всех 5 игр EMOJI WORLD пропадёт.'))return;
+    S=defaultState();VIEW='hub';SUB=null;save();render();toast('🌍 Новый мир ждёт тебя!');
+    return;
+  }
+  // --- детектив ---
+  if(t.dataset.clue!==undefined&&VIEW==='det'){
+    var D=S.det,c=CASES[D.ci],i=+t.dataset.clue;
+    if(!D.clues[i]){D.clues[i]=true;toast('🔍 Улика: '+c.places[i].c)}
+    save();render();return;
+  }
+  if(t.dataset.talk!==undefined&&VIEW==='det'){
+    var D=S.det,c=CASES[D.ci],i=+t.dataset.talk;
+    if(!D.talked[i]){D.talked[i]=true;toast('💬 '+c.sus[i].n+': '+c.sus[i].s)}
+    save();render();return;
+  }
+  if(t.dataset.accuse!==undefined&&VIEW==='det'){
+    var D=S.det,c=CASES[D.ci],i=+t.dataset.accuse;
+    D.wrong=D.wrong||[];
+    if(Object.keys(D.clues).length<3||Object.keys(D.talked).length<3){toast('🔍 Сначала найди все 3 улики и допроси всех 3 подозреваемых!');return}
+    if(D.wrong.indexOf(i)>=0){toast('⚖️ Он уже оправдан — выбери другого!');return}
+    if(i===c.cul){
+      var rep=10+D.ci*5,mon=100*(D.ci+1);
+      D.rep+=rep;D.money+=mon;D.solved++;
+      toast('✅ Дело раскрыто! '+c.proof);
+      if(D.solved===1)ach('d1','Первое дело');
+      if(D.solved>=5)ach('d5','Легенда сыска');
+      D.ci++;D.clues={};D.talked={};D.wrong=[];
+    }else{
+      D.rep=Math.max(0,D.rep-5);D.failed++;D.wrong.push(i);
+      toast('❌ Не тот! Репутация −5. Смотри внимательнее на улики.');
+    }
+    save();render();return;
+  }
+  if(t.dataset.detreset){S.det=defDet();save();render();return}
+  // --- зомби ---
+  if(t.dataset.zact){
+    var Z=S.zom;
+    if(Z.dead||Z.win)return;
+    var a=t.dataset.zact;
+    if(a==='scav'){
+      var f=1+rnd(3),m=chance(0.4)?1:0,mt=1+rnd(3);
+      Z.food+=f;Z.meds+=m;Z.mats+=mt;
+      if(chance(0.35)){SUB={type:'fight'};zlog('🧟 Зомби заметил тебя во время поисков!');toast('🧟 Зомби рядом!');save();render();return}
+      zlog('🔍 Нашёл припасы: +'+f+'🍖'+(m?' +1💊':'')+' +'+mt+'🔧');
+      toast('🔍 Припасы: +'+f+'🍖 +'+mt+'🔧'+(m?' +1💊':''));
+    }else if(a==='build'){
+      if(Z.shelter>=5){toast('🏠 Убежище уже максимальное!');return}
+      if(Z.mats<3){toast('🔧 Нужно 3 материала! У тебя '+Z.mats);return}
+      Z.mats-=3;Z.shelter++;
+      zlog('🏠 Убежище улучшено до ур. '+Z.shelter+'!');
+      toast('🏠 Убежище: ур. '+Z.shelter);
+    }else if(a==='surv'){
+      var r=Math.random();
+      if(r<0.5){Z.surv++;Z.food++;zlog('👥 Выживший присоединился к тебе! Принёс еду. Всего выживших: '+Z.surv);toast('👥 +1 выживший! Он принёс еду.')}
+      else if(r<0.8){zlog('👥 Никого не нашёл. Город пуст…');toast('👥 Никого… Город пуст.')}
+      else{if(Z.food>0){Z.food--;zlog('🦹 Встретил мародёра! Он стащил 1🍖 и убежал.');toast('🦹 Мародёр стащил еду!')}else{zlog('🦹 Мародёр хотел тебя ограбить, но брать нечего.');toast('🦹 Мародёр ушёл ни с чем.')}}
+    }else if(a==='sleep'){zNight()}
+    save();render();return;
+  }
+  if(t.dataset.zeat){var Z=S.zom;if(Z.food>0){Z.food--;Z.hun=Math.min(100,Z.hun+30);zlog('🍖 Поели. Сытость '+Z.hun);toast('🍖 Вкусно! Сытость '+Z.hun)}save();render();return}
+  if(t.dataset.zheal){var Z=S.zom;if(Z.meds>0){Z.meds--;Z.hp=Math.min(100,Z.hp+30);zlog('💊 Лекарства помогли. Здоровье '+Z.hp);toast('💊 Здоровье '+Z.hp)}save();render();return}
+  if(t.dataset.zfight){
+    var Z=S.zom;
+    if(chance(0.5)){Z.mats+=2;zlog('⚔️ Ты победил зомби! +2🔧');toast('⚔️ Победа! +2🔧')}
+    else{Z.hp-=15;zlog('⚔️ Зомби тебя ранил! −15❤️');toast('⚔️ Ранен! −15❤️')}
+    SUB=null;
+    if(Z.hp<=0){Z.hp=0;Z.dead=true;zlog('💀 Раны оказались смертельными…')}
+    save();render();return;
+  }
+  if(t.dataset.zrun){
+    var Z=S.zom;
+    if(chance(0.7)){zlog('🏃 Ты убежал от зомби!');toast('🏃 Убежал!')}
+    else{Z.hp-=10;zlog('🏃 Зомби укусил тебя при побеге! −10❤️');toast('🏃 Укушен! −10❤️');if(Z.hp<=0){Z.hp=0;Z.dead=true}}
+    SUB=null;save();render();return;
+  }
+  if(t.dataset.zomreset){S.zom=defZom();SUB=null;save();render();return}
+  // --- миллионер ---
+  if(t.dataset.mwork){
+    var M=S.mil;
+    if(M.worked){toast('💼 Ты уже работал сегодня. Жми «Следующий день»!');return}
+    M.worked=true;M.cash+=200;toast('💼 +$200 за работу!');save();render();return;
+  }
+  if(t.dataset.mbank){
+    var M=S.mil;
+    if(M.cash>0){M.bank+=M.cash;toast('🏦 Положил в банк $'+fmt(M.cash)+'! Теперь там $'+fmt(M.bank));M.cash=0}
+    else if(M.bank>0){M.cash+=M.bank;toast('🏦 Снял из банка $'+fmt(M.bank)+'!');M.bank=0}
+    else toast('🏦 Пусто везде! Сначала заработай.');
+    save();render();return;
+  }
+  if(t.dataset.mday){
+    var M=S.mil;
+    M.day++;M.worked=false;
+    var inc=milIncome();
+    M.cash+=inc;
+    if(M.bank>0)M.bank=Math.round(M.bank*1.05);
+    var exp=100+M.props.length*20+M.biz.length*50;
+    M.cash-=exp;
+    if(M.cash<0)M.cash=0;
+    var ev=Math.random(),msg='📅 День '+M.day+': доход $'+fmt(inc)+' − расходы $'+fmt(exp);
+    if(ev<0.12){var b=Math.round(netWorth()*0.05);M.cash+=b;msg+=' • 📈 Рынок вырос! +$'+fmt(b)}
+    else if(ev<0.24){var l=Math.round(M.cash*0.05);M.cash=Math.max(0,M.cash-l);msg+=' • 📉 Рынок упал! −$'+fmt(l)}
+    else if(ev<0.3){M.cash=Math.max(0,M.cash-200);msg+=' • 🧾 Налоговая проверка! −$200'}
+    else if(ev<0.36){M.cash+=500;msg+=' • 🍀 Нашёл $500 на улице!'}
+    toast(msg);
+    if(netWorth()>=1000000)ach('m1','Первый миллион');
+    if(netWorth()>=1000000000)ach('m9','Миллиардер');
+    save();render();return;
+  }
+  function mbuy(list,key,arr){
+    var M=S.mil,it=list.filter(function(x){return x.id===key})[0];
+    if(!it||arr.indexOf(key)>=0)return;
+    if(M.cash<it.p){toast('💰 Не хватает! Нужно $'+fmt(it.p));return}
+    M.cash-=it.p;arr.push(key);
+    toast('🎉 Куплено: '+it.e+' '+it.n+'!');
+  }
+  if(t.dataset.mprop){mbuy(PROPS,t.dataset.mprop,S.mil.props);save();render();return}
+  if(t.dataset.mbiz){mbuy(BIZ,t.dataset.mbiz,S.mil.biz);save();render();return}
+  if(t.dataset.mcar){mbuy(CARS,t.dataset.mcar,S.mil.cars);save();render();return}
+  if(t.dataset.milreset){S.mil=defMil();save();render();return}
+  // --- остров ---
+  if(t.dataset.iact){
+    var I=S.isl;
+    if(I.dead||I.win)return;
+    var a=t.dataset.iact;
+    if(a==='gather'){
+      var w=2+rnd(3),f=1+rnd(2),s=rnd(3),v=rnd(2);
+      I.wood+=w;I.food+=f;I.stone+=s;I.vine+=v;I.hun=Math.max(0,I.hun-5);
+      I.gathers=(I.gathers||0)+1;
+      if(I.gathers>=2&&!I.zones.forest){I.zones.forest=true;ilog('🌳 Открыта новая территория: Лес!');toast('🌳 Открыт Лес!')}
+      ilog('🌴 Собрал: +'+w+'🪵 +'+f+'🍖 +'+s+'🪨 +'+v+'🌿');
+      toast('🌴 +'+w+'🪵 +'+f+'🍖 +'+s+'🪨');
+    }else if(a==='fish'){
+      var f2=2+rnd(3);I.food+=f2;I.hun=Math.max(0,I.hun-5);
+      ilog('🎣 Наловил рыбы: +'+f2+'🍖');toast('🎣 +'+f2+'🍖!');
+    }else if(a==='explore'){
+      I.hun=Math.max(0,I.hun-10);
+      if(I.wood>=5&&!I.zones.cave){I.zones.cave=true;ilog('🕳️ Открыта Пещера!');toast('🕳️ Открыта Пещера!')}
+      if(I.house&&!I.zones.volcano){I.zones.volcano=true;ilog('🌋 Открыт Вулкан!');toast('🌋 Открыт Вулкан!')}
+      var r=Math.random();
+      if(r<0.35){I.food+=3;I.wood+=2;ilog('🔍 Нашёл заброшенный тайник: +3🍖 +2🪵');toast('🔍 Тайник! +3🍖 +2🪵')}
+      else if(r<0.55){if(I.food>0){I.food--;ilog('🐒 Обезьяна стащила 1🍖! Вот нахалка.');toast('🐒 Обезьяна стащила еду!')}else{ilog('🐒 Обезьяна хотела стащить еду, но брать нечего.');toast('🐒 Обезьяна ушла ни с чем.')}}
+      else if(r<0.75){I.stone+=4;ilog('🔍 Нашёл камни: +4🪨');toast('🔍 +4🪨!')}
+      else{I.vine+=3;ilog('🔍 Нашёл лианы: +3🌿');toast('🔍 +3🌿!')}
+    }else if(a==='build'){
+      if(I.camp<3&&I.wood>=5){I.wood-=5;I.camp++;ilog('🏕️ Лагерь улучшен до ур. '+I.camp+'!');toast('🏕️ Лагерь: ур. '+I.camp);if(I.camp===1)ach('i1','Робинзон')}
+      else if(!I.house&&I.wood>=10&&I.stone>=5){I.wood-=10;I.stone-=5;I.house=true;ilog('🏠 Дом построен! Теперь есть где укрыться от дождя.');toast('🏠 Дом построен!')}
+      else if(I.boat<40&&I.wood>=10&&I.vine>=5){I.wood-=10;I.vine-=5;I.boat+=10;ilog('⛵ Корабль: '+I.boat+'/40 готово!');toast('⛵ Корабль: '+I.boat+'/40');if(I.boat>=40){I.win=true;ach('i2','Домой!')}}
+      else{
+        if(I.camp<3)toast('🏕️ Для лагеря нужно 5🪵 (у тебя '+I.wood+')');
+        else if(!I.house)toast('🏠 Для дома нужно 10🪵 и 5🪨');
+        else toast('⛵ Для корабля нужно 10🪵 и 5🌿');
+      }
+    }
+    save();render();return;
+  }
+  if(t.dataset.ieat){var I=S.isl;if(I.food>0){I.food--;I.hun=Math.min(100,I.hun+30);ilog('🍖 Поели. Сытость '+I.hun);toast('🍖 Сытость '+I.hun)}save();render();return}
+  if(t.dataset.isleep){
+    var I=S.isl;
+    I.day++;I.hun=Math.max(0,I.hun-25);
+    if(I.hun<=0){I.hp-=10;ilog('🍖 Голод! −10❤️')}
+    if(I.hp<=0){I.hp=0;I.dead=true;ilog('💀 Остров победил…')}
+    else ilog('🌙 День '+I.day+'. Ты всё ещё жив. Так держать!');
+    save();render();return;
+  }
+  if(t.dataset.islreset){S.isl=defIsl();save();render();return}
+  // --- страна ---
+  if(t.dataset.cname){PENDING_NAME=t.dataset.cname;toast('📛 Название: '+PENDING_NAME+'. Теперь выбери флаг!');save();render();return}
+  if(t.dataset.cflag){
+    if(!PENDING_NAME){toast('📛 Сначала выбери название страны!');return}
+    S.ctr.set=true;S.ctr.name=PENDING_NAME;S.ctr.flag=t.dataset.cflag;
+    PENDING_NAME=null;
+    ach('c1','Основатель');
+    toast('👑 Страна '+S.ctr.flag+' '+S.ctr.name+' основана!');
+    save();render();return;
+  }
+  if(t.dataset.cbuild){
+    var C=S.ctr;
+    if(C.acted){toast('📅 Ты уже действовал в этом месяце — жми «Следующий месяц»!');return}
+    var b=t.dataset.cbuild,cost={city:500,school:300,hosp:400,road:200}[b];
+    if(C.money<cost){toast('💰 Не хватает! Нужно '+cost+'💰');return}
+    C.money-=cost;C.acted=true;
+    if(b==='city'){C.cities++;C.pop+=500;toast('🏙️ Новый город! +500 жителей')}
+    if(b==='school'){C.schools++;C.happy=Math.min(100,C.happy+5);toast('🏫 Школа построена! +5😊')}
+    if(b==='hosp'){C.hosp++;C.happy=Math.min(100,C.happy+8);toast('🏥 Больница построена! +8😊')}
+    if(b==='road'){C.roads++;toast('🛣️ Дорога построена! Доход вырос')}
+    save();render();return;
+  }
+  if(t.dataset.claw){
+    var C=S.ctr;
+    if(C.acted){toast('📅 Ты уже действовал в этом месяце — жми «Следующий месяц»!');return}
+    var l=t.dataset.claw;
+    if(C.laws.indexOf(l)>=0){toast('📜 Этот закон уже принят!');return}
+    C.laws.push(l);C.acted=true;
+    if(l==='tax'){C.money+=300;C.happy=Math.max(0,C.happy-5);toast('💰 Налоги повышены! +300💰, −5😊')}
+    if(l==='fest'){if(C.money<200){toast('💰 Не хватает 200💰 на праздник!');C.laws.pop();C.acted=false;return}C.money-=200;C.happy=Math.min(100,C.happy+10);toast('🎉 Праздник! Народ счастлив! +10😊')}
+    if(l==='green'){C.money-=100;C.happy=Math.min(100,C.happy+8);toast('🌿 Зелёный закон! +8😊')}
+    save();render();return;
+  }
+  if(t.dataset.cally){
+    var C=S.ctr,nb=t.dataset.cally;
+    if(C.allies.indexOf(nb)>=0){toast('🤝 Вы уже союзники!');return}
+    if(C.acted){toast('📅 Ты уже действовал в этом месяце — жми «Следующий месяц»!');return}
+    if(C.money<200){toast('💰 Не хватает 200💰 на союз!');return}
+    C.money-=200;C.allies.push(nb);C.acted=true;
+    toast('🤝 Союз с '+nb+' заключён! +100💰/мес');
+    save();render();return;
+  }
+  if(t.dataset.cmonth){
+    var C=S.ctr;
+    C.money+=ctrIncome();
+    C.month++;C.acted=false;
+    var ev=Math.random(),msg='📅 Месяц '+C.month+': доход +'+fmt(ctrIncome());
+    if(ev<0.15){C.money-=200;C.happy=Math.max(0,C.happy-5);msg+=' • 🌊 Наводнение! −200💰 −5😊'}
+    else if(ev<0.3){C.happy=Math.min(100,C.happy+5);msg+=' • 🎉 Фестиваль! +5😊'}
+    else if(ev<0.45){C.money+=300;msg+=' • 💎 Нашли золото! +300💰'}
+    else if(ev<0.55&&C.happy<40){C.pop=Math.max(0,C.pop-100);C.happy=Math.max(0,C.happy-5);msg+=' • ✊ Протесты! −100 жителей'}
+    toast(msg);
+    if(C.month>12){
+      C.over=true;
+      C.rating=C.happy+Math.round(C.pop/100)+Math.round(C.money/100);
+      if(C.rating>=200)ach('c2','Легендарный лидер');
+    }
+    save();render();return;
+  }
+  if(t.dataset.ctrreset){S.ctr=defCtr();PENDING_NAME=null;save();render();return}
+});
+// ================= СТАРТ =================
+render();
+</script>
+</body>
+</html>
