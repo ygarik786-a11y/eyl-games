@@ -18,9 +18,10 @@ h1{font-size:20px;flex:1;text-align:center}
 .stat small{color:#9c9cae;font-weight:500}
 .arena{position:relative;width:100%;max-width:360px;margin:0 auto;border-radius:22px;overflow:hidden;border:1px solid rgba(255,255,255,.1);box-shadow:0 16px 40px rgba(0,0,0,.5);background:#1a2b45}
 canvas{display:block;width:100%;height:auto;touch-action:none}
-.steer{display:flex;gap:12px;justify-content:center;margin-top:12px}
-.steer button{flex:1;max-width:150px;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.18);color:#fff;font-size:30px;border-radius:18px;padding:14px 0;cursor:pointer}
-.steer button:active{background:rgba(255,255,255,.22)}
+.steer{position:absolute;left:0;right:0;bottom:8px;display:flex;gap:12px;justify-content:center;z-index:4}
+.steer button{flex:1;max-width:150px;background:rgba(0,0,0,.45);border:1px solid rgba(255,255,255,.35);color:#fff;font-size:30px;border-radius:18px;padding:12px 0;cursor:pointer}
+.steer button:active{background:rgba(255,255,255,.25)}
+.bigstart{position:absolute;left:50%;top:66%;transform:translate(-50%,-50%);z-index:5;background:linear-gradient(92deg,#ffb300,#ff7a00);color:#fff;border:0;border-radius:99px;padding:15px 28px;font-size:20px;font-weight:800;cursor:pointer;box-shadow:0 10px 26px rgba(0,0,0,.5);white-space:nowrap}
 .btn{width:100%;background:linear-gradient(92deg,#37aee2,#2b7de0);color:#fff;border:0;border-radius:14px;padding:14px;font-size:16px;font-weight:700;cursor:pointer;margin-top:12px;box-shadow:0 8px 20px rgba(43,125,224,.35)}
 .how{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:13px 15px;color:#c6c6d4;font-size:13.5px;line-height:1.6;margin-top:16px}
 .how b{color:#fff}
@@ -38,14 +39,13 @@ canvas{display:block;width:100%;height:auto;touch-action:none}
     <div class="stat">📏 <span id="dist">0</span> м</div>
     <div class="stat">🏆 <span id="best">0</span> м</div>
   </div>
-  <div class="arena"><canvas id="cv" width="360" height="560"></canvas></div>
-  <div class="steer"><button id="leftBtn">◀</button><button id="rightBtn">▶</button></div>
+  <div class="arena"><canvas id="cv" width="360" height="460"></canvas><button class="bigstart" id="bigStart">▶ Играть</button><div class="steer"><button id="leftBtn">◀</button><button id="rightBtn">▶</button></div></div>
   <button class="btn" id="startBtn">🏁 Старт!</button>
-  <div class="how"><b>Как играть:</b> зимняя трасса, снег и ёлки по краям! Перестраивайся между тремя полосами, обгоняй машины, собирай монеты 🪙 и нитро ⚡. Столкновение — минус жизнь, их три. Чем дальше — тем быстрее трафик. Кнопки ◀ ▶, стрелки на клавиатуре или тап по полосе.</div>
+  <div class="how"><b>Как играть:</b> зимняя трасса, снег и ёлки по краям! Тапни по полю — и погнали! Перестраивайся между тремя полосами, обгоняй машины, собирай монеты 🪙 и нитро ⚡. Столкновение — минус жизнь, их три. Чем дальше — тем быстрее трафик. Кнопки ◀ ▶ прямо на поле, стрелки на клавиатуре или тап по полосе.</div>
 </div>
 <div class="toast" id="toast"></div>
 <script>
-var cv=document.getElementById('cv'),ctx=cv.getContext('2d'),W=360,H=560;
+var cv=document.getElementById('cv'),ctx=cv.getContext('2d'),W=360,H=460;
 var BEST_KEY='eyl-winter-race-best';
 var best=0;try{best=+localStorage.getItem(BEST_KEY)||0}catch(e){}
 var LANES=[70,180,290];
@@ -56,6 +56,7 @@ function toast(t){var el=$('toast');el.textContent=t;el.classList.add('show');se
 function reset(){
   run=true;over=false;lane=1;laneX=LANES[1];speed=3;dist=0;coins=0;lives=3;inv=0;nitro=0;cars=[];items=[];
   $('startBtn').textContent='🔄 Заново';
+  $('bigStart').style.display='none';
   $('coins').textContent='0';$('lives').textContent='3';$('dist').textContent='0';
 }
 var spawnT=0,itemT=0;
@@ -96,7 +97,7 @@ function loop(){
     for(var i=cars.length-1;i>=0;i--){
       var c=cars[i];c.y+=sp*c.s*2.4+1;
       if(c.y>H+70){cars.splice(i,1);continue}
-      if(inv<=0&&Math.abs(c.y-460)<44&&Math.abs(LANES[c.lane]-laneX)<44){
+      if(inv<=0&&Math.abs(c.y-370)<44&&Math.abs(LANES[c.lane]-laneX)<44){
         lives--;inv=90;$('lives').textContent=lives;
         cars.splice(i,1);
         if(lives<=0){run=false;over=true;gameOver()}
@@ -106,7 +107,7 @@ function loop(){
     for(var j=items.length-1;j>=0;j--){
       var it=items[j];it.y+=sp*2.2;
       if(it.y>H+40){items.splice(j,1);continue}
-      if(!it.got&&Math.abs(it.y-460)<36&&Math.abs(LANES[it.lane]-laneX)<38){
+      if(!it.got&&Math.abs(it.y-370)<36&&Math.abs(LANES[it.lane]-laneX)<38){
         it.got=true;
         if(it.k==='🪙'){coins++;$('coins').textContent=coins;toast('🪙 Монета!')}
         else{nitro=150;toast('⚡ Нитро! Жми!')}
@@ -120,40 +121,42 @@ function loop(){
   // игрок
   ctx.font='42px sans-serif';
   if(inv>0&&Math.floor(inv/6)%2===0)ctx.globalAlpha=0.4;
-  ctx.fillText('🏎️',laneX,460);
+  ctx.fillText('🏎️',laneX,370);
   ctx.globalAlpha=1;
-  if(nitro>0){ctx.font='30px sans-serif';ctx.fillText('🔥',laneX,500)}
+  if(nitro>0){ctx.font='30px sans-serif';ctx.fillText('🔥',laneX,410)}
   if(!run&&!over){
     ctx.fillStyle='rgba(0,0,0,.5)';ctx.fillRect(0,0,W,H);
     ctx.fillStyle='#fff';ctx.font='bold 22px sans-serif';ctx.textAlign='center';
-    ctx.fillText('🏎️ Зимние гонки!',W/2,240);
+    ctx.fillText('🏎️ Зимние гонки!',W/2,195);
     ctx.font='15px sans-serif';
-    ctx.fillText('Три полосы, снег и трафик.',W/2,272);
-    ctx.fillText('Собирай монеты и нитро. Рекорд: '+best+' м',W/2,296);
+    ctx.fillText('Три полосы, снег и трафик.',W/2,222);
+    ctx.fillText('Собирай монеты и нитро. Рекорд: '+best+' м',W/2,244);
   }
   if(over){
     ctx.fillStyle='rgba(0,0,0,.5)';ctx.fillRect(0,0,W,H);
     ctx.fillStyle='#fff';ctx.font='bold 22px sans-serif';ctx.textAlign='center';
-    ctx.fillText('🏁 Финиш!',W/2,230);
+    ctx.fillText('🏁 Финиш!',W/2,185);
     ctx.font='16px sans-serif';
-    ctx.fillText('Проехал: '+Math.floor(dist)+' м • Монет: '+coins,W/2,262);
-    ctx.fillText(best===Math.floor(dist)&&dist>0?'🎉 Новый рекорд!':'Рекорд: '+best+' м',W/2,290);
+    ctx.fillText('Проехал: '+Math.floor(dist)+' м • Монет: '+coins,W/2,212);
+    ctx.fillText(best===Math.floor(dist)&&dist>0?'🎉 Новый рекорд!':'Рекорд: '+best+' м',W/2,236);
   }
 }
 function gameOver(){
   var d=Math.floor(dist);
   if(d>best){best=d;try{localStorage.setItem(BEST_KEY,String(best))}catch(e){}}
   $('best').textContent=best;
+  $('bigStart').style.display='block';$('bigStart').textContent='🔄 Ещё раз';
   toast('🏁 Финиш! '+d+' м, монет: '+coins);
 }
 $('best').textContent=best;
 $('startBtn').addEventListener('click',reset);
-$('leftBtn').addEventListener('click',function(){if(run&&lane>0)lane--});
-$('rightBtn').addEventListener('click',function(){if(run&&lane<2)lane++});
+$('bigStart').addEventListener('click',reset);
+$('leftBtn').addEventListener('pointerdown',function(e){e.preventDefault();if(!run){reset();return}if(lane>0)lane--});
+$('rightBtn').addEventListener('pointerdown',function(e){e.preventDefault();if(!run){reset();return}if(lane<2)lane++});
 document.addEventListener('keydown',function(e){if(e.key==='ArrowLeft'||e.key==='ArrowRight'){keys[e.key]=true;e.preventDefault()}});
 document.addEventListener('keyup',function(e){keys[e.key]=false});
 cv.addEventListener('pointerdown',function(e){
-  if(!run)return;
+  if(!run){reset();return}
   var r=cv.getBoundingClientRect();
   var x=(e.clientX-r.left)*(W/r.width);
   lane=x<120?0:x<240?1:2;

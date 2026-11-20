@@ -18,9 +18,10 @@ h1{font-size:20px;flex:1;text-align:center}
 .stat small{color:#9c9cae;font-weight:500}
 .arena{position:relative;width:100%;max-width:360px;margin:0 auto;border-radius:22px;overflow:hidden;border:1px solid rgba(255,255,255,.1);box-shadow:0 16px 40px rgba(0,0,0,.5);background:linear-gradient(180deg,#0b1030 0%,#101a3a 60%,#e8f4ff 60%,#cfe6ff 100%)}
 canvas{display:block;width:100%;height:auto;touch-action:none}
-.steer{display:flex;gap:12px;justify-content:center;margin-top:12px}
-.steer button{flex:1;max-width:150px;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.18);color:#fff;font-size:30px;border-radius:18px;padding:14px 0;cursor:pointer}
-.steer button:active{background:rgba(255,255,255,.22)}
+.steer{position:absolute;left:0;right:0;bottom:8px;display:flex;gap:12px;justify-content:center;z-index:4}
+.steer button{flex:1;max-width:150px;background:rgba(0,0,0,.45);border:1px solid rgba(255,255,255,.35);color:#fff;font-size:30px;border-radius:18px;padding:12px 0;cursor:pointer}
+.steer button:active{background:rgba(255,255,255,.25)}
+.bigstart{position:absolute;left:50%;top:66%;transform:translate(-50%,-50%);z-index:5;background:linear-gradient(92deg,#ffb300,#ff7a00);color:#fff;border:0;border-radius:99px;padding:15px 28px;font-size:20px;font-weight:800;cursor:pointer;box-shadow:0 10px 26px rgba(0,0,0,.5);white-space:nowrap}
 .btn{width:100%;background:linear-gradient(92deg,#ffb300,#ff7a00);color:#fff;border:0;border-radius:14px;padding:14px;font-size:16px;font-weight:700;cursor:pointer;margin-top:12px;box-shadow:0 8px 20px rgba(255,122,0,.35)}
 .how{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:13px 15px;color:#c6c6d4;font-size:13.5px;line-height:1.6;margin-top:16px}
 .how b{color:#fff}
@@ -38,14 +39,13 @@ canvas{display:block;width:100%;height:auto;touch-action:none}
     <div class="stat">⭐ <span id="level">1</span> <small>ур.</small></div>
     <div class="stat">🏆 <span id="best">0</span></div>
   </div>
-  <div class="arena"><canvas id="cv" width="360" height="560"></canvas></div>
-  <div class="steer"><button id="leftBtn">◀</button><button id="rightBtn">▶</button></div>
+  <div class="arena"><canvas id="cv" width="360" height="460"></canvas><button class="bigstart" id="bigStart">▶ Играть</button><div class="steer"><button id="leftBtn">◀</button><button id="rightBtn">▶</button></div></div>
   <button class="btn" id="startBtn">🎅 Ловить!</button>
-  <div class="how"><b>Как играть:</b> Дед Мороз летит на санях и роняет подарки! Двигай мешок 🧺 и лови их. Звезда ⭐ — целых 30 очков! Уронишь три подарка — игра окончена. Каждые 10 пойманных — новый уровень, и подарки падают быстрее. Кнопки ◀ ▶, стрелки или веди пальцем по полю.</div>
+  <div class="how"><b>Как играть:</b> Дед Мороз летит на санях и роняет подарки! Тапни по полю — и лови! Двигай мешок 🧺 и лови их. Звезда ⭐ — целых 30 очков! Уронишь три подарка — игра окончена. Каждые 10 пойманных — новый уровень, и подарки падают быстрее. Кнопки ◀ ▶ прямо на поле, стрелки или веди пальцем по полю.</div>
 </div>
 <div class="toast" id="toast"></div>
 <script>
-var cv=document.getElementById('cv'),ctx=cv.getContext('2d'),W=360,H=560;
+var cv=document.getElementById('cv'),ctx=cv.getContext('2d'),W=360,H=460;
 var BEST_KEY='eyl-catch-gifts-best';
 var best=0;try{best=+localStorage.getItem(BEST_KEY)||0}catch(e){}
 var run=false,over=false,bagX=180,score=0,miss=0,level=1,caught=0;
@@ -55,6 +55,7 @@ function toast(t){var el=$('toast');el.textContent=t;el.classList.add('show');se
 function reset(){
   run=true;over=false;bagX=180;score=0;miss=0;level=1;caught=0;items=[];santaX=60;santaDir=1;dropT=0;
   $('startBtn').textContent='🔄 Заново';
+  $('bigStart').style.display='none';
   $('score').textContent='0';$('miss').textContent='0';$('level').textContent='1';
 }
 function loop(){
@@ -65,7 +66,7 @@ function loop(){
   ctx.fillStyle='#ffe27a';ctx.beginPath();ctx.arc(310,52,24,0,Math.PI*2);ctx.fill();
   ctx.textAlign='center';ctx.textBaseline='middle';
   ctx.font='26px sans-serif';
-  ctx.fillText('🌲',18,520);ctx.fillText('🎄',44,530);ctx.fillText('🌲',W-18,520);ctx.fillText('🎄',W-44,530);
+  ctx.fillText('🌲',18,420);ctx.fillText('🎄',44,430);ctx.fillText('🌲',W-18,420);ctx.fillText('🎄',W-44,430);
   if(run){
     if(keys.ArrowLeft)bagX-=6;
     if(keys.ArrowRight)bagX+=6;
@@ -77,7 +78,7 @@ function loop(){
     if(dropT>Math.max(34,80-level*6)){dropT=0;items.push({x:santaX,y:80,k:Math.random()<0.18?'⭐':'🎁',vy:2+level*0.35+Math.random()})}
     for(var i=items.length-1;i>=0;i--){
       var it=items[i];it.y+=it.vy;
-      if(it.y>=500&&Math.abs(it.x-bagX)<42){
+      if(it.y>=400&&Math.abs(it.x-bagX)<42){
         items.splice(i,1);caught++;
         score+=it.k==='⭐'?30:10;
         $('score').textContent=score;
@@ -104,34 +105,36 @@ function loop(){
   items.forEach(function(it){ctx.fillText(it.k,it.x,it.y)});
   // мешок
   ctx.font='46px sans-serif';
-  ctx.fillText('🧺',bagX,512);
+  ctx.fillText('🧺',bagX,412);
   if(!run&&!over){
     ctx.fillStyle='rgba(0,0,0,.45)';ctx.fillRect(0,0,W,H);
     ctx.fillStyle='#fff';ctx.font='bold 22px sans-serif';ctx.textAlign='center';
-    ctx.fillText('🎁 Лови подарки!',W/2,250);
+    ctx.fillText('🎁 Лови подарки!',W/2,205);
     ctx.font='15px sans-serif';
-    ctx.fillText('Дед Мороз роняет подарки —',W/2,282);
-    ctx.fillText('лови их в мешок. Рекорд: '+best,W/2,306);
+    ctx.fillText('Дед Мороз роняет подарки —',W/2,232);
+    ctx.fillText('лови их в мешок. Рекорд: '+best,W/2,254);
   }
   if(over){
     ctx.fillStyle='rgba(0,0,0,.5)';ctx.fillRect(0,0,W,H);
     ctx.fillStyle='#fff';ctx.font='bold 22px sans-serif';ctx.textAlign='center';
-    ctx.fillText('🏁 Игра окончена!',W/2,240);
+    ctx.fillText('🏁 Игра окончена!',W/2,195);
     ctx.font='16px sans-serif';
-    ctx.fillText('Поймано подарков: '+caught+' • Очков: '+score,W/2,272);
-    ctx.fillText(best===score&&score>0?'🎉 Новый рекорд!':'Рекорд: '+best,W/2,300);
+    ctx.fillText('Поймано подарков: '+caught+' • Очков: '+score,W/2,222);
+    ctx.fillText(best===score&&score>0?'🎉 Новый рекорд!':'Рекорд: '+best,W/2,244);
   }
 }
 function gameOver(){
   if(score>best){best=score;try{localStorage.setItem(BEST_KEY,String(best))}catch(e){}}
   $('best').textContent=best;
+  $('bigStart').style.display='block';$('bigStart').textContent='🔄 Ещё раз';
   toast('🏁 Игра окончена! Очков: '+score);
 }
 $('best').textContent=best;
 $('startBtn').addEventListener('click',reset);
+$('bigStart').addEventListener('click',reset);
 function bindHold(id,key){
   var el=$(id);
-  el.addEventListener('pointerdown',function(e){e.preventDefault();keys[key]=true});
+  el.addEventListener('pointerdown',function(e){e.preventDefault();if(!run){reset();return}keys[key]=true});
   el.addEventListener('pointerup',function(){keys[key]=false});
   el.addEventListener('pointerleave',function(){keys[key]=false});
 }
@@ -144,7 +147,7 @@ cv.addEventListener('pointermove',function(e){
   bagX=(e.clientX-r.left)*(W/r.width);
 });
 cv.addEventListener('pointerdown',function(e){
-  if(!run)return;
+  if(!run){reset();return}
   var r=cv.getBoundingClientRect();
   bagX=(e.clientX-r.left)*(W/r.width);
 });

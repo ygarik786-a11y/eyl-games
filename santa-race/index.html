@@ -18,9 +18,10 @@ h1{font-size:20px;flex:1;text-align:center}
 .stat small{color:#9c9cae;font-weight:500}
 .arena{position:relative;width:100%;max-width:360px;margin:0 auto;border-radius:22px;overflow:hidden;border:1px solid rgba(255,255,255,.1);box-shadow:0 16px 40px rgba(0,0,0,.5);background:linear-gradient(180deg,#0b1030 0%,#101a3a 55%,#e8f4ff 55%,#cfe6ff 100%)}
 canvas{display:block;width:100%;height:auto;touch-action:none}
-.steer{display:flex;gap:12px;justify-content:center;margin-top:12px}
-.steer button{flex:1;max-width:150px;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.18);color:#fff;font-size:30px;border-radius:18px;padding:14px 0;cursor:pointer}
-.steer button:active{background:rgba(255,255,255,.22)}
+.steer{position:absolute;left:0;right:0;bottom:8px;display:flex;gap:12px;justify-content:center;z-index:4}
+.steer button{flex:1;max-width:150px;background:rgba(0,0,0,.45);border:1px solid rgba(255,255,255,.35);color:#fff;font-size:30px;border-radius:18px;padding:12px 0;cursor:pointer}
+.steer button:active{background:rgba(255,255,255,.25)}
+.bigstart{position:absolute;left:50%;top:66%;transform:translate(-50%,-50%);z-index:5;background:linear-gradient(92deg,#ffb300,#ff7a00);color:#fff;border:0;border-radius:99px;padding:15px 28px;font-size:20px;font-weight:800;cursor:pointer;box-shadow:0 10px 26px rgba(0,0,0,.5);white-space:nowrap}
 .btn{width:100%;background:linear-gradient(92deg,#ff5a5a,#e01e1e);color:#fff;border:0;border-radius:14px;padding:14px;font-size:16px;font-weight:700;cursor:pointer;margin-top:12px;box-shadow:0 8px 20px rgba(224,30,30,.35)}
 .btn.ghost{background:rgba(255,255,255,.07);box-shadow:none;border:1px solid rgba(255,255,255,.12)}
 .how{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:13px 15px;color:#c6c6d4;font-size:13.5px;line-height:1.6;margin-top:16px}
@@ -39,14 +40,13 @@ canvas{display:block;width:100%;height:auto;touch-action:none}
     <div class="stat">📏 <span id="dist">0</span> м</div>
     <div class="stat">🏆 <span id="best">0</span> м</div>
   </div>
-  <div class="arena"><canvas id="cv" width="360" height="560"></canvas></div>
-  <div class="steer"><button id="leftBtn">◀</button><button id="rightBtn">▶</button></div>
+  <div class="arena"><canvas id="cv" width="360" height="460"></canvas><button class="bigstart" id="bigStart">▶ Играть</button><div class="steer"><button id="leftBtn">◀</button><button id="rightBtn">▶</button></div></div>
   <button class="btn" id="startBtn">🎅 Поехали!</button>
-  <div class="how"><b>Как играть:</b> Дед Мороз мчится на санях по зимнему лесу! Уворачивайся от ёлок, камней и снеговиков, собирай подарки 🎁. Чем дальше — тем быстрее. Три жизни. Кнопки ◀ ▶ или стрелки на клавиатуре, а на телефоне можно просто вести пальцем по полю.</div>
+  <div class="how"><b>Как играть:</b> Дед Мороз мчится на санях по зимнему лесу! Тапни по полю — и поехали! Уворачивайся от ёлок, камней и снеговиков, собирай подарки 🎁. Чем дальше — тем быстрее. Три жизни. Кнопки ◀ ▶ прямо на поле или стрелки на клавиатуре, а на телефоне можно просто вести пальцем по полю.</div>
 </div>
 <div class="toast" id="toast"></div>
 <script>
-var cv=document.getElementById('cv'),ctx=cv.getContext('2d'),W=360,H=560;
+var cv=document.getElementById('cv'),ctx=cv.getContext('2d'),W=360,H=460;
 var BEST_KEY='eyl-santa-race-best';
 var best=0;try{best=+localStorage.getItem(BEST_KEY)||0}catch(e){}
 var run=false,over=false,x=180,speed=2.6,dist=0,gifts=0,lives=3,inv=0;
@@ -56,6 +56,7 @@ function toast(t){var el=$('toast');el.textContent=t;el.classList.add('show');se
 function reset(){
   run=true;over=false;x=180;speed=2.6;dist=0;gifts=0;lives=3;inv=0;obs=[];
   $('startBtn').textContent='🔄 Заново';
+  $('bigStart').style.display='none';
   $('gifts').textContent='0';$('lives').textContent='3';$('dist').textContent='0';
 }
 function spawn(){
@@ -88,10 +89,10 @@ function loop(){
     for(var i=obs.length-1;i>=0;i--){
       var o=obs[i];o.y+=speed*2.2;
       if(o.y>H+50){obs.splice(i,1);continue}
-      if(o.k==='🎁'&&!o.got&&Math.abs(o.y-470)<34&&Math.abs(o.x-x)<36){
+      if(o.k==='🎁'&&!o.got&&Math.abs(o.y-380)<34&&Math.abs(o.x-x)<36){
         o.got=true;gifts++;$('gifts').textContent=gifts;toast('🎁 Подарок! +1');
       }
-      if(o.k!=='🎁'&&inv<=0&&Math.abs(o.y-470)<36&&Math.abs(o.x-x)<34){
+      if(o.k!=='🎁'&&inv<=0&&Math.abs(o.y-380)<36&&Math.abs(o.x-x)<34){
         lives--;inv=90;$('lives').textContent=lives;
         if(lives<=0){run=false;over=true;gameOver()}
         else toast('💥 Ой! Осталось жизней: '+lives);
@@ -105,38 +106,40 @@ function loop(){
   // сани с Дедом Морозом
   ctx.font='44px sans-serif';
   if(inv>0&&Math.floor(inv/6)%2===0)ctx.globalAlpha=0.4;
-  ctx.fillText('🎅',x,452);
+  ctx.fillText('🎅',x,362);
   ctx.font='40px sans-serif';
-  ctx.fillText('🛷',x,486);
+  ctx.fillText('🛷',x,396);
   ctx.globalAlpha=1;
   if(!run&&!over){
     ctx.fillStyle='rgba(0,0,0,.45)';ctx.fillRect(0,0,W,H);
     ctx.fillStyle='#fff';ctx.font='bold 22px sans-serif';ctx.textAlign='center';
-    ctx.fillText('🎅 Гонки на санях!',W/2,240);
+    ctx.fillText('🎅 Гонки на санях!',W/2,195);
     ctx.font='15px sans-serif';
-    ctx.fillText('Уворачивайся от ёлок и камней,',W/2,272);
-    ctx.fillText('собирай подарки. Рекорд: '+best+' м',W/2,296);
+    ctx.fillText('Уворачивайся от ёлок и камней,',W/2,222);
+    ctx.fillText('собирай подарки. Рекорд: '+best+' м',W/2,244);
   }
   if(over){
     ctx.fillStyle='rgba(0,0,0,.5)';ctx.fillRect(0,0,W,H);
     ctx.fillStyle='#fff';ctx.font='bold 22px sans-serif';ctx.textAlign='center';
-    ctx.fillText('🏁 Финиш!',W/2,230);
+    ctx.fillText('🏁 Финиш!',W/2,185);
     ctx.font='16px sans-serif';
-    ctx.fillText('Проехал: '+Math.floor(dist)+' м • Подарков: '+gifts,W/2,262);
-    ctx.fillText(best===Math.floor(dist)&&dist>0?'🎉 Новый рекорд!':'Рекорд: '+best+' м',W/2,290);
+    ctx.fillText('Проехал: '+Math.floor(dist)+' м • Подарков: '+gifts,W/2,212);
+    ctx.fillText(best===Math.floor(dist)&&dist>0?'🎉 Новый рекорд!':'Рекорд: '+best+' м',W/2,236);
   }
 }
 function gameOver(){
   var d=Math.floor(dist);
   if(d>best){best=d;try{localStorage.setItem(BEST_KEY,String(best))}catch(e){}}
   $('best').textContent=best;
+  $('bigStart').style.display='block';$('bigStart').textContent='🔄 Ещё раз';
   toast('🏁 Финиш! '+d+' м, подарков: '+gifts);
 }
 $('best').textContent=best;
 $('startBtn').addEventListener('click',reset);
+$('bigStart').addEventListener('click',reset);
 function bindHold(id,key){
   var el=$(id);
-  el.addEventListener('pointerdown',function(e){e.preventDefault();keys[key]=true});
+  el.addEventListener('pointerdown',function(e){e.preventDefault();if(!run){reset();return}keys[key]=true});
   el.addEventListener('pointerup',function(){keys[key]=false});
   el.addEventListener('pointerleave',function(){keys[key]=false});
 }
@@ -145,7 +148,7 @@ document.addEventListener('keydown',function(e){if(e.key==='ArrowLeft'||e.key===
 document.addEventListener('keyup',function(e){keys[e.key]=false});
 // ведение пальцем по полю
 var dragX=null;
-cv.addEventListener('pointerdown',function(e){dragX=e.clientX});
+cv.addEventListener('pointerdown',function(e){if(!run){reset();return}dragX=e.clientX});
 cv.addEventListener('pointermove',function(e){
   if(dragX===null)return;
   var r=cv.getBoundingClientRect();
