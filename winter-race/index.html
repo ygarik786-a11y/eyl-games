@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="theme-color" content="#08080d">
+<title>🏎️ Зимние гонки — E.Y.L Games</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#08080d;color:#f5f5f7;min-height:100vh;overflow-x:hidden}
+.bg{position:fixed;inset:0;z-index:-1;background:radial-gradient(700px 400px at 50% -10%,rgba(55,174,226,.2),transparent 62%),#08080d}
+.wrap{max-width:480px;margin:0 auto;padding:12px 12px 40px}
+.top{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.back{color:#9c9cae;text-decoration:none;font-size:15px;font-weight:600;white-space:nowrap}
+h1{font-size:20px;flex:1;text-align:center}
+.stats{display:flex;gap:8px;justify-content:center;margin-bottom:8px;flex-wrap:wrap}
+.stat{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);border-radius:999px;padding:7px 13px;font-size:14px;font-weight:700;white-space:nowrap}
+.stat small{color:#9c9cae;font-weight:500}
+.arena{position:relative;width:100%;max-width:360px;margin:0 auto;border-radius:22px;overflow:hidden;border:1px solid rgba(255,255,255,.1);box-shadow:0 16px 40px rgba(0,0,0,.5);background:#1a2b45}
+canvas{display:block;width:100%;height:auto;touch-action:none}
+.steer{display:flex;gap:12px;justify-content:center;margin-top:12px}
+.steer button{flex:1;max-width:150px;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.18);color:#fff;font-size:30px;border-radius:18px;padding:14px 0;cursor:pointer}
+.steer button:active{background:rgba(255,255,255,.22)}
+.btn{width:100%;background:linear-gradient(92deg,#37aee2,#2b7de0);color:#fff;border:0;border-radius:14px;padding:14px;font-size:16px;font-weight:700;cursor:pointer;margin-top:12px;box-shadow:0 8px 20px rgba(43,125,224,.35)}
+.how{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:13px 15px;color:#c6c6d4;font-size:13.5px;line-height:1.6;margin-top:16px}
+.how b{color:#fff}
+.toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(20px);background:#1c1c28;border:1px solid rgba(255,255,255,.18);color:#fff;padding:12px 18px;border-radius:99px;font-size:14.5px;font-weight:600;opacity:0;pointer-events:none;transition:.25s;z-index:50;max-width:92vw;text-align:center}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+<div class="bg"></div>
+<div class="wrap">
+  <div class="top"><a class="back" href="../">← Игры</a><h1>🏎️ Зимние гонки</h1><span style="width:52px"></span></div>
+  <div class="stats">
+    <div class="stat">❤️ <span id="lives">3</span></div>
+    <div class="stat">🪙 <span id="coins">0</span></div>
+    <div class="stat">📏 <span id="dist">0</span> м</div>
+    <div class="stat">🏆 <span id="best">0</span> м</div>
+  </div>
+  <div class="arena"><canvas id="cv" width="360" height="560"></canvas></div>
+  <div class="steer"><button id="leftBtn">◀</button><button id="rightBtn">▶</button></div>
+  <button class="btn" id="startBtn">🏁 Старт!</button>
+  <div class="how"><b>Как играть:</b> зимняя трасса, снег и ёлки по краям! Перестраивайся между тремя полосами, обгоняй машины, собирай монеты 🪙 и нитро ⚡. Столкновение — минус жизнь, их три. Чем дальше — тем быстрее трафик. Кнопки ◀ ▶, стрелки на клавиатуре или тап по полосе.</div>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+var cv=document.getElementById('cv'),ctx=cv.getContext('2d'),W=360,H=560;
+var BEST_KEY='eyl-winter-race-best';
+var best=0;try{best=+localStorage.getItem(BEST_KEY)||0}catch(e){}
+var LANES=[70,180,290];
+var run=false,over=false,lane=1,laneX=180,speed=3,dist=0,coins=0,lives=3,inv=0,nitro=0;
+var cars=[],items=[],keys={},roadY=0;
+function $(id){return document.getElementById(id)}
+function toast(t){var el=$('toast');el.textContent=t;el.classList.add('show');setTimeout(function(){el.classList.remove('show')},2000)}
+function reset(){
+  run=true;over=false;lane=1;laneX=LANES[1];speed=3;dist=0;coins=0;lives=3;inv=0;nitro=0;cars=[];items=[];
+  $('startBtn').textContent='🔄 Заново';
+  $('coins').textContent='0';$('lives').textContent='3';$('dist').textContent='0';
+}
+var spawnT=0,itemT=0;
+var CAR_EMOJI=['🚙','🚕','🚛','🚗'];
+function loop(){
+  requestAnimationFrame(loop);
+  // дорога
+  ctx.fillStyle='#22314a';ctx.fillRect(0,0,W,H);
+  ctx.fillStyle='#dfe9f5';
+  ctx.fillRect(0,0,22,H);ctx.fillRect(W-22,0,22,H);
+  ctx.fillStyle='#e8f4ff';
+  ctx.fillRect(28,0,6,H);ctx.fillRect(W-34,0,6,H);
+  // разметка
+  roadY=(roadY+speed*2)%48;
+  ctx.fillStyle='#ffd54f';
+  for(var my=-48;my<H;my+=48){ctx.fillRect(122,my+roadY,5,26);ctx.fillRect(232,my+roadY,5,26)}
+  // ёлки по обочинам
+  ctx.font='22px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';
+  for(var ey=0;ey<5;ey++){var yy=(ey*120+dist*0.8)%600-30;ctx.fillText('🌲',10,yy);ctx.fillText('🎄',W-10,yy)}
+  if(run){
+    var target=LANES[lane];
+    laneX+=(target-laneX)*0.18;
+    if(keys.ArrowLeft&&lane>0){lane--;keys.ArrowLeft=false}
+    if(keys.ArrowRight&&lane<2){lane++;keys.ArrowRight=false}
+    var sp=nitro>0?speed*1.8:speed;
+    if(nitro>0)nitro--;
+    dist+=sp*0.35;speed=Math.min(8,3+dist/800);
+    spawnT++;
+    if(spawnT>Math.max(40,95-dist/70)){
+      spawnT=0;
+      var ln=Math.floor(Math.random()*3);
+      if(ln===lane&&Math.random()<0.5)ln=(ln+1)%3;
+      cars.push({lane:ln,y:-60,e:CAR_EMOJI[Math.floor(Math.random()*CAR_EMOJI.length)],s:0.55+Math.random()*0.3});
+    }
+    itemT++;
+    if(itemT>90){itemT=0;items.push({lane:Math.floor(Math.random()*3),y:-40,k:Math.random()<0.75?'🪙':'⚡',got:false})}
+    if(inv>0)inv--;
+    for(var i=cars.length-1;i>=0;i--){
+      var c=cars[i];c.y+=sp*c.s*2.4+1;
+      if(c.y>H+70){cars.splice(i,1);continue}
+      if(inv<=0&&Math.abs(c.y-460)<44&&Math.abs(LANES[c.lane]-laneX)<44){
+        lives--;inv=90;$('lives').textContent=lives;
+        cars.splice(i,1);
+        if(lives<=0){run=false;over=true;gameOver()}
+        else toast('💥 Авария! Осталось жизней: '+lives);
+      }
+    }
+    for(var j=items.length-1;j>=0;j--){
+      var it=items[j];it.y+=sp*2.2;
+      if(it.y>H+40){items.splice(j,1);continue}
+      if(!it.got&&Math.abs(it.y-460)<36&&Math.abs(LANES[it.lane]-laneX)<38){
+        it.got=true;
+        if(it.k==='🪙'){coins++;$('coins').textContent=coins;toast('🪙 Монета!')}
+        else{nitro=150;toast('⚡ Нитро! Жми!')}
+      }
+    }
+    $('dist').textContent=Math.floor(dist);
+  }
+  ctx.font='36px sans-serif';
+  cars.forEach(function(c){ctx.fillText(c.e,LANES[c.lane],c.y)});
+  items.forEach(function(it){if(!it.got)ctx.fillText(it.k,LANES[it.lane],it.y)});
+  // игрок
+  ctx.font='42px sans-serif';
+  if(inv>0&&Math.floor(inv/6)%2===0)ctx.globalAlpha=0.4;
+  ctx.fillText('🏎️',laneX,460);
+  ctx.globalAlpha=1;
+  if(nitro>0){ctx.font='30px sans-serif';ctx.fillText('🔥',laneX,500)}
+  if(!run&&!over){
+    ctx.fillStyle='rgba(0,0,0,.5)';ctx.fillRect(0,0,W,H);
+    ctx.fillStyle='#fff';ctx.font='bold 22px sans-serif';ctx.textAlign='center';
+    ctx.fillText('🏎️ Зимние гонки!',W/2,240);
+    ctx.font='15px sans-serif';
+    ctx.fillText('Три полосы, снег и трафик.',W/2,272);
+    ctx.fillText('Собирай монеты и нитро. Рекорд: '+best+' м',W/2,296);
+  }
+  if(over){
+    ctx.fillStyle='rgba(0,0,0,.5)';ctx.fillRect(0,0,W,H);
+    ctx.fillStyle='#fff';ctx.font='bold 22px sans-serif';ctx.textAlign='center';
+    ctx.fillText('🏁 Финиш!',W/2,230);
+    ctx.font='16px sans-serif';
+    ctx.fillText('Проехал: '+Math.floor(dist)+' м • Монет: '+coins,W/2,262);
+    ctx.fillText(best===Math.floor(dist)&&dist>0?'🎉 Новый рекорд!':'Рекорд: '+best+' м',W/2,290);
+  }
+}
+function gameOver(){
+  var d=Math.floor(dist);
+  if(d>best){best=d;try{localStorage.setItem(BEST_KEY,String(best))}catch(e){}}
+  $('best').textContent=best;
+  toast('🏁 Финиш! '+d+' м, монет: '+coins);
+}
+$('best').textContent=best;
+$('startBtn').addEventListener('click',reset);
+$('leftBtn').addEventListener('click',function(){if(run&&lane>0)lane--});
+$('rightBtn').addEventListener('click',function(){if(run&&lane<2)lane++});
+document.addEventListener('keydown',function(e){if(e.key==='ArrowLeft'||e.key==='ArrowRight'){keys[e.key]=true;e.preventDefault()}});
+document.addEventListener('keyup',function(e){keys[e.key]=false});
+cv.addEventListener('pointerdown',function(e){
+  if(!run)return;
+  var r=cv.getBoundingClientRect();
+  var x=(e.clientX-r.left)*(W/r.width);
+  lane=x<120?0:x<240?1:2;
+});
+loop();
+</script>
+</body>
+</html>

@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="theme-color" content="#08080d">
+<title>❄️ Бой снежками — E.Y.L Games</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#08080d;color:#f5f5f7;min-height:100vh;overflow-x:hidden}
+.bg{position:fixed;inset:0;z-index:-1;background:radial-gradient(700px 400px at 50% -10%,rgba(55,174,226,.2),transparent 62%),#08080d}
+.wrap{max-width:480px;margin:0 auto;padding:12px 12px 40px}
+.top{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.back{color:#9c9cae;text-decoration:none;font-size:15px;font-weight:600;white-space:nowrap}
+h1{font-size:20px;flex:1;text-align:center}
+.stats{display:flex;gap:8px;justify-content:center;margin-bottom:8px;flex-wrap:wrap}
+.stat{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);border-radius:999px;padding:7px 13px;font-size:14px;font-weight:700;white-space:nowrap}
+.stat small{color:#9c9cae;font-weight:500}
+.meter{height:10px;background:rgba(255,255,255,.08);border-radius:99px;overflow:hidden;margin:0 4px 10px}
+.meter i{display:block;height:100%;background:linear-gradient(90deg,#37aee2,#ffd54f);border-radius:99px;transition:width .3s}
+.arena{position:relative;width:100%;max-width:360px;margin:0 auto;border-radius:22px;overflow:hidden;border:1px solid rgba(255,255,255,.1);box-shadow:0 16px 40px rgba(0,0,0,.5);background:linear-gradient(180deg,#101a3a 0%,#e8f4ff 55%,#cfe6ff 100%)}
+canvas{display:block;width:100%;height:auto;touch-action:manipulation}
+.btn{width:100%;background:linear-gradient(92deg,#37aee2,#2b7de0);color:#fff;border:0;border-radius:14px;padding:14px;font-size:16px;font-weight:700;cursor:pointer;margin-top:12px;box-shadow:0 8px 20px rgba(43,125,224,.35)}
+.how{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:13px 15px;color:#c6c6d4;font-size:13.5px;line-height:1.6;margin-top:16px}
+.how b{color:#fff}
+.toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(20px);background:#1c1c28;border:1px solid rgba(255,255,255,.18);color:#fff;padding:12px 18px;border-radius:99px;font-size:14.5px;font-weight:600;opacity:0;pointer-events:none;transition:.25s;z-index:50;max-width:92vw;text-align:center}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+<div class="bg"></div>
+<div class="wrap">
+  <div class="top"><a class="back" href="../">← Игры</a><h1>❄️ Бой снежками</h1><span style="width:52px"></span></div>
+  <div class="stats">
+    <div class="stat">🎯 <span id="score">0</span></div>
+    <div class="stat">🔥 <span id="combo">x1</span></div>
+    <div class="stat">⏱️ <span id="time">60</span> сек</div>
+    <div class="stat">🏆 <span id="best">0</span></div>
+  </div>
+  <div class="meter"><i id="timeFill" style="width:100%"></i></div>
+  <div class="arena"><canvas id="cv" width="360" height="560"></canvas></div>
+  <button class="btn" id="startBtn">❄️ В бой!</button>
+  <div class="how"><b>Как играть:</b> из сугробов выскакивают снеговики ⛄ — кидай в них снежки, тапая по ним! Золотой снеговик — 30 очков, Дед Мороз 🎅 — целых 50. Серия точных попаданий подряд — комбо, очки умножаются. На всё — 60 секунд. Промахнулся — комбо сгорает, так что целься!</div>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+var cv=document.getElementById('cv'),ctx=cv.getContext('2d'),W=360,H=560;
+var BEST_KEY='eyl-snowball-fight-best';
+var best=0;try{best=+localStorage.getItem(BEST_KEY)||0}catch(e){}
+var HOLES=[];
+for(var r=0;r<3;r++)for(var c=0;c<3;c++)HOLES.push({x:60+c*120,y:120+r*140});
+var run=false,over=false,score=0,combo=0,comboN=1,timeLeft=60;
+var moles=[],spawnT=0,lastTick=0,snow=[];
+function $(id){return document.getElementById(id)}
+function toast(t){var el=$('toast');el.textContent=t;el.classList.add('show');setTimeout(function(){el.classList.remove('show')},1800)}
+function reset(){
+  run=true;over=false;score=0;combo=0;comboN=1;timeLeft=60;moles=[];spawnT=0;lastTick=performance.now();
+  $('startBtn').textContent='🔄 Ещё раз';
+  $('score').textContent='0';$('combo').textContent='x1';$('time').textContent='60';
+  $('timeFill').style.width='100%';
+}
+for(var i=0;i<24;i++)snow.push({x:Math.random()*W,y:Math.random()*H,r:1+Math.random()*2,s:.4+Math.random()});
+function spawnMole(){
+  var free=HOLES.map(function(h,idx){return idx}).filter(function(idx){return !moles.some(function(m){return m.hole===idx})});
+  if(!free.length)return;
+  var hole=free[Math.floor(Math.random()*free.length)];
+  var r=Math.random();
+  var kind=r<0.12?'🎅':r<0.3?'🌟':'⛄';
+  moles.push({hole:hole,k:kind,life:kind==='🎅'?1100:kind==='🌟'?800:1000-Math.min(400,(60-timeLeft)*6),born:performance.now()});
+}
+function loop(t){
+  requestAnimationFrame(loop);
+  var g=ctx.createLinearGradient(0,0,0,H);
+  g.addColorStop(0,'#101a3a');g.addColorStop(.55,'#e8f4ff');g.addColorStop(1,'#cfe6ff');
+  ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+  ctx.fillStyle='rgba(255,255,255,.85)';
+  snow.forEach(function(f){f.y+=f.s;if(f.y>H){f.y=-4;f.x=Math.random()*W}ctx.beginPath();ctx.arc(f.x,f.y,f.r,0,Math.PI*2);ctx.fill()});
+  // сугробы
+  ctx.textAlign='center';ctx.textBaseline='middle';
+  HOLES.forEach(function(h){
+    ctx.fillStyle='rgba(255,255,255,.95)';
+    ctx.beginPath();ctx.ellipse(h.x,h.y+26,52,16,0,0,Math.PI*2);ctx.fill();
+  });
+  if(run){
+    var now=performance.now();
+    if(now-lastTick>=1000){lastTick=now;timeLeft--; $('time').textContent=timeLeft; $('timeFill').style.width=(timeLeft/60*100)+'%'; if(timeLeft<=0){run=false;over=true;gameOver()}}
+    spawnT++;
+    if(spawnT>Math.max(18,50-(60-timeLeft))){spawnT=0;spawnMole();if(Math.random()<0.3)spawnMole()}
+    var now2=performance.now();
+    for(var i=moles.length-1;i>=0;i--){
+      var m=moles[i];
+      if(now2-m.born>m.life){moles.splice(i,1);combo=0;comboN=1;$('combo').textContent='x1'}
+    }
+  }
+  ctx.font='52px sans-serif';
+  moles.forEach(function(m){
+    var h=HOLES[m.hole];
+    var age=performance.now()-m.born;
+    var pop=Math.min(1,age/120);
+    ctx.save();
+    ctx.translate(h.x,h.y);
+    ctx.scale(1,pop);
+    ctx.fillText(m.k,0,0);
+    ctx.restore();
+  });
+  if(!run&&!over){
+    ctx.fillStyle='rgba(0,0,0,.45)';ctx.fillRect(0,0,W,H);
+    ctx.fillStyle='#fff';ctx.font='bold 22px sans-serif';ctx.textAlign='center';
+    ctx.fillText('❄️ Бой снежками!',W/2,250);
+    ctx.font='15px sans-serif';
+    ctx.fillText('Снеговики выскакивают из сугробов —',W/2,282);
+    ctx.fillText('бей их снежками! Рекорд: '+best,W/2,306);
+  }
+  if(over){
+    ctx.fillStyle='rgba(0,0,0,.5)';ctx.fillRect(0,0,W,H);
+    ctx.fillStyle='#fff';ctx.font='bold 22px sans-serif';ctx.textAlign='center';
+    ctx.fillText('🏁 Время вышло!',W/2,240);
+    ctx.font='16px sans-serif';
+    ctx.fillText('Очков: '+score,W/2,272);
+    ctx.fillText(best===score&&score>0?'🎉 Новый рекорд!':'Рекорд: '+best,W/2,300);
+  }
+}
+function gameOver(){
+  if(score>best){best=score;try{localStorage.setItem(BEST_KEY,String(best))}catch(e){}}
+  $('best').textContent=best;
+  toast('🏁 Время вышло! Очков: '+score);
+}
+$('best').textContent=best;
+$('startBtn').addEventListener('click',reset);
+cv.addEventListener('click',function(e){
+  if(!run)return;
+  var r=cv.getBoundingClientRect();
+  var x=(e.clientX-r.left)*(W/r.width),y=(e.clientY-r.top)*(H/r.height);
+  for(var i=moles.length-1;i>=0;i--){
+    var m=moles[i],h=HOLES[m.hole];
+    if(Math.abs(x-h.x)<44&&Math.abs(y-h.y)<44){
+      var pts=m.k==='🎅'?50:m.k==='🌟'?30:10;
+      combo++;comboN=1+Math.min(4,Math.floor(combo/4));
+      score+=pts*comboN;
+      $('score').textContent=score;
+      $('combo').textContent='x'+comboN;
+      moles.splice(i,1);
+      if(m.k==='🎅')toast('🎅 Дед Мороз! +'+(pts*comboN)+'!');
+      return;
+    }
+  }
+  combo=0;comboN=1;$('combo').textContent='x1';
+});
+loop(0);
+</script>
+</body>
+</html>

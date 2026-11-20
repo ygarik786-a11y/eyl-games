@@ -54,6 +54,11 @@ canvas{display:block;width:100%;height:auto;touch-action:manipulation}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 .how{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:13px 15px;color:#c6c6d4;font-size:13.5px;line-height:1.6;margin-top:16px}
 .how b{color:#fff}
+.bgdeco{text-align:center;font-size:22px;letter-spacing:4px;margin-bottom:6px}
+#treeWrap.bg1{background:radial-gradient(300px 200px at 50% 0%,#1a1a4a,#05050f 70%)}
+#treeWrap.bg2{background:radial-gradient(300px 200px at 50% 0%,#4a1f08,#12060a 70%)}
+.mini-wrap{max-width:300px}
+.bgBtn.sel{border-color:#ffd54f;box-shadow:0 0 0 2px rgba(255,213,79,.5)}
 .foot{text-align:center;color:#71718a;font-size:12.5px;margin-top:18px;line-height:1.7}
 .foot button{background:none;border:0;color:#71718a;text-decoration:underline;font-size:12.5px;cursor:pointer}
 </style>
@@ -69,9 +74,17 @@ canvas{display:block;width:100%;height:auto;touch-action:manipulation}
   </div>
   <div class="meter"><i id="meterFill" style="width:0%"></i></div>
   <div class="lvl" id="lvlHint"></div>
+  <div class="bgdeco" id="bgDeco">🌲🎄🌲</div>
   <div class="tree-wrap" id="treeWrap">
     <canvas id="tree" width="600" height="840"></canvas>
   </div>
+  <div class="btns" style="margin-top:10px">
+    <button class="btn ghost bgBtn" data-bg="0">🌲 Лес</button>
+    <button class="btn ghost bgBtn" data-bg="1">🏙️ Город</button>
+    <button class="btn ghost bgBtn" data-bg="2">🔥 Камин</button>
+  </div>
+  <div class="sec">🐶 Ёлочка Линды</div>
+  <div class="tree-wrap mini-wrap" id="miniWrap"><canvas id="miniTree" width="300" height="420"></canvas></div>
   <div class="hint" id="hint">Выбери игрушку из коробки — и тапни по ёлке, куда её повесить 🎄</div>
   <div class="sec">🎒 Моя коробка с игрушками</div>
   <div class="strip" id="box"></div>
@@ -81,8 +94,14 @@ canvas{display:block;width:100%;height:auto;touch-action:manipulation}
     <button class="btn gold" id="dailyBtn">🎁 Подарок дня</button>
     <button class="btn" id="tasksBtn">📋 Задания</button>
     <button class="btn ghost" id="saluteBtn">✨ Салют</button>
+    <button class="btn gold" id="wheelBtn">🎡 Колесо фортуны</button>
   </div>
   <div class="panel" id="tasksPanel"></div>
+  <div class="panel" id="wheelPanel">
+    <div style="text-align:center;font-size:52px" id="wheelFace">🎡</div>
+    <div style="text-align:center;font-size:15px;margin:8px 0" id="wheelText">Крути раз в день — приз твой!</div>
+    <button class="btn gold" id="spinBtn" style="width:100%">🎡 Крутить!</button>
+  </div>
   <div class="how"><b>Как играть:</b> лови падающие снежинки ❄️ — это монетки. Покупай игрушки в магазине, вешай их на ёлку и собирай красоту. Тапни по висящей игрушке — снимешь её обратно в коробку. Тапни по подарку под ёлкой — откроешь его! Каждый день — подарок дня, а за задания — награды. Чем наряднее ёлка, тем выше уровень — от малышки до Ёлки президента 👑</div>
   <div class="foot">🎄 Ёлочка • E.Y.L Games • прогресс сохраняется в телефоне<br><button id="resetBtn">начать заново</button></div>
 </div>
@@ -117,11 +136,11 @@ var LEVELS=[
   {at:500,n:'Ёлка президента 👑'}
 ];
 var SAVE_KEY='eyl-yolochka-v1';
-function defaultState(){return{flakes:50,box:{ballR:2,ballY:1,ballB:1},placed:[],gifts:1,garlandOn:false,lastDaily:'',clickFlakes:0,bought:0,opened:0,claimed:{},level:0}}
+function defaultState(){return{flakes:50,box:{ballR:2,ballY:1,ballB:1},placed:[],gifts:1,garlandOn:false,lastDaily:'',clickFlakes:0,bought:0,opened:0,claimed:{},level:0,santaDay:'',wheelDay:'',lastSeen:0,bg:0,placedMini:[]}}
 var S;
 try{S=JSON.parse(localStorage.getItem(SAVE_KEY))||defaultState()}catch(e){S=defaultState()}
 if(!S.box)S=defaultState();
-function save(){try{localStorage.setItem(SAVE_KEY,JSON.stringify(S))}catch(e){}}
+function save(){S.lastSeen=Date.now();try{localStorage.setItem(SAVE_KEY,JSON.stringify(S))}catch(e){}}
 function $(id){return document.getElementById(id)}
 // ===== Звук: короткий «дзинь» =====
 var AC=null;
@@ -170,7 +189,7 @@ for(var fi=0;fi<30;fi++)flakes.push({x:rnd()*W,y:rnd()*H,r:1.5+rnd()*2,s:0.4+rnd
 var sparks=[];
 function drawStar(c,x,y,R,r,rot){c.beginPath();for(var i=0;i<10;i++){var rad=i%2===0?R:r,a=rot+i*Math.PI/5,px=x+Math.cos(a)*rad,py=y+Math.sin(a)*rad;if(i===0)c.moveTo(px,py);else c.lineTo(px,py)}c.closePath()}
 var GIFT_SPOTS=[{x:150,y:782},{x:300,y:802},{x:450,y:782}];
-function beauty(){var b=0;S.placed.forEach(function(p){b+=TOYS[p.id].b});if(S.garlandOn)b+=30;return b}
+function beauty(){var b=0;S.placed.forEach(function(p){b+=TOYS[p.id].b});(S.placedMini||[]).forEach(function(p){b+=TOYS[p.id].b});if(S.garlandOn)b+=30;return b}
 function levelIdx(){var idx=0;LEVELS.forEach(function(L,i){if(beauty()>=L.at)idx=i});return idx}
 function draw(t){
   ctx.clearRect(0,0,W,H);
@@ -202,6 +221,13 @@ function draw(t){
   // подарки под ёлкой
   ctx.font='42px sans-serif';
   for(var gi=0;gi<S.gifts&&gi<3;gi++){ctx.fillText('🎁',GIFT_SPOTS[gi].x,GIFT_SPOTS[gi].y)}
+  // Дед Мороз и Снеговик-помощник под ёлкой
+  ctx.font='56px sans-serif';
+  ctx.globalAlpha=(S.santaDay===new Date().toDateString())?0.45:1;
+  ctx.fillText('🎅',88,756);
+  ctx.globalAlpha=1;
+  ctx.font='52px sans-serif';
+  ctx.fillText('⛄',512,756);
   // снег
   ctx.fillStyle='rgba(255,255,255,0.9)';
   flakes.forEach(function(fl){
@@ -217,6 +243,7 @@ function draw(t){
     drawStar(ctx,s.x,s.y,7*s.life+2,3,-Math.PI/2);ctx.fill();
   });
   ctx.globalAlpha=1;
+  drawMini(t);
 }
 function burst(x,y,n){for(var i=0;i<(n||22);i++){var a=Math.random()*Math.PI*2,s=1+Math.random()*3;sparks.push({x:x,y:y,vx:Math.cos(a)*s,vy:Math.sin(a)*s-1,life:1})}}
 if(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches){draw(0)}
@@ -262,6 +289,11 @@ function render(){
   var today=new Date().toDateString();
   $('dailyBtn').disabled=(S.lastDaily===today);
   $('dailyBtn').textContent=(S.lastDaily===today)?'🎁 Подарок дня — завтра':'🎁 Подарок дня';
+  $('wheelBtn').disabled=(S.wheelDay===today);
+  $('wheelBtn').textContent=(S.wheelDay===today)?'🎡 Колесо — завтра':'🎡 Колесо фортуны';
+  var deco=['🌲🎄🌲','🏙️🌃🌆','🔥🕯️🎄'];$('bgDeco').textContent=deco[S.bg||0];
+  $('treeWrap').className='tree-wrap'+(S.bg===1?' bg1':S.bg===2?' bg2':'');
+  document.querySelectorAll('.bgBtn').forEach(function(b){b.classList.toggle('sel',+b.getAttribute('data-bg')===(S.bg||0))});
   renderTasks();
 }
 var TASKS=[
@@ -283,6 +315,10 @@ function renderTasks(){
 cv.addEventListener('click',function(e){
   var r=cv.getBoundingClientRect();
   var x=(e.clientX-r.left)*(W/r.width),y=(e.clientY-r.top)*(H/r.height);
+  // Дед Мороз?
+  if(Math.abs(x-88)<42&&Math.abs(y-756)<42){santaClaim();return}
+  // Снеговик-помощник?
+  if(Math.abs(x-512)<42&&Math.abs(y-756)<42){toast('⛄ Снеговик ловит снежинки, пока тебя нет — заходи чаще, будет больше!');return}
   // подарок?
   for(var gi=0;gi<S.gifts&&gi<3;gi++){
     if(Math.abs(x-GIFT_SPOTS[gi].x)<32&&Math.abs(y-GIFT_SPOTS[gi].y)<32){openGift(GIFT_SPOTS[gi].x,GIFT_SPOTS[gi].y);return}
@@ -392,6 +428,102 @@ function spawnFlake(){
   f.addEventListener('animationend',function(){f.remove()});
   wrap.appendChild(f);
 }
+// ===== Фишки 1–5 =====
+// 1) Дед Мороз под ёлкой — подарок раз в день, чем наряднее ёлка, тем больше
+function santaClaim(){
+  var today=new Date().toDateString();
+  if(S.santaDay===today){toast('🎅 Дед Мороз уже дарил сегодня! Приходи завтра, мой хороший');return}
+  S.santaDay=today;
+  var reward=Math.min(150,50+Math.floor(beauty()/5));
+  S.flakes+=reward;
+  if(beauty()>=150&&S.gifts<3){S.gifts++;toast('🎅 Дед Мороз: «Какая нарядная ёлка!» +'+reward+'❄️ и подарок под ёлкой!')}
+  else toast('🎅 Дед Мороз: «С наступающим!» +'+reward+'❄️!');
+  save();render();beep(1300);burst(88,700,30);
+}
+// 2) Снеговик-помощник — снежинки, пока тебя нет
+(function offline(){
+  var now=Date.now();
+  if(S.lastSeen){
+    var earn=Math.min(100,Math.floor((now-S.lastSeen)/60000/2));
+    if(earn>0){S.flakes+=earn;setTimeout(function(){toast('⛄ Снеговик насобирал +'+earn+'❄️, пока тебя не было!')},900)}
+  }
+  S.lastSeen=now;save();
+})();
+// 3) Колесо фортуны — раз в день
+var WHEEL_PRIZES=[
+  {e:'❄️',t:'+20 снежинок',f:function(){S.flakes+=20}},
+  {e:'❄️',t:'+50 снежинок',f:function(){S.flakes+=50}},
+  {e:'❄️',t:'+100 снежинок!',f:function(){S.flakes+=100}},
+  {e:'🎁',t:'Подарок под ёлку!',f:function(){if(S.gifts<3)S.gifts++;else S.flakes+=50}},
+  {e:'🧸',t:'Случайная игрушка!',f:function(){var c=ORDER.filter(function(id){return TOYS[id].p<=70&&id!=='garland'&&id!=='star'});var id=c[Math.floor(Math.random()*c.length)];S.box[id]=(S.box[id]||0)+1}},
+  {e:'⭐',t:'+30 снежинок',f:function(){S.flakes+=30}}
+];
+var spinning=false;
+function spinWheel(){
+  if(spinning)return;
+  var today=new Date().toDateString();
+  if(S.wheelDay===today){toast('🎡 Колесо уже крутилось сегодня — приходи завтра!');return}
+  spinning=true;
+  var faces=['🎁','🧸','❄️','⭐','🎅','🍬'],i=0;
+  var iv=setInterval(function(){
+    $('wheelFace').textContent=faces[i%faces.length];
+    i++;
+    if(i>18){
+      clearInterval(iv);
+      var p=WHEEL_PRIZES[Math.floor(Math.random()*WHEEL_PRIZES.length)];
+      p.f();S.wheelDay=today;save();render();
+      $('wheelFace').textContent=p.e;$('wheelText').textContent='Выпало: '+p.t+' 🎉';
+      beep(1500);burst(300,200,30);spinning=false;
+    }
+  },90);
+}
+$('wheelBtn').addEventListener('click',function(){$('wheelPanel').classList.toggle('open')});
+$('spinBtn').addEventListener('click',spinWheel);
+// 5) Фоны — лес / город / камин
+document.querySelectorAll('.bgBtn').forEach(function(b){
+  b.addEventListener('click',function(){S.bg=+b.getAttribute('data-bg');save();render();beep(900)});
+});
+// 4) Ёлочка Линды — маленькая, со своими местами
+var mcv=$('miniTree'),mctx=mcv.getContext('2d');
+var MINI_SLOTS=[{x:150,y:110},{x:118,y:175},{x:182,y:175},{x:100,y:245},{x:200,y:245},{x:150,y:305}];
+function drawMini(t){
+  if(!mcv||!mctx)return;
+  mctx.clearRect(0,0,300,420);
+  mctx.drawImage(off,0,0,300,420);
+  mctx.textAlign='center';mctx.textBaseline='middle';
+  MINI_SLOTS.forEach(function(s,i){
+    var taken=(S.placedMini||[]).some(function(p){return p.slot===i});
+    if(!taken){mctx.globalAlpha=0.5;mctx.strokeStyle='#fff';mctx.setLineDash([4,4]);mctx.beginPath();mctx.arc(s.x,s.y,20,0,Math.PI*2);mctx.stroke();mctx.setLineDash([]);mctx.globalAlpha=1}
+  });
+  (S.placedMini||[]).forEach(function(p){
+    mctx.font='26px sans-serif';mctx.fillText(TOYS[p.id].e,MINI_SLOTS[p.slot].x,MINI_SLOTS[p.slot].y);
+  });
+}
+mcv.addEventListener('click',function(e){
+  var r=mcv.getBoundingClientRect();
+  var x=(e.clientX-r.left)*(300/r.width),y=(e.clientY-r.top)*(420/r.height);
+  for(var i=0;i<(S.placedMini||[]).length;i++){
+    var p=S.placedMini[i],s=MINI_SLOTS[p.slot];
+    if(Math.abs(x-s.x)<24&&Math.abs(y-s.y)<24){
+      S.placedMini.splice(i,1);S.box[p.id]=(S.box[p.id]||0)+1;
+      save();render();beep(500);toast('Игрушка вернулась в коробку 🎒');return;
+    }
+  }
+  if(!selected){toast('Сначала выбери игрушку из коробки 👆');return}
+  if(selected==='star'||selected==='garland'){toast('Звезда и гирлянда — только на большую ёлку 🎄');return}
+  if(!boxCount(selected)){toast('Таких игрушек в коробке больше нет');selected=null;render();return}
+  var best=-1,bd=1e9;
+  MINI_SLOTS.forEach(function(s,i){
+    var taken=(S.placedMini||[]).some(function(p){return p.slot===i});
+    if(taken)return;
+    var d=Math.hypot(x-s.x,y-s.y);
+    if(d<bd){bd=d;best=i}
+  });
+  if(best<0||bd>60){toast('Тапни по кружочку на маленькой ёлке 🐶');return}
+  S.placedMini.push({id:selected,slot:best});
+  S.box[selected]--;if(S.box[selected]<=0){delete S.box[selected];selected=null}
+  save();render();beep(990);toast('Линда рада! 🐶 Красота ёлки: '+beauty());
+});
 setInterval(spawnFlake,1300);
 spawnFlake();spawnFlake();
 render();

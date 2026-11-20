@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="theme-color" content="#08080d">
+<title>🎁 Лови подарки — E.Y.L Games</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#08080d;color:#f5f5f7;min-height:100vh;overflow-x:hidden}
+.bg{position:fixed;inset:0;z-index:-1;background:radial-gradient(700px 400px at 50% -10%,rgba(255,183,0,.16),transparent 62%),#08080d}
+.wrap{max-width:480px;margin:0 auto;padding:12px 12px 40px}
+.top{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.back{color:#9c9cae;text-decoration:none;font-size:15px;font-weight:600;white-space:nowrap}
+h1{font-size:20px;flex:1;text-align:center}
+.stats{display:flex;gap:8px;justify-content:center;margin-bottom:8px;flex-wrap:wrap}
+.stat{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);border-radius:999px;padding:7px 13px;font-size:14px;font-weight:700;white-space:nowrap}
+.stat small{color:#9c9cae;font-weight:500}
+.arena{position:relative;width:100%;max-width:360px;margin:0 auto;border-radius:22px;overflow:hidden;border:1px solid rgba(255,255,255,.1);box-shadow:0 16px 40px rgba(0,0,0,.5);background:linear-gradient(180deg,#0b1030 0%,#101a3a 60%,#e8f4ff 60%,#cfe6ff 100%)}
+canvas{display:block;width:100%;height:auto;touch-action:none}
+.steer{display:flex;gap:12px;justify-content:center;margin-top:12px}
+.steer button{flex:1;max-width:150px;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.18);color:#fff;font-size:30px;border-radius:18px;padding:14px 0;cursor:pointer}
+.steer button:active{background:rgba(255,255,255,.22)}
+.btn{width:100%;background:linear-gradient(92deg,#ffb300,#ff7a00);color:#fff;border:0;border-radius:14px;padding:14px;font-size:16px;font-weight:700;cursor:pointer;margin-top:12px;box-shadow:0 8px 20px rgba(255,122,0,.35)}
+.how{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:13px 15px;color:#c6c6d4;font-size:13.5px;line-height:1.6;margin-top:16px}
+.how b{color:#fff}
+.toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(20px);background:#1c1c28;border:1px solid rgba(255,255,255,.18);color:#fff;padding:12px 18px;border-radius:99px;font-size:14.5px;font-weight:600;opacity:0;pointer-events:none;transition:.25s;z-index:50;max-width:92vw;text-align:center}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+<div class="bg"></div>
+<div class="wrap">
+  <div class="top"><a class="back" href="../">← Игры</a><h1>🎁 Лови подарки</h1><span style="width:52px"></span></div>
+  <div class="stats">
+    <div class="stat">🎁 <span id="score">0</span></div>
+    <div class="stat">💔 <span id="miss">0</span>/3</div>
+    <div class="stat">⭐ <span id="level">1</span> <small>ур.</small></div>
+    <div class="stat">🏆 <span id="best">0</span></div>
+  </div>
+  <div class="arena"><canvas id="cv" width="360" height="560"></canvas></div>
+  <div class="steer"><button id="leftBtn">◀</button><button id="rightBtn">▶</button></div>
+  <button class="btn" id="startBtn">🎅 Ловить!</button>
+  <div class="how"><b>Как играть:</b> Дед Мороз летит на санях и роняет подарки! Двигай мешок 🧺 и лови их. Звезда ⭐ — целых 30 очков! Уронишь три подарка — игра окончена. Каждые 10 пойманных — новый уровень, и подарки падают быстрее. Кнопки ◀ ▶, стрелки или веди пальцем по полю.</div>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+var cv=document.getElementById('cv'),ctx=cv.getContext('2d'),W=360,H=560;
+var BEST_KEY='eyl-catch-gifts-best';
+var best=0;try{best=+localStorage.getItem(BEST_KEY)||0}catch(e){}
+var run=false,over=false,bagX=180,score=0,miss=0,level=1,caught=0;
+var items=[],santaX=60,santaDir=1,keys={},dropT=0;
+function $(id){return document.getElementById(id)}
+function toast(t){var el=$('toast');el.textContent=t;el.classList.add('show');setTimeout(function(){el.classList.remove('show')},2000)}
+function reset(){
+  run=true;over=false;bagX=180;score=0;miss=0;level=1;caught=0;items=[];santaX=60;santaDir=1;dropT=0;
+  $('startBtn').textContent='🔄 Заново';
+  $('score').textContent='0';$('miss').textContent='0';$('level').textContent='1';
+}
+function loop(){
+  requestAnimationFrame(loop);
+  var g=ctx.createLinearGradient(0,0,0,H);
+  g.addColorStop(0,'#0b1030');g.addColorStop(.6,'#101a3a');g.addColorStop(.6,'#e8f4ff');g.addColorStop(1,'#cfe6ff');
+  ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+  ctx.fillStyle='#ffe27a';ctx.beginPath();ctx.arc(310,52,24,0,Math.PI*2);ctx.fill();
+  ctx.textAlign='center';ctx.textBaseline='middle';
+  ctx.font='26px sans-serif';
+  ctx.fillText('🌲',18,520);ctx.fillText('🎄',44,530);ctx.fillText('🌲',W-18,520);ctx.fillText('🎄',W-44,530);
+  if(run){
+    if(keys.ArrowLeft)bagX-=6;
+    if(keys.ArrowRight)bagX+=6;
+    bagX=Math.max(36,Math.min(W-36,bagX));
+    santaX+=santaDir*(1.6+level*0.3);
+    if(santaX>W-50)santaDir=-1;
+    if(santaX<50)santaDir=1;
+    dropT++;
+    if(dropT>Math.max(34,80-level*6)){dropT=0;items.push({x:santaX,y:80,k:Math.random()<0.18?'⭐':'🎁',vy:2+level*0.35+Math.random()})}
+    for(var i=items.length-1;i>=0;i--){
+      var it=items[i];it.y+=it.vy;
+      if(it.y>=500&&Math.abs(it.x-bagX)<42){
+        items.splice(i,1);caught++;
+        score+=it.k==='⭐'?30:10;
+        $('score').textContent=score;
+        if(it.k==='⭐')toast('⭐ Звезда! +30!');
+        if(caught%10===0){level++;$('level').textContent=level;toast('🎉 Уровень '+level+'! Быстрее!')}
+        continue;
+      }
+      if(it.y>H+20){
+        items.splice(i,1);miss++;$('miss').textContent=miss;
+        if(miss>=3){run=false;over=true;gameOver()}
+        else toast('💔 Уронил подарок! '+miss+'/3');
+      }
+    }
+  }
+  // сани Деда Мороза
+  ctx.font='40px sans-serif';
+  ctx.save();
+  if(santaDir<0){ctx.translate(santaX*2,0);ctx.scale(-1,1)}
+  ctx.fillText('🎅',santaX,58);
+  ctx.fillText('🛷',santaX,84);
+  ctx.restore();
+  // падающие подарки
+  ctx.font='32px sans-serif';
+  items.forEach(function(it){ctx.fillText(it.k,it.x,it.y)});
+  // мешок
+  ctx.font='46px sans-serif';
+  ctx.fillText('🧺',bagX,512);
+  if(!run&&!over){
+    ctx.fillStyle='rgba(0,0,0,.45)';ctx.fillRect(0,0,W,H);
+    ctx.fillStyle='#fff';ctx.font='bold 22px sans-serif';ctx.textAlign='center';
+    ctx.fillText('🎁 Лови подарки!',W/2,250);
+    ctx.font='15px sans-serif';
+    ctx.fillText('Дед Мороз роняет подарки —',W/2,282);
+    ctx.fillText('лови их в мешок. Рекорд: '+best,W/2,306);
+  }
+  if(over){
+    ctx.fillStyle='rgba(0,0,0,.5)';ctx.fillRect(0,0,W,H);
+    ctx.fillStyle='#fff';ctx.font='bold 22px sans-serif';ctx.textAlign='center';
+    ctx.fillText('🏁 Игра окончена!',W/2,240);
+    ctx.font='16px sans-serif';
+    ctx.fillText('Поймано подарков: '+caught+' • Очков: '+score,W/2,272);
+    ctx.fillText(best===score&&score>0?'🎉 Новый рекорд!':'Рекорд: '+best,W/2,300);
+  }
+}
+function gameOver(){
+  if(score>best){best=score;try{localStorage.setItem(BEST_KEY,String(best))}catch(e){}}
+  $('best').textContent=best;
+  toast('🏁 Игра окончена! Очков: '+score);
+}
+$('best').textContent=best;
+$('startBtn').addEventListener('click',reset);
+function bindHold(id,key){
+  var el=$(id);
+  el.addEventListener('pointerdown',function(e){e.preventDefault();keys[key]=true});
+  el.addEventListener('pointerup',function(){keys[key]=false});
+  el.addEventListener('pointerleave',function(){keys[key]=false});
+}
+bindHold('leftBtn','ArrowLeft');bindHold('rightBtn','ArrowRight');
+document.addEventListener('keydown',function(e){if(e.key==='ArrowLeft'||e.key==='ArrowRight'){keys[e.key]=true;e.preventDefault()}});
+document.addEventListener('keyup',function(e){keys[e.key]=false});
+cv.addEventListener('pointermove',function(e){
+  if(!run)return;
+  var r=cv.getBoundingClientRect();
+  bagX=(e.clientX-r.left)*(W/r.width);
+});
+cv.addEventListener('pointerdown',function(e){
+  if(!run)return;
+  var r=cv.getBoundingClientRect();
+  bagX=(e.clientX-r.left)*(W/r.width);
+});
+loop();
+</script>
+</body>
+</html>

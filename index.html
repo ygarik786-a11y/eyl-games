@@ -8,7 +8,7 @@
 <script>
 // Самообновление каталога: телефон Erik держал старую копию страницы
 // из кэша и не видел новые игры. Сверяемся с gversion.txt на сервере.
-var GAMES_VER = 22;
+var GAMES_VER = 23;
 fetch("gversion.txt?x=" + Date.now()).then(function(r){ return r.text(); }).then(function(t){
   var rv = parseInt(t, 10);
   if (rv && rv > GAMES_VER && sessionStorage.getItem("gamesUpd") !== String(rv)) {
@@ -114,6 +114,10 @@ fetch("gversion.txt?x=" + Date.now()).then(function(r){ return r.text(); }).then
   .c-neonrace{ background:linear-gradient(150deg,#e84e8a,#6236e8 55%,#0b0624); }
   .c-moto  { background:linear-gradient(150deg,#ef8f1f,#94406e 55%,#1d0f38); }
   .c-yolochka{ background:linear-gradient(150deg,#2fbf71,#0a6b34 60%,#032b16); }
+  .c-santa  { background:linear-gradient(150deg,#ff6b6b,#a61e1e 60%,#2b0505); }
+  .c-winter { background:linear-gradient(150deg,#7dd3fc,#1663ad 60%,#0a2f57); }
+  .c-catch  { background:linear-gradient(150deg,#ffd93d,#b8860b 60%,#4a3503); }
+  .c-snowball{ background:linear-gradient(150deg,#a5f3fc,#2b6cb0 60%,#0b2a4a); }
 
   .gbody { padding:15px 17px 17px; display:flex; flex-direction:column; gap:7px; flex:1; }
   .gbody h3 { font-size:18px; font-weight:700; letter-spacing:-.2px; min-height:44px; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
@@ -139,7 +143,7 @@ fetch("gversion.txt?x=" + Date.now()).then(function(r){ return r.text(); }).then
     <h1><span class="gold">E.Y.L</span> GAMES</h1>
     <p class="sub">Игровая империя президента <b>Erik Lebed</b> 🎮<br>Бесплатные игры прямо в браузере — без скачивания и регистрации.<br>Открыл — и играешь. Прогресс сохраняется в телефоне.</p>
     <div class="chips">
-      <span class="chip gold">👑 94 игры</span>
+      <span class="chip gold">👑 98 игр</span>
       <span class="chip">🎄 С наступающим Новым годом!</span>
       <span class="chip">💸 Полностью бесплатно</span>
       <span class="chip">📱 С телефона и компьютера</span>
@@ -184,6 +188,54 @@ fetch("gversion.txt?x=" + Date.now()).then(function(r){ return r.text(); }).then
         <h3>🎄 Ёлочка</h3>
         <p>Как та самая игра из ВКонтакте! Наряжай свою ёлочку: лови снежинки, покупай игрушки в магазине, вешай шарики, Деда Мороза, Снегурочку и звезду наверх. Подарки под ёлкой, задания и уровни — от малышки до Ёлки президента!</p>
         <div class="meta">❄️ Снежинки • 🛍️ Магазин • 🎁 Подарки • 🏆 Уровни</div>
+        <div class="play">Играть →</div>
+      </div>
+    </a>
+    <a class="game" href="santa-race/">
+      <div class="cover c-santa">
+        <span class="tag">Гонки • сани и подарки</span><span class="new">НОВОЕ</span>
+        <span class="main">🛷</span>
+      </div>
+      <div class="gbody">
+        <h3>🛷 Гонки на санях</h3>
+        <p>Дед Мороз мчится на санях по зимнему лесу! Уворачивайся от ёлок, камней и снеговиков, собирай подарки. Чем дальше — тем быстрее. Три жизни и рекорд трассы!</p>
+        <div class="meta">🎁 Подарки • 🌲 Препятствия • 🏆 Рекорд</div>
+        <div class="play">Играть →</div>
+      </div>
+    </a>
+    <a class="game" href="winter-race/">
+      <div class="cover c-winter">
+        <span class="tag">Гонки • машины и снег</span><span class="new">НОВОЕ</span>
+        <span class="main">🏎️</span>
+      </div>
+      <div class="gbody">
+        <h3>🏎️ Зимние гонки</h3>
+        <p>Зимняя трасса, снег и ёлки по краям! Перестраивайся между тремя полосами, обгоняй машины, собирай монеты и нитро. Столкновение — минус жизнь, их три.</p>
+        <div class="meta">🪙 Монеты • ⚡ Нитро • 🏆 Рекорд</div>
+        <div class="play">Играть →</div>
+      </div>
+    </a>
+    <a class="game" href="catch-gifts/">
+      <div class="cover c-catch">
+        <span class="tag">Ловкость • подарки с неба</span><span class="new">НОВОЕ</span>
+        <span class="main">🎁</span>
+      </div>
+      <div class="gbody">
+        <h3>🎁 Лови подарки</h3>
+        <p>Дед Мороз летит на санях и роняет подарки! Двигай мешок и лови их. Звезда — целых 30 очков! Уронишь три подарка — игра окончена. Уровни всё быстрее!</p>
+        <div class="meta">🧺 Мешок • ⭐ Звёзды • 🏆 Рекорд</div>
+        <div class="play">Играть →</div>
+      </div>
+    </a>
+    <a class="game" href="snowball-fight/">
+      <div class="cover c-snowball">
+        <span class="tag">Меткость • снежки и комбо</span><span class="new">НОВОЕ</span>
+        <span class="main">❄️</span>
+      </div>
+      <div class="gbody">
+        <h3>❄️ Бой снежками</h3>
+        <p>Из сугробов выскакивают снеговики — кидай в них снежки! Золотой снеговик — 30 очков, Дед Мороз — 50. Серия попаданий — комбо, очки умножаются. 60 секунд на всё!</p>
+        <div class="meta">🎯 Меткость • 🔥 Комбо • ⏱️ 60 секунд</div>
         <div class="play">Играть →</div>
       </div>
     </a>
