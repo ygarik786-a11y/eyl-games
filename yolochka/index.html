@@ -5,6 +5,17 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <meta name="theme-color" content="#08080d">
 <title>🎄 Ёлочка — E.Y.L Games</title>
+<script>
+// самообновление: если на сайте версия новее — один раз перезагрузиться с новым номером
+var PAGE_VER=25;
+fetch("../gversion.txt?x="+Date.now()).then(function(r){return r.text()}).then(function(t){
+  var rv=parseInt(t,10);
+  if(rv&&rv>PAGE_VER&&sessionStorage.getItem("upd-yolochka")!==String(rv)){
+    sessionStorage.setItem("upd-yolochka",String(rv));
+    location.replace(location.pathname+"?u="+rv);
+  }
+}).catch(function(){});
+</script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#08080d;color:#f5f5f7;min-height:100vh;overflow-x:hidden}
@@ -258,7 +269,15 @@ else{(function loop(t){draw(t||0);requestAnimationFrame(loop)})(0)}
 // ===== Состояние и интерфейс =====
 var selected=null;
 function boxCount(id){return S.box[id]||0}
+// если ничего не выбрано — берём первую игрушку из коробки, чтобы не тапать лишний раз
+function autoSelect(){
+  if(selected)return;
+  var first=ORDER.filter(function(id){return boxCount(id)>0})[0];
+  selected=first||null;
+  if(selected)$('hint').innerHTML='Выбрано: <b>'+TOYS[selected].e+' '+TOYS[selected].n+'</b> — тапни по ёлке, куда повесить 👆';
+}
 function render(){
+  autoSelect();
   $('flakes').textContent=S.flakes;
   var b=beauty(),li=levelIdx();
   $('beauty').textContent=b;
@@ -331,26 +350,28 @@ cv.addEventListener('pointerdown',function(e){
   for(var gi=0;gi<S.gifts&&gi<3;gi++){
     if(Math.abs(x-GIFT_SPOTS[gi].x)<32&&Math.abs(y-GIFT_SPOTS[gi].y)<32){openGift(GIFT_SPOTS[gi].x,GIFT_SPOTS[gi].y);return}
   }
-  // снять висящую игрушку?
+  // снять висящую игрушку — только если тапнул ТОЧНО по ней
   for(var i=0;i<S.placed.length;i++){
     var p=S.placed[i];
-    if(Math.abs(x-p.x)<26&&Math.abs(y-p.y)<26){
+    if(Math.abs(x-p.x)<16&&Math.abs(y-p.y)<16){
       S.placed.splice(i,1);
-      if(p.id==='garland'){S.garlandOn=false;S.box.garland=(S.box.garland||0)+1}
-      else S.box[p.id]=(S.box[p.id]||0)+1;
+      S.box[p.id]=(S.box[p.id]||0)+1;
       save();render();beep(500);toast('Игрушка вернулась в коробку 🎒');return;
     }
   }
-  // повесить выбранную
-  if(!selected){toast('Сначала выбери игрушку из коробки 👆');return}
-  if(!boxCount(selected)){toast('Таких игрушек в коробке больше нет');selected=null;render();return}
+  // ничего не выбрано — берём первую игрушку из коробки и вешаем её
+  if(!selected){autoSelect()}
+  if(!selected){toast('Коробка пуста — купи игрушки в магазине! 🛍️');return}
+  if(!boxCount(selected)){selected=null;autoSelect();if(!selected){toast('Коробка пуста — купи игрушки в магазине! 🛍️');return}}
   if(selected==='star'){S.placed.push({id:'star',x:CX,y:66})}
   else if(selected==='garland'){S.garlandOn=true}
   else{
-    if(y<140||y>720){toast('Сюда не повесить — тапни по самой ёлке 🎄');return}
-    var maxX=halfW(y)-22;
-    if(Math.abs(x-CX)>maxX){toast('Мимо ёлки! Тапни ближе к веткам 🌲');return}
-    S.placed.push({id:selected,x:x,y:y});
+    // вешаем туда, куда тапнул, но прижимаем к веткам — «мимо» больше не бывает
+    var yy=Math.max(120,Math.min(730,y));
+    if(y<100||y>745||Math.abs(x-CX)>halfW(yy)+90){toast('Тапни по самой ёлке 🎄');return}
+    var maxX=halfW(yy)+30;
+    var xx=CX+Math.max(-maxX,Math.min(maxX,x-CX));
+    S.placed.push({id:selected,x:xx,y:yy});
   }
   S.box[selected]--;
   if(S.box[selected]<=0){delete S.box[selected];selected=null}
@@ -505,12 +526,23 @@ function drawMini(t){
   mctx.clearRect(0,0,300,420);
   mctx.drawImage(off,0,0,300,420);
   mctx.textAlign='center';mctx.textBaseline='middle';
+  // гирлянда Линды — та же, что и на большой ёлке: загорается вместе с ней
+  if(S.garlandOn){
+    var col=garColors[Math.floor(t/350)%garColors.length];
+    for(var gi2=0;gi2<gar.length;gi2+=6){
+      var gp=gar[gi2];
+      mctx.globalAlpha=0.9;mctx.fillStyle=col;mctx.shadowColor=col;mctx.shadowBlur=10;
+      mctx.beginPath();mctx.arc(gp.x/2,gp.y/2,4,0,Math.PI*2);mctx.fill();
+    }
+    mctx.shadowBlur=0;mctx.globalAlpha=1;
+  }
   MINI_SLOTS.forEach(function(s,i){
     var taken=(S.placedMini||[]).some(function(p){return p.slot===i});
     if(!taken){mctx.globalAlpha=0.5;mctx.strokeStyle='#fff';mctx.setLineDash([4,4]);mctx.beginPath();mctx.arc(s.x,s.y,20,0,Math.PI*2);mctx.stroke();mctx.setLineDash([]);mctx.globalAlpha=1}
   });
   (S.placedMini||[]).forEach(function(p){
-    mctx.font='26px sans-serif';mctx.fillText(TOYS[p.id].e,MINI_SLOTS[p.slot].x,MINI_SLOTS[p.slot].y);
+    if(p.slot===-1){mctx.font='30px sans-serif';mctx.fillText(TOYS[p.id].e,p.x,p.y)}
+    else{mctx.font='26px sans-serif';mctx.fillText(TOYS[p.id].e,MINI_SLOTS[p.slot].x,MINI_SLOTS[p.slot].y)}
   });
 }
 mcv.addEventListener('pointerdown',function(e){
@@ -518,25 +550,39 @@ mcv.addEventListener('pointerdown',function(e){
   if(!S.placedMini)S.placedMini=[];
   var r=mcv.getBoundingClientRect();
   var x=(e.clientX-r.left)*(300/r.width),y=(e.clientY-r.top)*(420/r.height);
+  // снять висящую игрушку — только если тапнул ТОЧНО по ней
   for(var i=0;i<(S.placedMini||[]).length;i++){
-    var p=S.placedMini[i],s=MINI_SLOTS[p.slot];
-    if(Math.abs(x-s.x)<24&&Math.abs(y-s.y)<24){
+    var p=S.placedMini[i],s=p.slot===-1?{x:p.x,y:p.y}:MINI_SLOTS[p.slot];
+    if(Math.abs(x-s.x)<16&&Math.abs(y-s.y)<16){
       S.placedMini.splice(i,1);S.box[p.id]=(S.box[p.id]||0)+1;
       save();render();beep(500);toast('Игрушка вернулась в коробку 🎒');return;
     }
   }
-  if(!selected){toast('Сначала выбери игрушку из коробки 👆');return}
-  if(selected==='star'||selected==='garland'){toast('Звезда и гирлянда — только на большую ёлку 🎄');return}
-  if(!boxCount(selected)){toast('Таких игрушек в коробке больше нет');selected=null;render();return}
-  var best=-1,bd=1e9;
-  MINI_SLOTS.forEach(function(s,i){
-    var taken=(S.placedMini||[]).some(function(p){return p.slot===i});
-    if(taken)return;
-    var d=Math.hypot(x-s.x,y-s.y);
-    if(d<bd){bd=d;best=i}
-  });
-  if(best<0||bd>60){toast('Тапни по кружочку на маленькой ёлке 🐶');return}
-  S.placedMini.push({id:selected,slot:best});
+  // ничего не выбрано — берём первую игрушку из коробки и вешаем её
+  if(!selected){autoSelect()}
+  if(!selected){toast('Коробка пуста — купи игрушки в магазине! 🛍️');return}
+  if(!boxCount(selected)){selected=null;autoSelect();if(!selected){toast('Коробка пуста — купи игрушки в магазине! 🛍️');return}}
+  // звезда — на макушку маленькой ёлки
+  if(selected==='star'){
+    S.placedMini.push({id:'star',slot:-1,x:150,y:52});
+  }
+  // гирлянда — зажигается сразу на обеих ёлочках
+  else if(selected==='garland'){
+    S.garlandOn=true;
+    S.box[selected]--;if(S.box[selected]<=0){delete S.box[selected];selected=null}
+    save();render();beep(990);toast('Гирлянда зажглась на обеих ёлочках! 💡');return;
+  }
+  else{
+    var best=-1,bd=1e9;
+    MINI_SLOTS.forEach(function(s,i){
+      var taken=(S.placedMini||[]).some(function(p){return p.slot===i});
+      if(taken)return;
+      var d=Math.hypot(x-s.x,y-s.y);
+      if(d<bd){bd=d;best=i}
+    });
+    if(best<0||bd>60){toast('Тапни по кружочку на маленькой ёлке 🐶');return}
+    S.placedMini.push({id:selected,slot:best});
+  }
   S.box[selected]--;if(S.box[selected]<=0){delete S.box[selected];selected=null}
   save();render();beep(990);toast('Линда рада! 🐶 Красота ёлки: '+beauty());
 });
