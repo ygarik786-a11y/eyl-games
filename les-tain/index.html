@@ -125,7 +125,8 @@ var S;
 try{S=JSON.parse(localStorage.getItem(SAVE_KEY))||defaultState()}catch(e){S=defaultState()}
 if(!S.inv)S=defaultState();
 if(S.lastSeen===undefined)S.lastSeen=0;
-(function(){var _d=defaultState();for(var _k in _d)if(S[_k]===undefined)S[_k]=_d[_k];if(!S.alch)S.alch={lv:1,xp:0};if(!S.buffs)S.buffs={}})();
+(function(){var _d=defaultState();for(var _k in _d)if(S[_k]===undefined)S[_k]=_d[_k];if(!S.alch)S.alch={lv:1,xp:0};if(!S.buffs)S.buffs={};
+if(!S.starterEgg&&!Object.keys(S.pets2||{}).length&&!Object.keys(S.eggs||{}).filter(function(k){return S.eggs[k]}).length){S.starterEgg=true;S.eggs.bunny=1;log('🎁 Подарок от леса: магическое яйцо Зайчика! Загляни в 🐾 Питомцы и вылупи его!')}})();
 function save(){S.lastSeen=Date.now();try{localStorage.setItem(SAVE_KEY,JSON.stringify(S))}catch(e){}}
 function $(id){return document.getElementById(id)}
 function esc(s){return String(s)}
@@ -486,6 +487,7 @@ function shopScreen(){
   var _mg=magicGoods();
   _mg.ings.forEach(function(g){h+='<div class="item"><span class="e">'+ING[g.id].e+'</span><span class="n">'+ING[g.id].n+'<small>'+RARN[ING[g.id].r]+'</small></span><button class="btn small gold" data-mbuying="'+g.id+'">'+g.p+'💰</button></div>'});
   h+='<div class="item"><span class="e">'+POTIONS[_mg.pot].e+'</span><span class="n">'+POTIONS[_mg.pot].n+'<small>'+POTIONS[_mg.pot].d+'</small></span><button class="btn small gold" data-mbuypot="'+_mg.pot+'">5💎</button></div>';
+  h+='<div class="item"><span class="e">🥚</span><span class="n">Магическое яйцо<small>Случайный питомец! Вылупляется в 🐾 Питомцах</small></span><button class="btn small gold" data-mbuyegg="1">100💰</button></div>';
   h+='</div>';
   return h;
 }
@@ -531,7 +533,7 @@ function doExplore(loc,mode){
   advanceHour(1);
   resetDaily();
   // магия: яйца питомцев
-  var eggCh=S.buffs.luck?0.08:0.04;
+  var eggCh=S.buffs.luck?0.1:0.05;
   if(chance(eggCh)){var eggId=rollEgg();S.eggs[eggId]=(S.eggs[eggId]||0)+1;log('🥚 Ты нашёл магическое яйцо! Загляни в 🐾 Питомцы — там его можно вылупить.');toast('🥚 Магическое яйцо! Загляни к питомцам!')}
   // расход баффов зелий
   ['luck','friend','treasure','invis','portal'].forEach(function(b){if(S.buffs[b])S.buffs[b]--});
@@ -546,7 +548,9 @@ function doExplore(loc,mode){
   if(roll<animalChance){startEncounter(loc);return}
   if(roll<0.8){findItem(loc);return}
   var noth=pick(['🍂 Только шорох листвы… Ничего не нашлось.','🌫️ Лес молчит. Попробуй ещё раз.','🐾 Следы ведут в никуда. Пусто.']);
-  log(noth);toast(noth);save();render();
+  log(noth);toast(noth);
+  if(chance(0.3)){var ing3=pickIng(loc);if(ing3){addIng(ing3,1);log('✨ Но под ногами — '+ING[ing3].e+' '+ING[ing3].n+'!');toast('✨ +'+ING[ing3].e+' '+ING[ing3].n+'!')}}
+  save();render();
 }
 function findItem(loc){
   var pool=loc.items.slice();
@@ -565,7 +569,7 @@ function findItem(loc){
   log('🔍 '+loc.n+': '+msg);
   toast(msg);
   // магические ингредиенты
-  var ingCh=S.buffs.luck?0.45:0.25;
+  var ingCh=S.buffs.luck?0.6:0.4;
   if(chance(ingCh)){var ing=pickIng(loc);if(ing){addIng(ing,1);log('✨ Магический ингредиент: '+ING[ing].e+' '+ING[ing].n);toast('✨ +'+ING[ing].e+' '+ING[ing].n+'!')}}
   // питомец находит что-то
   var _op2=Object.keys(S.pets2||{});
@@ -1175,6 +1179,9 @@ function alchScreen(){
 function petsScreen(){
   var owned=Object.keys(S.pets2||{});
   var h='<div class="card"><h2>🐾 Домик питомцев</h2><p>Твои питомцы живут здесь и гуляют по лагерю. Гладить, кормить и играть — дружба растёт, а питомцы приносят подарки!</p></div>';
+  h+='<div class="card"><h2>🧬 Коллекция питомцев ('+owned.length+'/17)</h2><p class="muted">Все 17 видов. Серые — ещё не найдены. Яйца — в лесу, в Колесе удачи и у странствующего алхимика!</p><p>';
+  Object.keys(PETS2).forEach(function(pid){var P=PETS2[pid];var got=!!S.pets2[pid];h+='<span class="badge" style="'+(got?'':'opacity:.4')+'">'+(got?P.e:'🥚')+' '+(got?(S.pets2[pid].name||P.n):'???')+'</span>'});
+  h+='</p></div>';
   h+='<div class="meadow">';
   owned.slice(0,8).forEach(function(id,i){var P=PETS2[id];var pt=S.pets2[id];h+='<span class="petwalk" style="animation-delay:'+(i*1.3)+'s;animation-duration:'+(9+i*1.5)+'s" data-petjump="'+id+'">'+(pt.skin||P.e)+'</span>'});
   h+='<div class="ground">'+(S.labDecor>=1?'🏠':'')+(S.labDecor>=2?'🛏️':'')+(S.labDecor>=3?'🎾':'')+(S.labDecor>=4?'🥣':'')+(S.labDecor>=5?'🌸':'')+'🌱🌼🍄🌿🌸</div></div>';
@@ -1185,7 +1192,7 @@ function petsScreen(){
     var P=PETS2[eid];
     h+='<div class="item"><span class="e">🥚</span><span class="n">Яйцо: '+P.n+'<small>'+RARN[P.r]+' • Вылупление стоит 10⚡</small></span><button class="btn small gold" data-hatch="'+eid+'">Вылупить</button><span class="cnt">×'+S.eggs[eid]+'</span></div>';
   }
-  if(!hasEgg)h+='<p class="muted">Яиц пока нет. Они находятся при исследовании леса (4% шанс) и в Колесе удачи!</p>';
+  if(!hasEgg)h+='<p class="muted">Яиц пока нет. Первое яйцо — подарок от леса! Ещё яйца — в лесу при исследовании, в Колесе удачи и у алхимика в магазине.</p>';
   h+='</div>';
   if(!owned.length)h+='<div class="card"><p>Питомцев пока нет. Найди яйцо — и вылупи первого друга! 🥚</p></div>';
   owned.forEach(function(id){
@@ -1258,7 +1265,7 @@ function brewFromRecipe(pid){
   return true;
 }
 document.addEventListener('click',function(e){
-  var t=e.target.closest('[data-ing],[data-slot],[data-brew],[data-clearpot],[data-brewrec],[data-uspot],[data-cast],[data-wheel],[data-hatch],[data-petpet],[data-feed],[data-play],[data-bath],[data-rename],[data-petjump],[data-labdecor],[data-bookclaim],[data-mbuying],[data-mbuypot]');
+  var t=e.target.closest('[data-ing],[data-slot],[data-brew],[data-clearpot],[data-brewrec],[data-uspot],[data-cast],[data-wheel],[data-hatch],[data-petpet],[data-feed],[data-play],[data-bath],[data-rename],[data-petjump],[data-labdecor],[data-bookclaim],[data-mbuying],[data-mbuypot],[data-mbuyegg]');
   if(!t)return;
   if(t.dataset.ing){
     var id=t.dataset.ing;
@@ -1385,6 +1392,13 @@ document.addEventListener('click',function(e){
     var mile=Math.floor(Math.min(100,Math.round(bs.got/bs.tot*100))/25);
     var claimed=S.bookClaim[k]||0;
     if(mile>claimed){var rw=(mile-claimed)*5;S.crys+=rw;S.bookClaim[k]=mile;log('📖 Награда за Книгу магии: +'+rw+'💎');toast('📖 +'+rw+'💎 за открытия!')}
+    save();render();return;
+  }
+  if(t.dataset.mbuyegg){
+    if(S.coins<100){toast('💰 Не хватает монет! Нужно 100💰');return}
+    S.coins-=100;var e2=rollEgg();S.eggs[e2]=(S.eggs[e2]||0)+1;
+    log('🥚 Алхимик продал тебе магическое яйцо!');
+    toast('🥚 Куплено магическое яйцо! Загляни в 🐾 Питомцы!');
     save();render();return;
   }
   if(t.dataset.mbuying){
