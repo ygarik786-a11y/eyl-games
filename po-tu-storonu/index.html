@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>👁️ По ту сторону тьмы — E.Y.L Игры</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:-apple-system,'Segoe UI',Roboto,sans-serif;background:#0a0c18;color:#e8e6f5;min-height:100vh;padding-bottom:30px}
+.wrap{max-width:560px;margin:0 auto;padding:10px}
+a.back{color:#b7a6e8;text-decoration:none;font-size:14px}
+h1.title{text-align:center;font-size:24px;margin:8px 0 2px;color:#cdbcf5;text-shadow:0 0 18px #6a4fd0}
+.sub{text-align:center;color:#8f88ad;font-size:13px;margin-bottom:8px}
+.dayline{text-align:center;font-size:14px;margin:6px 0;color:#cfc8ea}
+.stats{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:8px 0}
+.pill{background:#171b31;border:1px solid #2c3355;border-radius:999px;padding:5px 11px;font-size:14px}
+.bar{height:9px;background:#232842;border-radius:99px;overflow:hidden;margin:5px 0}
+.bar>i{display:block;height:100%;background:linear-gradient(90deg,#7a5fd0,#b79cff);border-radius:99px;transition:width .3s}
+.bar.hp>i{background:linear-gradient(90deg,#d04f6a,#ff8fa5)}
+.bar.ghost>i{background:linear-gradient(90deg,#4fd0c0,#a5ffe9)}
+.tabs{display:flex;gap:6px;overflow-x:auto;padding:6px 0;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{flex:0 0 auto;background:#171b31;border:1px solid #2c3355;color:#cfc8ea;border-radius:12px;padding:9px 12px;font-size:14px;cursor:pointer}
+.tab.on{background:#5b3df0;border-color:#5b3df0;color:#fff;font-weight:700}
+.card{background:#12162a;border:1px solid #262c4d;border-radius:16px;padding:14px;margin:10px 0;box-shadow:0 4px 18px rgba(0,0,0,.35)}
+.card h2{font-size:17px;margin-bottom:8px;color:#d9ccff}
+.card p{font-size:14px;line-height:1.45;margin:5px 0}
+.muted{color:#8f88ad;font-size:13px}
+.btn{display:inline-block;background:#2a2f52;border:1px solid #3a4170;color:#fff;border-radius:12px;padding:10px 14px;font-size:15px;cursor:pointer;margin:3px 2px}
+.btn:active{transform:scale(.97)}
+.btn.gold{background:linear-gradient(180deg,#8a63ff,#5b3df0);border-color:#8a63ff;font-weight:700}
+.btn.ghosty{background:#1a2038}
+.btn.small{padding:7px 10px;font-size:13px}
+.btn:disabled{opacity:.45}
+.row{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+.item{display:flex;align-items:center;gap:10px;background:#171b31;border:1px solid #2c3355;border-radius:12px;padding:9px 11px;margin:6px 0}
+.item .e{font-size:26px}
+.item .n{flex:1;font-size:14px}
+.item .n small{display:block;color:#8f88ad;font-size:12px;margin-top:2px;line-height:1.35}
+.cnt{background:#232842;border-radius:8px;padding:3px 8px;font-size:13px}
+.badge{display:inline-block;background:#232842;border:1px solid #3a4170;border-radius:999px;padding:4px 10px;font-size:13px;margin:2px}
+.scene{position:relative;height:150px;background:linear-gradient(180deg,#131a36,#0a0c18);border:1px solid #2c3355;border-radius:14px;overflow:hidden;margin:8px 0}
+.scene .moon{position:absolute;top:8px;right:12px;font-size:30px}
+.roam{position:absolute;font-size:30px;opacity:.85;animation:roam 11s ease-in-out infinite alternate;cursor:pointer}
+@keyframes roam{0%{transform:translate(0,0)}25%{transform:translate(38px,-12px)}50%{transform:translate(-14px,8px)}75%{transform:translate(24px,14px)}100%{transform:translate(-30px,-6px)}}
+.ghostbig{font-size:84px;text-align:center;display:block;animation:flick 2.6s infinite}
+@keyframes flick{0%,100%{opacity:1;transform:scale(1)}48%{opacity:.92}50%{opacity:.55;transform:scale(1.03)}52%{opacity:.95}76%{opacity:.8}}
+.log{background:#0d1022;border:1px solid #232842;border-radius:12px;padding:10px;font-size:13px;max-height:190px;overflow-y:auto;line-height:1.5}
+.log div{border-bottom:1px dashed #232842;padding:3px 0}
+#toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(90px);background:#241d47;border:1px solid #6a4fd0;color:#fff;padding:11px 18px;border-radius:999px;font-size:15px;z-index:99;transition:transform .3s;max-width:92vw;text-align:center;box-shadow:0 8px 30px rgba(0,0,0,.5)}
+#toast.show{transform:translateX(-50%) translateY(0)}
+.rar0{color:#cfc8ea}.rar1{color:#7ec8ff}.rar2{color:#c99aff}.rar3{color:#ffd76a}
+.spin{display:inline-block;animation:sp 1.2s linear infinite}@keyframes sp{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<a class="back" href="../">← Игры</a>
+<h1 class="title">👁️ По ту сторону тьмы</h1>
+<div class="sub">Охота на призраков • Расследования • Боссы тьмы</div>
+<div class="dayline" id="dayline"></div>
+<div class="stats" id="stats"></div>
+<div class="tabs" id="tabs"></div>
+<div id="app"></div>
+<div class="card"><h2>📜 Дневник охотника</h2><div class="log" id="log"></div></div>
+</div>
+<div id="toast"></div>
+<script>
+var PAGE_VER=1;
+(function(){try{fetch('../gversion.txt?r='+Date.now()).then(function(r){return r.text()}).then(function(t){var rv=parseInt(t,10)||0;if(rv>PAGE_VER&&sessionStorage.getItem('upd-dark')!=String(rv)){sessionStorage.setItem('upd-dark',String(rv));location.replace(location.pathname+'?u='+rv)}}).catch(function(){})}catch(e){}})();
+function $(s){return document.querySelector(s)}
+function rnd(a,b){return a+Math.floor(Math.random()*(b-a+1))}
+function chance(p){return Math.random()<p}
+function pick(a){return a[Math.floor(Math.random()*a.length)]}
+function shuffle(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t}return a}
+function todayStr(){var d=new Date();return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate()}
+var KEY='eyl-darkside-v1';
+function defaultState(){return{
+ day:1,phase:2,weather:'clear',energy:100,health:100,coins:60,ecto:0,xp:0,lv:1,
+ gear:{lantern:1,detector:1,amulet:0,book:0},stock:{trap:1,box:2,candle:2,salt:1},
+ seen:{},caught:{},bossesDone:{},casesDone:{},caseId:null,caseClues:0,
+ hunt:null,ach:{},qday:'',qprog:{},qdone:{},giftDay:'',streak:0,lastGift:'',
+ finds:{photo:0,tape:0,letter:0,key:0,diary:0,artifact:0},
+ log:[],totalCaught:0,totalEarn:0,fainted:0
+}}
+var S;
+try{S=JSON.parse(localStorage.getItem(KEY))||defaultState()}catch(e){S=defaultState()}
+(function(){var d=defaultState();for(var k in d)if(S[k]===undefined)S[k]=d[k]})();
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+function log(t){S.log.unshift(t);if(S.log.length>60)S.log.length=60}
+var toastT=null;
+function toast(t){var el=$('#toast');el.textContent=t;el.classList.add('show');clearTimeout(toastT);toastT=setTimeout(function(){el.classList.remove('show')},2600)}
+function addXP(n){S.xp+=n;while(S.xp>=S.lv*100){S.xp-=S.lv*100;S.lv++;toast('⭐ Новый уровень охотника: '+S.lv+'! Звание: '+rank());log('⭐ Уровень охотника повышен: '+S.lv+' — '+rank())}}
+function rank(){var R=['🌱 Новичок','🔍 Следопыт','👻 Охотник за призраками','🌙 Ночной охотник','⚔️ Истребитель тьмы','🛡️ Страж границы','👑 Легенда тьмы'];var i=S.lv>=15?6:S.lv>=10?5:S.lv>=7?4:S.lv>=5?3:S.lv>=3?2:S.lv>=2?1:0;return R[i]}
+var PHASES=[{e:'🌅',n:'Рассвет'},{e:'☀️',n:'День'},{e:'🌆',n:'Вечер'},{e:'🌙',n:'Ночь'}];
+var WEATHERS={clear:{e:'☀️',n:'Ясно'},fog:{e:'🌫️',n:'Туман'},rain:{e:'🌧️',n:'Дождь'},storm:{e:'⛈️',n:'Гроза'},snow:{e:'❄️',n:'Снег'}};
+function newWeather(){S.weather=pick(['clear','clear','fog','rain','storm','snow'])}
+function advance(n){for(var i=0;i<(n||1);i++){S.phase++;if(S.phase>3){S.phase=0;S.day++;newWeather();S.energy=Math.min(100,S.energy+25);log('🌅 Наступил день '+S.day+'. Погода: '+WEATHERS[S.weather].e+' '+WEATHERS[S.weather].n)}}}
+var CREATURES=[
+ {id:'girl',e:'👧',n:'Призрак девочки',type:'Призрак',power:40,rar:0,weak:'candle',story:'Маленькая девочка в белом платье ищет свою куклу в заброшенном доме. Не злая — просто потерялась между мирами.'},
+ {id:'keeper',e:'🧙',n:'Старый сторож',type:'Призрак',power:55,rar:0,weak:'lantern',story:'Сторож старой школы до сих пор обходит коридоры с фонарём. Если светить ярче его фонаря — он отступает.'},
+ {id:'zombie',e:'🧟',n:'Зомби с кладбища',type:'Зомби',power:60,rar:0,weak:'salt',story:'Поднялся из старой могилы, где не было соли на пороге. Соль для него — стена.'},
+ {id:'bat',e:'🦇',n:'Рой летучих мышей',type:'Стая',power:45,rar:0,weak:'bell',story:'Целый рой с чердака старого дома. Звон колокола разгоняет их в стороны.'},
+ {id:'spider',e:'🕷️',n:'Паук-ткач',type:'Тварь',power:65,rar:1,weak:'lantern',story:'Плетёт паутину между мирами. Кто запутался — слышит шёпот. Яркий свет рвёт его нити.'},
+ {id:'witch',e:'🧹',n:'Ведьма Марта',type:'Ведьма',power:80,rar:1,weak:'bell',story:'Марта варила зелья ещё при жизни и не собирается останавливаться. Церковный звон сбивает её заклинания.'},
+ {id:'wolf',e:'🐺',n:'Оборотень',type:'Оборотень',power:90,rar:1,weak:'salt',story:'Днём — обычный человек, ночью — зверь. Круг соли не даёт ему подойти ближе.'},
+ {id:'vampire',e:'🧛',n:'Вампир Влад',type:'Вампир',power:100,rar:2,weak:'lantern',story:'Влад пережил три века и очень не любит яркий свет — он напоминает ему о солнце.'},
+ {id:'doppel',e:'🪞',n:'Двойник',type:'Двойник',power:95,rar:2,weak:'book',story:'Выглядит точь-в-точь как ты. Только книга заклинаний показывает, кто из вас настоящий.'},
+ {id:'fog',e:'🌫️',n:'Туманный дух',type:'Дух',power:85,rar:2,weak:'candle',story:'Он и есть туман. Свеча в тумане — как маяк: дух теряет свою форму рядом с живым огнём.'},
+ {id:'fire',e:'🔥',n:'Огненный дух',type:'Дух',power:105,rar:2,weak:'candle',story:'Родился в пожаре старой библиотеки. Парадокс: пламя свечи его успокаивает и усыпляет.'},
+ {id:'ice',e:'🧊',n:'Ледяной дух',type:'Дух',power:105,rar:2,weak:'lantern',story:'Замораживает всё, к чему прикоснётся. Тёплый свет фонаря плавит его оболочку.'},
+ {id:'invis',e:'👁️',n:'Невидимка',type:'Невидимый',power:110,rar:3,weak:'book',story:'Его никто никогда не видел. Только детектор пищит, а книга заклинаний проявляет его силуэт.'},
+ {id:'ancient',e:'🦑',n:'Древний монстр',type:'Древний',power:130,rar:3,weak:'book',story:'Он спал под городом тысячу лет. Древние слова из книги — единственное, что он ещё слушается.'}
+];
+var BOSSES=[
+ {id:'b1',e:'👻',n:'Дух-хранитель дома',hp:120,lv:2,weak:'candle',coins:80,ecto:20,story:'Первый настоящий босс. Хранитель заброшенного дома не отдаёт его без боя.'},
+ {id:'b2',e:'🌫️',n:'Туманный лорд',hp:160,lv:3,weak:'lantern',coins:120,ecto:30,story:'Повелитель всех туманов округи. В его тумане пропадали целые улицы.'},
+ {id:'b3',e:'🔥',n:'Огненный демон',hp:200,lv:5,weak:'candle',coins:180,ecto:45,story:'Демон из старой котельной. Говорят, он до сих пор топит печи ада.'},
+ {id:'b4',e:'❄️',n:'Ледяная королева',hp:240,lv:7,weak:'lantern',coins:250,ecto:60,story:'Её сердце — кусок вечного льда. Она замораживает время в своём дворце.'},
+ {id:'b5',e:'🫥',n:'Невидимый ужас',hp:280,lv:9,weak:'book',coins:350,ecto:80,story:'Ты услышишь его раньше, чем увидишь. А увидишь — может быть поздно.'},
+ {id:'b6',e:'🐙',n:'Древний бог глубин',hp:340,lv:12,weak:'book',coins:500,ecto:120,story:'Ему поклонялись, когда города ещё не было. Он проснулся — и голоден.'},
+ {id:'b7',e:'🌑',n:'Легендарный дух тьмы',hp:420,lv:15,weak:'candle',coins:800,ecto:200,story:'Сама тьма по ту сторону. Победишь его — станешь легендой.'}
+];
+function creatureById(id){for(var i=0;i<CREATURES.length;i++)if(CREATURES[i].id===id)return CREATURES[i];return null}
+function bossById(id){for(var i=0;i<BOSSES.length;i++)if(BOSSES[i].id===id)return BOSSES[i];return null}
+var RARN=['Обычное','Редкое','Эпическое','Легендарное'];
+var CASES=[
+ {id:'c1',t:'📂 Дело №1: Шёпот в старом доме',intro:'Соседи жалуются: в заброшенном доме по ночам плачет ребёнок и горит свет, хотя дом пуст уже 20 лет.',locs:['🏚️ Заброшенный дом','🪦 Старое кладбище','🌳 Тёмный парк'],clues:['🔍 Улика: детские следы на пыльном полу — ведут в детскую комнату.','🔍 Улика: старая кукла с оторванной головой. На шее — медальон с фотографией.','🔍 Улика: в детской на стене детский рисунок: девочка и высокая тёмная фигура за окном.'],culprits:['👧 Призрак девочки ищет свою куклу','🧛 Вампир поселился в подвале','👨 Сосед пугает людей ради шутки'],right:0,coins:70,ecto:10},
+ {id:'c2',t:'📂 Дело №2: Пропавший сторож',intro:'Сторож школы пропал три дня назад. На его посту — только фонарь, который до сих пор горит.',locs:['🏫 Старая школа','🔦 Пост сторожа','🕳️ Школьный подвал'],clues:['🔍 Улика: журнал дежурств. Последняя запись: «Они стучат из подвала. Иду проверить».','🔍 Улика: в подвале — круг из соли и потухшие свечи. Сторож что-то знал!','🔍 Улика: на стене подвала царапины и надпись: «Не открывай дверь в конце коридора».'],culprits:['🧙 Сторож сам стал призраком и охраняет школу','🐺 Оборотень утащил его в лес','🚪 Он ушёл через обычную дверь и уехал'],right:0,coins:100,ecto:15},
+ {id:'c3',t:'📂 Дело №3: Звонок с того света',intro:'Женщине каждую ночь в 03:33 звонит номер её мужа. Муж умер год назад. В трубке — только дыхание.',locs:['🏠 Квартира женщины','📻 Радиорубка','⚰️ Кладбище у могилы мужа'],clues:['🔍 Улика: звонки идут точно в 03:33 — «час духов». Детализация: сигнала из сети нет.','🔍 Улика: на могиле мужа — свежие цветы и включённый старый радиоприёмник.','🔍 Улика: запись звонка: сквозь дыхание слышно слова «...холодно... найди...»'],culprits:['👻 Дух мужа пытается что-то сообщить','📱 Сбой телефонной сети','🧹 Ведьма Марта балуется с радио'],right:0,coins:130,ecto:20},
+ {id:'c4',t:'📂 Дело №4: Зеркало в антикварном',intro:'В антикварном магазине зеркало XVIII века. Все, кто в него смотрелся, видят за спиной второго себя.',locs:['🪞 Антикварный магазин','📦 Склад магазина','🏛️ Старый особняк'],clues:['🔍 Улика: на обороте зеркала надпись: «Кто смотрит вдвоём — останется один».','🔍 Улика: записи камер: отражение покупателя двигается само, без человека.','🔍 Улика: прежний владелец зеркала исчез в 1897 году. В тот же день «появился» его двойник.'],culprits:['🪞 В зеркале живёт двойник и меняется местами с людьми','💡 Просто игра света и старая амальгама','🧛 Вампир Влад не отражается — вот и весь секрет'],right:0,coins:170,ecto:30},
+ {id:'c5',t:'📂 Дело №5: Туман над городом',intro:'Третью ночь город накрывает туман, в котором пропадают звуки. Двое людей не вернулись домой.',locs:['🌉 Мост через реку','🌫️ Туманная улица','🗼 Старый маяк'],clues:['🔍 Улика: в тумане детектор показывает сотни слабых сигналов — как будто туман живой.','🔍 Улика: пропавшие люди нашлись на маяке: живые, но не помнят три дня.','🔍 Улика: в маяке — древний журнал: «Туман приходит, когда Древний просыпается».'],culprits:['🦑 Древний монстр дышит туманом из-под города','🌫️ Обычный речной туман и паника','🧹 Ведьма Марта напустила туман ради зелий'],right:0,coins:250,ecto:50}
+];
+var DECOYS=['🏥 Старая больница','🚂 Вокзал','🎭 Театр','🏭 Заброшенный завод','⛪ Старая церковь','🌲 Лесная опушка'];
+var GEARSHOP=[
+ {id:'lantern',e:'🔦',n:'Фонарь охотника',kind:'gear',max:3,price:[0,60,140],d:'Сила света против призраков и тварей. Уровень:'},
+ {id:'detector',e:'📟',n:'Детектор ЭМП',kind:'gear',max:3,price:[0,70,160],d:'Со 2 уровня определение существа — бесплатно, с 3 — точнее поиск. Уровень:'},
+ {id:'amulet',e:'🛡️',n:'Амулет защиты',kind:'gear',max:3,price:[50,110,220],d:'Снижает урон от атак существ. Уровень:'},
+ {id:'book',e:'📖',n:'Книга заклинаний',kind:'gear',max:3,price:[80,170,320],d:'Открывает атаку заклинаниями — сильна против двойников и древних. Уровень:'},
+ {id:'trap',e:'🪤',n:'Ловушка для духов',kind:'stock',price:25,d:'Ставится на охоте: +25% к поимке, существо не убежит.'},
+ {id:'box',e:'🧪',n:'Контейнер для духов',kind:'stock',price:30,d:'Нужен для поимки. Один контейнер — одно существо.'},
+ {id:'candle',e:'🕯️',n:'Свеча ясновидения',kind:'stock',price:15,d:'Атака огнём свечи: сильна против духов, успокаивает их.'},
+ {id:'salt',e:'🧂',n:'Освящённая соль',kind:'stock',price:15,d:'Атака солью: стена для зомби и оборотней.'}
+];
+var ACH=[
+ {id:'a1',e:'👻',n:'Первый улов',d:'Поймать первое существо',r:30,check:function(){return S.totalCaught>=1}},
+ {id:'a2',e:'🎒',n:'Коллекционер',d:'Поймать 5 существ',r:60,check:function(){return S.totalCaught>=5}},
+ {id:'a3',e:'🏆',n:'Мастер охоты',d:'Поймать 15 существ',r:150,check:function(){return S.totalCaught>=15}},
+ {id:'a4',e:'📖',n:'Энциклопедист',d:'Встретить 8 разных существ',r:60,check:function(){return Object.keys(S.seen).length>=8}},
+ {id:'a5',e:'🌑',n:'Все виды тьмы',d:'Встретить все 14 видов существ',r:200,check:function(){return Object.keys(S.seen).length>=14}},
+ {id:'a6',e:'👹',n:'Победитель босса',d:'Победить первого босса',r:100,check:function(){return Object.keys(S.bossesDone).length>=1}},
+ {id:'a7',e:'⚔️',n:'Гроза боссов',d:'Победить 4 боссов',r:250,check:function(){return Object.keys(S.bossesDone).length>=4}},
+ {id:'a8',e:'📂',n:'Детектив',d:'Завершить 1 расследование',r:50,check:function(){return Object.keys(S.casesDone).length>=1}},
+ {id:'a9',e:'🕵️',n:'Главный следователь',d:'Завершить все 5 расследований',r:300,check:function(){return Object.keys(S.casesDone).length>=5}},
+ {id:'a10',e:'⭐',n:'Ветеран',d:'Достичь 5 уровня охотника',r:80,check:function(){return S.lv>=5}},
+ {id:'a11',e:'👑',n:'Легенда',d:'Достичь 10 уровня охотника',r:200,check:function(){return S.lv>=10}},
+ {id:'a12',e:'💰',n:'Богатый охотник',d:'Заработать всего 1000💰',r:100,check:function(){return S.totalEarn>=1000}},
+ {id:'a13',e:'🌙',n:'Ночной дозор',d:'Поймать существо ночью',r:50,check:function(){return !!S.nightCatch}},
+ {id:'a14',e:'🧪',n:'Полный контейнер',d:'Держать 3 разных существ в коллекции',r:70,check:function(){return Object.keys(S.caught).length>=3}},
+ {id:'a15',e:'🔥',n:'Без страха',d:'Победить босса, ни разу не упав в обморок',r:120,check:function(){return Object.keys(S.bossesDone).length>=1&&S.fainted===0}}
+];
+var DQUESTS=[
+ {id:'scan',e:'📟',n:'Сканировать детектором 3 раза',n2:3,r:30},
+ {id:'catch',e:'👻',n:'Поймать 1 существо',n2:1,r:50},
+ {id:'clue',e:'🔍',n:'Найти 2 улики в делах',n2:2,r:40}
+];
+function checkQuests(){var td=todayStr();if(S.qday!==td){S.qday=td;S.qprog={};S.qdone={}}}
+function qAdd(id,n){checkQuests();S.qprog[id]=(S.qprog[id]||0)+(n||1)}
+function rollEvent(){
+ var ev=pick(['call','radio','letter','steps','photo']);
+ if(ev==='call'){log('📞 Странный звонок: номер не определён, в трубке — шёпот: «...мы видим тебя...» +5⭐');addXP(5)}
+ else if(ev==='radio'){S.finds.tape++;log('📻 Радио само включилось на пустой частоте. Сквозь шум — голос. Ты записал кассету! +1📼')}
+ else if(ev==='letter'){S.finds.letter++;log('✉️ Письмо без отправителя: «Не ходи на маяк в туман». +1✉️')}
+ else if(ev==='steps'){log('👣 Свежие следы ведут к старому дому... и обрываются у стены. Жутко. +5⭐');addXP(5)}
+ else{S.finds.photo++;log('📸 На случайном фото с телефона — фигура за твоим плечом. +1📸 (можно продать)')}
+}
+var ATK={
+ lantern:{e:'🔦',n:'Свет фонаря',dmg:function(){return 8+S.gear.lantern*6}},
+ bell:{e:'🔔',n:'Звон колокола',dmg:function(){return 10}},
+ candle:{e:'🕯️',n:'Пламя свечи',stock:'candle',dmg:function(){return 15}},
+ salt:{e:'🧂',n:'Горсть соли',stock:'salt',dmg:function(){return 16}},
+ book:{e:'📖',n:'Заклинание из книги',need:'book',dmg:function(){return 9+S.gear.book*8}}
+};
+function pickCreature(){
+ var boost={fog:['fog','invis'],storm:['ancient','doppel'],snow:['ice'],rain:['zombie','spider'],clear:[]};
+ var pool=[];
+ CREATURES.forEach(function(c){
+  var w=[10,6,3,1.2][c.rar];
+  if(S.phase===3)w*= (c.rar>=2?1.8:1.1);
+  if(S.phase===1&&c.rar>=3)w*=0.4;
+  if((boost[S.weather]||[]).indexOf(c.id)>=0)w*=2.2;
+  if(S.lv<3&&c.rar>=3)w*=0.3;
+  for(var i=0;i<Math.round(w*10);i++)pool.push(c);
+ });
+ return pick(pool);
+}
+function startHunt(c,hp,boss){
+ S.hunt={cid:c.id,e:c.e,n:c.n,hp:hp,maxHp:hp,weak:c.weak,rar:c.rar,ident:false,trap:false,boss:boss?boss.id:null,calm:false};
+ S.seen[c.id]=true;
+}
+function ghostHit(){
+ var dmg=Math.max(1,rnd(5,14)-S.gear.amulet*3);
+ S.health-=dmg;
+ log('💥 '+S.hunt.n+' атакует! −'+dmg+'❤️');
+ toast('💥 Атака! −'+dmg+'❤️');
+ if(S.health<=0){
+  S.fainted++;var lost=Math.floor(S.coins*0.1);S.coins-=lost;S.health=50;S.energy=Math.max(20,S.energy-20);S.hunt=null;
+  log('😵 Ты очнулся на базе. Существо утащило '+lost+'💰. Здоровье восстановлено до 50.');
+  toast('😵 Ты очнулся на базе!');
+ }
+}
+function doScan(){
+ if(S.energy<5){toast('⚡ Нет энергии! Поспи на базе.');return}
+ if(S.hunt){toast('👻 У тебя уже идёт охота!');return}
+ S.energy-=5;qAdd('scan',1);advance(1);
+ var c=pickCreature();
+ var hp=Math.round(c.power*(S.weather==='storm'?1.2:1));
+ startHunt(c,hp,null);
+ log('📟 Детектор пищит! Сигнал: '+c.type+'. Что-то рядом...');
+ if(chance(0.25))rollEvent();
+ save();render();
+}
+function doBoss(id){
+ var b=bossById(id);if(!b)return;
+ if(S.lv<b.lv){toast('🔒 Нужен уровень охотника '+b.lv+'!');return}
+ if(S.energy<10){toast('⚡ Нужно 10 энергии на босса!');return}
+ if(S.hunt){toast('👻 Сначала закончи текущую охоту!');return}
+ S.energy-=10;advance(1);
+ startHunt({id:b.id,e:b.e,n:b.n,weak:b.weak,rar:3},b.hp,b);
+ log('👹 БОСС: '+b.n+'! '+b.story);
+ save();render();
+}
+function doIdentify(){
+ var h=S.hunt;if(!h||h.ident)return;
+ if(S.gear.detector<2){if(S.energy<3){toast('⚡ Нужно 3 энергии!');return}S.energy-=3}
+ h.ident=true;addXP(5);
+ var c=creatureById(h.cid)||bossById(h.cid);
+ log('🔍 Определено: '+h.n+' ('+(c?c.type||'Босс':'')+'). Слабость: '+ATK[h.weak].e+' '+ATK[h.weak].n);
+ save();render();
+}
+function doAttack(kind){
+ var h=S.hunt;if(!h)return;
+ var A=ATK[kind];if(!A)return;
+ if(A.need&&S.gear[A.need]<1){toast('🔒 Сначала купи книгу заклинаний в 🎒 Снаряжении!');return}
+ if(A.stock){if((S.stock[A.stock]||0)<1){toast('Нет расходника! Купи в 🎒 Снаряжении');return}S.stock[A.stock]--}
+ var base=A.dmg();var weak=h.weak===kind;
+ var dmg=Math.max(3,Math.round(base*(weak?2.2:1)*(0.75+Math.random()*0.5)));
+ h.hp-=dmg;h.calm=(kind==='candle');addXP(2);
+ log(A.e+' '+A.n+': −'+dmg+' энергии существу'+(weak?' 💥 СЛАБОСТЬ!':''));
+ if(h.hp<=0){h.hp=0;log('🌟 '+h.n+' обессилен! Теперь лови в контейнер!')}
+ else if(chance(h.calm?0.18:0.35))ghostHit();
+ save();render();
+}
+function doTrap(){
+ var h=S.hunt;if(!h||h.trap)return;
+ if((S.stock.trap||0)<1){toast('🪤 Нет ловушек! Купи в 🎒 Снаряжении');return}
+ S.stock.trap--;h.trap=true;
+ log('🪤 Ловушка поставлена! Поимка облегчена, существо не убежит.');
+ save();render();
+}
+function doCatch(){
+ var h=S.hunt;if(!h)return;
+ if((S.stock.box||0)<1){toast('🧪 Нет контейнеров! Купи в 🎒 Снаряжении');return}
+ var pct=h.hp/h.maxHp*100;
+ var ch=h.boss?(pct<=0?100:pct<=25?50:10):(pct<=0?100:pct<=35?65:20);
+ if(h.trap)ch+=25;
+ S.stock.box--;
+ if(chance(Math.min(100,ch)/100)){
+  var c=creatureById(h.cid),b=h.boss?bossById(h.boss):null;
+  var coins=b?b.coins:(10+h.rar*10+rnd(0,10));
+  var ecto=b?b.ecto:[5,10,20,40][h.rar];
+  S.coins+=coins;S.totalEarn+=coins;S.ecto+=ecto;
+  S.caught[h.cid]=(S.caught[h.cid]||0)+1;S.totalCaught++;qAdd('catch',1);
+  if(S.phase===3)S.nightCatch=true;
+  if(b){S.bossesDone[b.id]=true;S.finds.artifact++;log('🏺 Босс оставил древний артефакт! +1🏺')}
+  addXP(b?100:30);
+  log('🎉 ПОЙМАНО: '+h.e+' '+h.n+'! +'+coins+'💰 +'+ecto+'👻');
+  toast('🎉 Поймано: '+h.n+'!');
+  S.hunt=null;
+ }else{
+  log('💨 '+h.n+' вырвался из контейнера!');
+  toast('💨 Вырвался!');
+  if(!h.trap&&chance(0.5)){log('🌫️ '+h.n+' исчез во тьме...');S.hunt=null}
+  else if(S.hunt)ghostHit();
+ }
+ save();render();
+}
+function doRelease(){
+ var h=S.hunt;if(!h||h.hp>0)return;
+ var ecto=[10,20,40,80][h.rar]*(h.boss?3:1);
+ S.ecto+=ecto;log('🕊️ Ты отпустил '+h.n+'. В благодарность — +'+ecto+'👻 эктоплазмы');
+ toast('+'+ecto+'👻 эктоплазмы');
+ S.hunt=null;save();render();
+}
+function doFlee(){if(S.hunt){log('🏃 Ты отступил. '+S.hunt.n+' остался во тьме.');S.hunt=null}save();render()}
+var TAB='base',CASEMSG='';
+function baseScreen(){
+ checkQuests();
+ var h='<div class="scene"><span class="moon">'+(S.phase===3?'🌙':S.phase===0?'🌅':'☀️')+'</span>';
+ var roamE=['👻','🦇','🕷️','🌫️','👧','🧛','🕸️'];
+ shuffle(roamE).slice(0,S.phase===3?5:3).forEach(function(e,i){h+='<span class="roam" style="left:'+(8+i*20)+'%;top:'+(15+((i*29)%55))+'%;animation-delay:'+(i*1.4)+'s" data-goto="hunt">'+e+'</span>'});
+ h+='</div>';
+ h+='<div class="card"><h2>🏠 База охотника</h2><p>День '+S.day+' • '+PHASES[S.phase].e+' '+PHASES[S.phase].n+' • Погода: '+WEATHERS[S.weather].e+' '+WEATHERS[S.weather].n+'</p><p class="muted">Ночью существа сильнее и встречаются чаще. В туман и грозу выходят редкие твари. Существа на улице — живые, нажми на одно, чтобы перейти к охоте!</p>';
+ h+='<div class="row"><button class="btn gold" data-goto="hunt">🔍 На охоту</button><button class="btn" data-radio="1">📻 Слушать эфир (2⚡)</button><button class="btn" data-sleep="1">😴 Спать до утра</button></div>';
+ if(S.hunt)h+='<p>👻 <b>Идёт охота:</b> '+S.hunt.n+' — энергия существа: '+S.hunt.hp+'/'+S.hunt.maxHp+'</p>';
+ h+='</div>';
+ if(S.giftDay!==todayStr()){
+  h+='<div class="card"><h2>🎁 Ежедневный подарок</h2><p>Забери подарок за вход! Серия дней: '+(S.streak||0)+'</p><button class="btn gold" data-gift="1">🎁 Забрать подарок</button></div>';
+ }
+ h+='<div class="card"><h2>📋 Задания дня</h2>';
+ DQUESTS.forEach(function(q){
+  var p=Math.min(S.qprog[q.id]||0,q.n2),done=p>=q.n2,claimed=!!S.qdone[q.id];
+  h+='<div class="item"><span class="e">'+q.e+'</span><span class="n">'+q.n+'<small>Прогресс: '+p+'/'+q.n2+' • Награда: '+q.r+'💰</small></span>'+(claimed?'<span class="cnt">✅</span>':done?'<button class="btn small gold" data-qclaim="'+q.id+'">Забрать</button>':'<span class="cnt">'+p+'/'+q.n2+'</span>')+'</div>';
+ });
+ h+='</div>';
+ h+='<div class="card"><h2>🎒 Находки</h2><p>';
+ h+='<span class="badge">📸 Фото ×'+S.finds.photo+'</span><span class="badge">📼 Кассеты ×'+S.finds.tape+'</span><span class="badge">✉️ Письма ×'+S.finds.letter+'</span><span class="badge">🔑 Ключи ×'+S.finds.key+'</span><span class="badge">📔 Дневники ×'+S.finds.diary+'</span><span class="badge">🏺 Артефакты ×'+S.finds.artifact+'</span></p>';
+ if(S.finds.photo>0)h+='<button class="btn small" data-sell="photo">Продать все фото ('+(S.finds.photo*15)+'💰)</button> ';
+ if(S.finds.tape>0)h+='<button class="btn small" data-sell="tape">Продать все кассеты ('+(S.finds.tape*20)+'💰)</button>';
+ h+='<p class="muted">Фото и кассеты находятся в странных событиях. Артефакты дают боссы — это твоя коллекция трофеев.</p></div>';
+ return h;
+}
+function huntScreen(){
+ var h='';
+ if(!S.hunt){
+  h+='<div class="card"><h2>📟 Поиск аномалий</h2><p>Детектор ЭМП улавливает существ рядом. Сканирование: 5⚡. Ночью и в плохую погоду добыча богаче!</p><div class="row"><button class="btn gold" data-scan="1">📟 Сканировать (5⚡)</button></div><p class="muted">Как охотиться: найди существо → 🔍 определи его слабость → ослабляй снаряжением → лови в 🧪 контейнер, когда его энергия упадёт.</p></div>';
+  h+='<div class="card"><h2>👹 Боссы тьмы</h2>';
+  BOSSES.forEach(function(b){
+   var done=!!S.bossesDone[b.id],open=S.lv>=b.lv;
+   h+='<div class="item"><span class="e">'+b.e+'</span><span class="n">'+b.n+'<small>'+b.story+'<br>❤️ '+b.hp+' • Награда: '+b.coins+'💰 +'+b.ecto+'👻'+(open?'':' • 🔒 нужен уровень '+b.lv)+'</small></span>'+(done?'<span class="cnt">✅ Побеждён</span>':open?'<button class="btn small gold" data-boss="'+b.id+'">В бой (10⚡)</button>':'<span class="muted">🔒 '+b.lv+' ур.</span>')+'</div>';
+  });
+  h+='</div>';
+  return h;
+ }
+ var hu=S.hunt;
+ var pct=Math.max(0,Math.round(hu.hp/hu.maxHp*100));
+ h+='<div class="card"><span class="ghostbig">'+(hu.ident?hu.e:'👻')+'</span>';
+ h+='<h2 style="text-align:center">'+(hu.ident?hu.e+' '+hu.n:'❓ Неизвестное существо')+(hu.boss?' 👹 БОСС':'')+'</h2>';
+ h+='<p class="muted" style="text-align:center">Энергия существа</p><div class="bar ghost"><i style="width:'+pct+'%"></i></div><p style="text-align:center">'+hu.hp+'/'+hu.maxHp+' ('+pct+'%)</p>';
+ if(hu.ident){
+  var c=creatureById(hu.cid);
+  h+='<p>Тип: <b>'+(c?c.type:'Босс')+'</b> • Редкость: <span class="rar'+hu.rar+'">'+RARN[hu.rar]+'</span><br>Слабость: '+ATK[hu.weak].e+' '+ATK[hu.weak].n+'</p>';
+  if(c)h+='<p class="muted">'+c.story+'</p>';
+ }else{
+  h+='<p class="muted">Детектор трещит, но кто это — непонятно. Определи существо, чтобы узнать его слабость!</p>';
+ }
+ if(hu.trap)h+='<p>🪤 Ловушка стоит: поимка облегчена, существо не убежит.</p>';
+ h+='<div class="row">';
+ if(!hu.ident)h+='<button class="btn gold" data-ident="1">🔍 Определить'+(S.gear.detector>=2?' (бесплатно)':' (3⚡)')+'</button>';
+ h+='</div><h2>⚔️ Снаряжение в бою</h2><div class="row">';
+ Object.keys(ATK).forEach(function(k){
+  var A=ATK[k];
+  var label=A.e+' '+A.n;
+  if(A.stock)label+=' ('+(S.stock[A.stock]||0)+')';
+  if(A.need&&S.gear[A.need]<1)label+=' 🔒';
+  h+='<button class="btn" data-atk="'+k+'">'+label+'</button>';
+ });
+ if(!hu.trap)h+='<button class="btn" data-trap="1">🪤 Поставить ловушку ('+(S.stock.trap||0)+')</button>';
+ h+='</div><h2>🧪 Поимка</h2><div class="row">';
+ h+='<button class="btn '+(pct<=35?'gold':'')+'" data-catch="1">🧪 Ловить в контейнер ('+(S.stock.box||0)+')'+(pct<=0?' — 100%!':pct<=35?' — хороший шанс!':' — рано, ослабь ещё')+'</button>';
+ if(hu.hp<=0)h+='<button class="btn" data-release="1">🕊️ Отпустить за эктоплазму</button>';
+ h+='<button class="btn ghosty" data-flee="1">🏃 Отступить</button>';
+ h+='</div></div>';
+ return h;
+}
+function casesScreen(){
+ var h='';
+ if(!S.caseId){
+  h+='<div class="card"><h2>📂 Расследования</h2><p class="muted">Каждое дело: обследуй места, собери 3 улики и назови виновника. Дела открываются по порядку.</p></div>';
+  CASES.forEach(function(cs,i){
+   var done=!!S.casesDone[cs.id],open=i===0||!!S.casesDone[CASES[i-1].id];
+   h+='<div class="card"><h2>'+cs.t+'</h2><p>'+cs.intro+'</p><p class="muted">Награда: '+cs.coins+'💰 +'+cs.ecto+'👻</p>'+(done?'<p>✅ Дело закрыто</p>':open?'<button class="btn gold" data-case="'+cs.id+'">🕵️ Начать расследование</button>':'<p class="muted">🔒 Сначала закрой предыдущее дело</p>')+'</div>';
+  });
+  return h;
+ }
+ var cs=null;CASES.forEach(function(x){if(x.id===S.caseId)cs=x});
+ if(!cs){S.caseId=null;return casesScreen()}
+ h+='<div class="card"><h2>'+cs.t+'</h2><p>'+cs.intro+'</p><p>Улик собрано: '+S.caseClues+'/3</p>';
+ for(var i=0;i<S.caseClues;i++)h+='<p>'+cs.clues[i]+'</p>';
+ if(CASEMSG)h+='<p>'+CASEMSG+'</p>';
+ if(S.caseClues<3){
+  var locs=shuffle([cs.locs[S.caseClues]].concat(shuffle(DECOYS).slice(0,3)));
+  h+='<p class="muted">Куда отправишься искать улики? Неверное место — просто потеря времени и 2⚡.</p><div class="row">';
+  locs.forEach(function(l){h+='<button class="btn" data-loc="'+l+'">'+l+'</button>'});
+  h+='</div>';
+ }else{
+  h+='<p><b>Все улики собраны! Кто стоит за этим делом?</b></p><div class="row">';
+  cs.culprits.forEach(function(cu,i){h+='<button class="btn gold" data-culprit="'+i+'">'+cu+'</button>'});
+  h+='</div>';
+ }
+ h+='<div class="row"><button class="btn ghosty" data-casequit="1">Отложить дело</button></div></div>';
+ return h;
+}
+function bookScreen(){
+ var seenN=Object.keys(S.seen).length;
+ var h='<div class="card"><h2>📖 Энциклопедия существ</h2><p class="muted">Встречено видов: '+seenN+'/14. Серые записи — существа, которых ты ещё не встречал. Ищи ночью, в туман и в грозу!</p></div>';
+ CREATURES.forEach(function(c){
+  var seen=!!S.seen[c.id],caughtN=S.caught[c.id]||0;
+  if(seen)h+='<div class="item"><span class="e">'+c.e+'</span><span class="n">'+c.n+' • <span class="rar'+c.rar+'">'+RARN[c.rar]+'</span><small>Тип: '+c.type+' • Сила: '+c.power+' • Слабость: '+ATK[c.weak].e+' '+ATK[c.weak].n+'<br>'+c.story+'<br>Поймано: '+caughtN+'</small></span></div>';
+  else h+='<div class="item" style="opacity:.45"><span class="e">❓</span><span class="n">Неизвестное существо<small>Ещё не встречалось. Продолжай сканировать!</small></span></div>';
+ });
+ return h;
+}
+function gearScreen(){
+ var h='<div class="card"><h2>🎒 Снаряжение охотника</h2><p class="muted">Монеты 💰 — на всё. Эктоплазма 👻 копится с поимок — это твой трофейный счёт.</p></div>';
+ GEARSHOP.forEach(function(g){
+  if(g.kind==='gear'){
+   var lv=S.gear[g.id]||0,maxed=lv>=g.max;
+   h+='<div class="item"><span class="e">'+g.e+'</span><span class="n">'+g.n+'<small>'+g.d+' '+lv+'/'+g.max+'</small></span>'+(maxed?'<span class="cnt">МАКС</span>':'<button class="btn small gold" data-buy="'+g.id+'">Улучшить '+g.price[lv]+'💰</button>')+'</div>';
+  }else{
+   h+='<div class="item"><span class="e">'+g.e+'</span><span class="n">'+g.n+'<small>'+g.d+' • У тебя: '+(S.stock[g.id]||0)+'</small></span><button class="btn small gold" data-buy="'+g.id+'">Купить '+g.price+'💰</button></div>';
+  }
+ });
+ h+='<div class="card"><h2>🧰 Твои запасы</h2><p><span class="badge">🪤 Ловушки ×'+(S.stock.trap||0)+'</span><span class="badge">🧪 Контейнеры ×'+(S.stock.box||0)+'</span><span class="badge">🕯️ Свечи ×'+(S.stock.candle||0)+'</span><span class="badge">🧂 Соль ×'+(S.stock.salt||0)+'</span></p><p class="muted">Не хватает монет? Лови существ, закрывай дела и выполняй задания дня на базе!</p></div>';
+ return h;
+}
+function rateScreen(){
+ var h='<div class="card"><h2>🏆 Рейтинг охотника</h2><p>Звание: <b>'+rank()+'</b><br>Уровень: '+S.lv+' • Опыт: '+S.xp+'/'+(S.lv*100)+'⭐</p><div class="bar"><i style="width:'+Math.min(100,Math.round(S.xp/(S.lv*100)*100))+'%"></i></div>';
+ h+='<p><span class="badge">👻 Поймано всего: '+S.totalCaught+'</span><span class="badge">📖 Видов встречено: '+Object.keys(S.seen).length+'/14</span><span class="badge">👹 Боссов: '+Object.keys(S.bossesDone).length+'/7</span><span class="badge">📂 Дел закрыто: '+Object.keys(S.casesDone).length+'/5</span></p></div>';
+ h+='<div class="card"><h2>🏅 Достижения</h2>';
+ ACH.forEach(function(a){
+  var got=!!S.ach[a.id],can=!got&&a.check();
+  h+='<div class="item"><span class="e">'+a.e+'</span><span class="n">'+a.n+'<small>'+a.d+' • Награда: '+a.r+'💰</small></span>'+(got?'<span class="cnt">✅</span>':can?'<button class="btn small gold" data-ach="'+a.id+'">Забрать</button>':'<span class="muted">🔒</span>')+'</div>';
+ });
+ h+='</div>';
+ return h;
+}
+var TABS=[['base','🏠 База'],['hunt','🔍 Охота'],['cases','📂 Дела'],['book','📖 Энциклопедия'],['gear','🎒 Снаряжение'],['rate','🏆 Рейтинг']];
+function render(){
+ $('#dayline').textContent='📅 День '+S.day+' • '+PHASES[S.phase].e+' '+PHASES[S.phase].n+' • '+WEATHERS[S.weather].e+' '+WEATHERS[S.weather].n;
+ $('#stats').innerHTML='<span class="pill">💰 '+S.coins+'</span><span class="pill">👻 '+S.ecto+'</span><span class="pill">⭐ '+S.lv+' ур.</span><span class="pill">❤️ '+Math.max(0,S.health)+'</span><span class="pill">⚡ '+S.energy+'/100</span><span class="pill">🧪 '+(S.stock.box||0)+'</span>';
+ $('#tabs').innerHTML=TABS.map(function(t){return '<button class="tab'+(TAB===t[0]?' on':'')+'" data-goto="'+t[0]+'">'+t[1]+'</button>'}).join('');
+ var h='';
+ if(TAB==='base')h=baseScreen();
+ else if(TAB==='hunt')h=huntScreen();
+ else if(TAB==='cases')h=casesScreen();
+ else if(TAB==='book')h=bookScreen();
+ else if(TAB==='gear')h=gearScreen();
+ else h=rateScreen();
+ $('#app').innerHTML=h;
+ $('#log').innerHTML=S.log.map(function(l){return '<div>'+l+'</div>'}).join('');
+}
+document.addEventListener('click',function(e){
+ var t=e.target.closest('[data-goto],[data-scan],[data-boss],[data-ident],[data-atk],[data-trap],[data-catch],[data-release],[data-flee],[data-sleep],[data-radio],[data-gift],[data-qclaim],[data-sell],[data-case],[data-loc],[data-culprit],[data-casequit],[data-buy],[data-ach]');
+ if(!t)return;
+ if(t.dataset.goto){TAB=t.dataset.goto;save();render();return}
+ if(t.dataset.scan){doScan();return}
+ if(t.dataset.boss){doBoss(t.dataset.boss);return}
+ if(t.dataset.ident){doIdentify();return}
+ if(t.dataset.atk){doAttack(t.dataset.atk);return}
+ if(t.dataset.trap){doTrap();return}
+ if(t.dataset.catch){doCatch();return}
+ if(t.dataset.release){doRelease();return}
+ if(t.dataset.flee){doFlee();return}
+ if(t.dataset.sleep){
+  S.day++;S.phase=0;newWeather();S.energy=100;S.health=Math.min(100,S.health+50);
+  log('😴 Ты проспал до утра. День '+S.day+', погода: '+WEATHERS[S.weather].e+' '+WEATHERS[S.weather].n+'. Энергия и силы восстановлены!');
+  toast('🌅 Доброе утро, охотник! День '+S.day);
+  save();render();return;
+ }
+ if(t.dataset.radio){
+  if(S.energy<2){toast('⚡ Нужно 2 энергии!');return}
+  S.energy-=2;
+  if(chance(0.65))rollEvent();else log('📻 В эфире только шум и редкие помехи... Сегодня тихо.');
+  save();render();return;
+ }
+ if(t.dataset.gift){
+  var td=todayStr();if(S.giftDay===td)return;
+  var y=new Date(Date.now()-864e5);var ys=y.getFullYear()+'-'+(y.getMonth()+1)+'-'+y.getDate();
+  S.streak=(S.lastGift===ys)?(S.streak||0)+1:1;S.lastGift=td;S.giftDay=td;
+  var g=30+S.streak*5;S.coins+=g;S.totalEarn+=g;
+  var extra='';if(chance(0.35)){S.stock.box++;extra=' +1🧪 контейнер!'}
+  log('🎁 Подарок за вход: +'+g+'💰'+extra+' Серия: '+S.streak+' дн.');
+  toast('🎁 +'+g+'💰'+extra);
+  save();render();return;
+ }
+ if(t.dataset.qclaim){
+  var q=null;DQUESTS.forEach(function(x){if(x.id===t.dataset.qclaim)q=x});
+  if(q&&!S.qdone[q.id]&&(S.qprog[q.id]||0)>=q.n2){S.qdone[q.id]=true;S.coins+=q.r;S.totalEarn+=q.r;log('📋 Задание дня выполнено: '+q.n+' +'+q.r+'💰');toast('📋 +'+q.r+'💰')}
+  save();render();return;
+ }
+ if(t.dataset.sell){
+  var kind=t.dataset.sell,price=kind==='photo'?15:20,n=S.finds[kind]||0;
+  if(n>0){S.finds[kind]=0;S.coins+=n*price;S.totalEarn+=n*price;log('💰 Продано находок: '+n+' × '+price+'💰');toast('💰 +'+(n*price))}
+  save();render();return;
+ }
+ if(t.dataset.case){
+  if(S.caseId){toast('📂 У тебя уже есть активное дело!');return}
+  S.caseId=t.dataset.case;S.caseClues=0;CASEMSG='';
+  log('🕵️ Начато расследование: '+t.dataset.case);
+  save();render();return;
+ }
+ if(t.dataset.loc){
+  var cs=null;CASES.forEach(function(x){if(x.id===S.caseId)cs=x});if(!cs)return;
+  if(t.dataset.loc===cs.locs[S.caseClues]){
+   CASEMSG=cs.clues[S.caseClues];S.caseClues++;qAdd('clue',1);addXP(10);
+   log('🔍 Улика '+S.caseClues+'/3 найдена в месте: '+t.dataset.loc);
+   if(S.caseClues>=3)log('🕵️ Все улики собраны! Пора назвать виновника.');
+  }else{
+   S.energy=Math.max(0,S.energy-2);
+   CASEMSG=pick(['🌫️ Здесь тихо и пусто. Только пыль и эхо. −2⚡','🚪 Ничего подозрительного. Следы ведут не сюда. −2⚡','🕸️ Паутина, старые вещи — но улик нет. −2⚡']);
+   log('🚶 Осмотр места '+t.dataset.loc+' — улик нет. −2⚡');
+  }
+  advance(1);save();render();return;
+ }
+ if(t.dataset.culprit){
+  var cs2=null;CASES.forEach(function(x){if(x.id===S.caseId)cs2=x});if(!cs2)return;
+  var right=parseInt(t.dataset.culprit,10)===cs2.right;
+  var coins=right?cs2.coins:Math.floor(cs2.coins/2),ecto=right?cs2.ecto:Math.floor(cs2.ecto/2);
+  S.coins+=coins;S.totalEarn+=coins;S.ecto+=ecto;S.casesDone[cs2.id]=true;S.caseId=null;S.caseClues=0;CASEMSG='';
+  addXP(right?50:20);
+  log(right?'🎉 ДЕЛО ЗАКРЫТО! Вывод верный: +'+coins+'💰 +'+ecto+'👻':'📂 Дело закрыто, но вывод был неверным. Половина награды: +'+coins+'💰 +'+ecto+'👻');
+  toast(right?'🎉 Дело закрыто!':'📂 Дело закрыто (вывод неверный)');
+  TAB='cases';save();render();return;
+ }
+ if(t.dataset.casequit){S.caseId=null;S.caseClues=0;CASEMSG='';save();render();return}
+ if(t.dataset.buy){
+  var g=null;GEARSHOP.forEach(function(x){if(x.id===t.dataset.buy)g=x});if(!g)return;
+  if(g.kind==='gear'){
+   var lv=S.gear[g.id]||0;
+   if(lv>=g.max){toast('Уже максимум!');return}
+   var cost=g.price[lv];
+   if(S.coins<cost){toast('💰 Не хватает монет! Нужно '+cost+'💰');return}
+   S.coins-=cost;S.gear[g.id]=lv+1;log('🎒 Улучшено: '+g.e+' '+g.n+' — уровень '+(lv+1));toast('🎒 '+g.n+': уровень '+(lv+1));
+  }else{
+   if(S.coins<g.price){toast('💰 Не хватает монет! Нужно '+g.price+'💰');return}
+   S.coins-=g.price;S.stock[g.id]=(S.stock[g.id]||0)+1;log('🎒 Куплено: '+g.e+' '+g.n);toast('🎒 +1 '+g.n);
+  }
+  save();render();return;
+ }
+ if(t.dataset.ach){
+  var a=null;ACH.forEach(function(x){if(x.id===t.dataset.ach)a=x});
+  if(a&&!S.ach[a.id]&&a.check()){S.ach[a.id]=true;S.coins+=a.r;S.totalEarn+=a.r;log('🏅 Достижение «'+a.n+'»: +'+a.r+'💰');toast('🏅 '+a.n+' +'+a.r+'💰')}
+  save();render();return;
+ }
+});
+if(!S.log.length)log('👁️ Добро пожаловать по ту сторону тьмы, охотник! Начни с 📟 сканирования на вкладке 🔍 Охота.');
+save();render();
+</script>
+</body>
+</html>
