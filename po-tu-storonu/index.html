@@ -493,7 +493,8 @@ document.addEventListener('click',function(e){
  if(t.dataset.loc){
   var cs=null;CASES.forEach(function(x){if(x.id===S.caseId)cs=x});if(!cs)return;
   if(t.dataset.loc===cs.locs[S.caseClues]){
-   CASEMSG=cs.clues[S.caseClues];S.caseClues++;qAdd('clue',1);addXP(10);
+   var foundClue=cs.clues[S.caseClues];S.caseClues++;qAdd('clue',1);addXP(10);
+   CASEMSG='✅ Улика найдена! Смотри выше в списке улик.';
    log('🔍 Улика '+S.caseClues+'/3 найдена в месте: '+t.dataset.loc);
    if(S.caseClues>=3)log('🕵️ Все улики собраны! Пора назвать виновника.');
   }else{
