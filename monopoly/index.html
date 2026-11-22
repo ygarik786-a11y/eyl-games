@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Монополия Лебедяна 🦢</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;background:linear-gradient(160deg,#07332a,#0b5345 60%,#0e6b4f);color:#222;min-height:100vh}
+.wrap{max-width:560px;margin:0 auto;padding:6px 6px 20px}
+header{display:flex;align-items:center;justify-content:space-between;padding:4px 2px 8px;color:#fff}
+header .t{font-size:19px;font-weight:800;letter-spacing:.3px}
+header .t span{color:#ffd94d}
+.hbtn{background:#ffd94d;border:none;border-radius:10px;padding:7px 10px;font-weight:700;font-size:13px;cursor:pointer;color:#4a3200}
+.hbtn:active{transform:scale(.96)}
+#board{position:relative;width:100%;aspect-ratio:1/1;background:#fdf6d8;border:3px solid #7a4d12;border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.45);overflow:hidden}
+.cell{position:absolute;width:9.091%;height:9.091%;background:#fffdf4;border:1px solid #b9a86b;overflow:hidden;display:flex;flex-direction:column}
+.cell .band{height:24%;flex:none;border-bottom:1px solid rgba(0,0,0,.25)}
+.cell .nm{flex:1;display:flex;align-items:center;justify-content:center;text-align:center;font-size:6.4px;line-height:1.05;font-weight:600;padding:0 1px;color:#333}
+.cell .pr{flex:none;text-align:center;font-size:6.2px;color:#777;padding-bottom:1px}
+.cell .hs{position:absolute;top:1px;right:1px;font-size:6.5px}
+.cell .own{position:absolute;top:1px;left:1px;width:7px;height:7px;border-radius:50%;border:1px solid #fff;box-shadow:0 0 2px rgba(0,0,0,.5)}
+.cell .toks{position:absolute;bottom:0;left:0;right:0;display:flex;justify-content:center;gap:0;font-size:9px;line-height:1;text-shadow:0 0 2px #fff}
+.cell.mortg{opacity:.45;filter:grayscale(.8)}
+.cell.cur{box-shadow:inset 0 0 0 2px #ff9800;z-index:2}
+.cell.corner .nm{font-size:7.5px;font-weight:800}
+#center{position:absolute;left:19%;top:19%;width:62%;height:62%;display:flex;flex-direction:column;align-items:center;padding:4px}
+#center .logo{font-size:clamp(15px,4.6vw,24px);font-weight:900;color:#0b5345;text-align:center;line-height:1.05}
+#center .logo small{display:block;font-size:.52em;color:#b8860b;letter-spacing:2px;font-weight:800}
+#dice{font-size:clamp(20px,6vw,30px);letter-spacing:4px;height:1.3em;margin:2px 0}
+#turn{font-size:12px;font-weight:700;color:#7a4d12;text-align:center}
+#log{flex:1;width:100%;overflow-y:auto;font-size:11px;line-height:1.35;background:rgba(255,255,255,.55);border:1px solid #d8c98a;border-radius:8px;padding:4px 6px;margin:4px 0;color:#333}
+#log div{margin-bottom:2px}
+#btns{display:flex;flex-wrap:wrap;gap:5px;justify-content:center}
+.abtn{background:#0b5345;color:#fff;border:none;border-radius:10px;padding:9px 12px;font-size:13px;font-weight:700;cursor:pointer;box-shadow:0 2px 5px rgba(0,0,0,.25)}
+.abtn:active{transform:scale(.96)}
+.abtn.gold{background:#f5a623;color:#3d2700}
+.abtn.red{background:#c62828}
+.abtn.grey{background:#757575}
+.abtn:disabled{opacity:.4}
+#players{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin-top:7px}
+.pcard{background:#fffdf4;border-radius:10px;padding:5px 6px;border-top:4px solid #999;font-size:11px;line-height:1.3;box-shadow:0 2px 6px rgba(0,0,0,.3)}
+.pcard .pn{font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pcard.cur{outline:3px solid #ffd94d}
+.pcard.out{opacity:.45;filter:grayscale(1)}
+#panel{margin-top:7px;background:#fffdf4;border-radius:10px;padding:8px;display:none;box-shadow:0 2px 6px rgba(0,0,0,.3)}
+#panel h3{font-size:14px;margin-bottom:6px;color:#0b5345}
+.prow{display:flex;align-items:center;gap:5px;padding:4px 0;border-bottom:1px dashed #ddd;font-size:12px}
+.prow .pn2{flex:1;font-weight:600}
+.prow .dot{width:10px;height:10px;border-radius:3px;flex:none}
+.sbtn{background:#0b5345;color:#fff;border:none;border-radius:7px;padding:5px 7px;font-size:11px;font-weight:700;cursor:pointer}
+.sbtn:disabled{opacity:.35}
+.sbtn.warn{background:#c62828}
+.sbtn.gold{background:#f5a623;color:#3d2700}
+#win{position:fixed;inset:0;background:rgba(0,0,0,.72);display:none;align-items:center;justify-content:center;z-index:50}
+#win .card{background:#fffdf4;border-radius:16px;padding:24px;text-align:center;max-width:82%}
+#win .card .big{font-size:44px}
+#win .card h2{margin:8px 0;color:#0b5345}
+.hint{color:#e8f5e9;font-size:11px;text-align:center;margin-top:8px;opacity:.85}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+<div class="t">🦢 Монополия <span>Лебедяна</span></div>
+<div>
+<button class="hbtn" id="btnPanel">🏠 Мои улицы</button>
+<button class="hbtn" id="btnNew">↺ Новая</button>
+</div>
+</header>
+<div id="board">
+<div id="center">
+<div class="logo">ЛЕБЕДЯН<small>МОНОПОЛИЯ</small></div>
+<div id="dice">⚀ ⚀</div>
+<div id="turn"></div>
+<div id="log"></div>
+<div id="btns"></div>
+</div>
+</div>
+<div id="players"></div>
+<div id="panel"><h3>🏠 Мои улицы и строительство</h3><div id="prows"></div></div>
+<div class="hint">Скупись все улицы одного цвета — сможешь строить дома 🏠 и гостиницы 🏨. Разори всех соседей!</div>
+</div>
+<div id="win"><div class="card"><div class="big">🎉</div><h2 id="winTxt"></h2><button class="abtn gold" onclick="newGame()">Играть ещё раз</button></div></div>
+<script>
+'use strict';
+const GCOL=['#955436','#a8d8ea','#d93a96','#f7922e','#ed1b24','#f7e731','#2e9e4f','#0b3d91'];
+const HCOST=[50,50,100,100,150,150,200,200];
+const CELLS=[
+{t:'go',n:'СТАРТ 🏁'},
+{t:'s',n:'пер. Линды',g:0,p:60,r:[2,10,30,90,160,250]},
+{t:'cc',n:'Страна 📜'},
+{t:'s',n:'ул. Озёрная',g:0,p:60,r:[4,20,60,180,320,450]},
+{t:'tax',n:'Налог 💰',a:200},
+{t:'rr',n:'Ст. Лебедян-экспресс',p:200},
+{t:'s',n:'ул. Денди',g:1,p:100,r:[6,30,90,270,400,550]},
+{t:'ch',n:'Шанс ❓'},
+{t:'s',n:'Гирляндная',g:1,p:100,r:[6,30,90,270,400,550]},
+{t:'s',n:'Сказочная',g:1,p:120,r:[8,40,100,300,450,600]},
+{t:'jail',n:'ТАМОЖНЯ 🛂'},
+{t:'s',n:'Парк 🌳',g:2,p:140,r:[10,50,150,450,625,750]},
+{t:'u',n:'Фонтан желаний',p:150},
+{t:'s',n:'Аллея славы',g:2,p:140,r:[10,50,150,450,625,750]},
+{t:'s',n:'Мост Влюблённых',g:2,p:160,r:[12,60,180,500,700,900]},
+{t:'rr',n:'Ст. Радиогород',p:200},
+{t:'s',n:'Рынок 🧺',g:3,p:180,r:[14,70,200,550,750,950]},
+{t:'cc',n:'Страна 📜'},
+{t:'s',n:'Ярмарка 🎪',g:3,p:180,r:[14,70,200,550,750,950]},
+{t:'s',n:'Сувенирная лавка',g:3,p:200,r:[16,80,220,600,800,1000]},
+{t:'free',n:'ОТДЫХ 🌴'},
+{t:'s',n:'Театр 🎭',g:4,p:220,r:[18,90,250,700,875,1050]},
+{t:'ch',n:'Шанс ❓'},
+{t:'s',n:'Салон красоты',g:4,p:220,r:[18,90,250,700,875,1050]},
+{t:'s',n:'Гостиница «Лебедь»',g:4,p:240,r:[20,100,300,750,925,1100]},
+{t:'rr',n:'Ст. Северная Ёлка',p:200},
+{t:'s',n:'Университет',g:5,p:260,r:[22,110,330,800,975,1150]},
+{t:'s',n:'Банк лебединок',g:5,p:260,r:[22,110,330,800,975,1150]},
+{t:'u',n:'Почта страны',p:150},
+{t:'s',n:'Башня с часами',g:5,p:280,r:[24,120,360,850,1025,1200]},
+{t:'gotojail',n:'НА ТАМОЖНЮ! 🚔'},
+{t:'s',n:'Радиогород 📻',g:6,p:300,r:[26,130,390,900,1100,1275]},
+{t:'s',n:'Северная Ёлка',g:6,p:300,r:[26,130,390,900,1100,1275]},
+{t:'cc',n:'Страна 📜'},
+{t:'s',n:'Курорт Игр 🎮',g:6,p:320,r:[28,150,450,1000,1200,1400]},
+{t:'rr',n:'Ст. Столичная',p:200},
+{t:'ch',n:'Шанс ❓'},
+{t:'s',n:'Ратуша 🏛️',g:7,p:350,r:[35,175,500,1100,1300,1500]},
+{t:'tax',n:'Взнос 💸',a:100},
+{t:'s',n:'пр. Создателя',g:7,p:400,r:[50,200,600,1400,1700,2000]}
+];
+const CHANCE=[
+{txt:'Банк страны платит тебе премию: +50 🦢',money:50},
+{txt:'Продал старые игры на ярмарке: +100 🦢',money:100},
+{txt:'Штраф за шум у камина: −50 🦢',money:-50},
+{txt:'Иди прямо на СТАРТ и получи 200 🦢',move:0},
+{txt:'Таможня нашла контрабандные стикеры! Отправляйся на таможню 🚔',jail:true},
+{txt:'Сходи загадать желание к Фонтану желаний',move:12},
+{txt:'Забыл ключи дома! Назад на 3 клетки',back:3},
+{txt:'Капитальный ремонт: −25 🦢 за каждый дом, −100 🦢 за гостиницу',repair:true},
+{txt:'Ты выиграл фотоконкурс страны: +100 🦢',money:100},
+{txt:'У тебя день рождения! Каждый игрок дарит тебе по 20 🦢',fromEach:20},
+{txt:'Сводил Линду к ветеринару: −50 🦢',money:-50},
+{txt:'Бабушка оставила наследство: +150 🦢',money:150}
+];
+const CHEST=[
+{txt:'Страна дарит тебе 100 лебединок 🦢',money:100},
+{txt:'Вернул долг другу: −50 🦢',money:-50},
+{txt:'Иди прямо на СТАРТ и получи 200 🦢',move:0},
+{txt:'Продал лебединки туристам: +75 🦢',money:75},
+{txt:'Оплати учёбу в Университете страны: −50 🦢',money:-50},
+{txt:'Твоя улица признана лучшей в стране: +50 🦢',money:50},
+{txt:'Скинься на ремонт Моста Влюблённых: −75 🦢',money:-75},
+{txt:'Банк начислил проценты: +25 🦢',money:25},
+{txt:'Срочно в Ратушу! Иди на проспект Создателя',move:39},
+{txt:'Штраф за превышение на Лебедян-экспрессе: −25 🦢',money:-25},
+{txt:'Праздник твоей улицы: +60 🦢',money:60},
+{txt:'Заплати городовым за ночной дозор: −40 🦢',money:-40}
+];
+// ===== СОСТОЯНИЕ И ПОЛЕ =====
+let S=null;
+const $=id=>document.getElementById(id);
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const DF=['⚀','⚁','⚂','⚃','⚄','⚅'];
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));const t=a[i];a[i]=a[j];a[j]=t}return a}
+function newGame(){
+ S={players:[
+  {name:'Erik',tok:'😎',col:'#2196f3',money:1500,pos:0,jail:0,tries:0,out:false,ai:false},
+  {name:'Бабушка Зина',tok:'👵',col:'#e91e63',money:1500,pos:0,jail:0,tries:0,out:false,ai:true},
+  {name:'Коля',tok:'🧑',col:'#43a047',money:1500,pos:0,jail:0,tries:0,out:false,ai:true},
+  {name:'Дядя Витя',tok:'🧔',col:'#fb8c00',money:1500,pos:0,jail:0,tries:0,out:false,ai:true}],
+ owners:new Array(40).fill(-1),houses:new Array(40).fill(0),mort:new Array(40).fill(false),
+ cur:0,dbl:0,phase:'roll',lastRoll:0,ch:shuffle(CHANCE.map(function(_,i){return i})),cc:shuffle(CHEST.map(function(_,i){return i})),over:false};
+ $('win').style.display='none';$('log').innerHTML='';
+ log('🎲 Новая игра! У каждого по 1500 🦢. Ходит Erik!');
+ buildBoard();render();save();turnStart();
+}
+function save(){try{localStorage.setItem('lebedyan_monopoly',JSON.stringify(S))}catch(e){}}
+function load(){try{const d=localStorage.getItem('lebedyan_monopoly');if(!d)return false;S=JSON.parse(d);if(!S||S.over||!S.players)return false;buildBoard();render();log('💾 Игра продолжена с того же места.');S.phase='roll';turnStart();return true}catch(e){return false}}
+let boardBuilt=false;
+function cellXY(i){const s=Math.floor(i/10),o=i%10;let x,y;if(s===0){x=10-o;y=10}else if(s===1){x=0;y=10-o}else if(s===2){x=o;y=0}else{x=10;y=o}return[x,y]}
+function buildBoard(){
+ if(boardBuilt){render();return}
+ boardBuilt=true;const b=$('board');
+ for(let i=0;i<40;i++){const c=CELLS[i];const d=document.createElement('div');d.className='cell'+((i%10===0)?' corner':'');d.id='cell'+i;
+  const xy=cellXY(i);d.style.left=(xy[0]*9.091)+'%';d.style.top=(xy[1]*9.091)+'%';
+  let h='';if(c.t==='s')h+='<div class="band" style="background:'+GCOL[c.g]+'"></div>';
+  h+='<div class="own" style="display:none"></div><div class="hs"></div><div class="nm">'+c.n+'</div>';
+  if(c.p)h+='<div class="pr">'+c.p+' 🦢</div>';else if(c.a)h+='<div class="pr">'+c.a+' 🦢</div>';
+  h+='<div class="toks"></div>';d.innerHTML=h;b.appendChild(d);}
+}
+function render(){
+ if(!S)return;
+ for(let i=0;i<40;i++){const d=$('cell'+i);if(!d)continue;const o=S.owners[i];
+  const own=d.querySelector('.own');if(o>=0){own.style.display='block';own.style.background=S.players[o].col}else own.style.display='none';
+  const hs=d.querySelector('.hs');const hv=S.houses[i];hs.textContent=hv===5?'🏨':(hv>0?'🏠'.repeat(hv):'');
+  d.classList.toggle('mortg',!!S.mort[i]);
+  d.classList.toggle('cur',!S.players[S.cur].out&&S.players[S.cur].pos===i);
+  const tk=d.querySelector('.toks');let th='';S.players.forEach(function(p){if(!p.out&&p.pos===i)th+='<span>'+p.tok+'</span>'});tk.innerHTML=th;}
+ $('players').innerHTML=S.players.map(function(p,i){return '<div class="pcard'+(i===S.cur?' cur':'')+(p.out?' out':'')+'" style="border-top-color:'+p.col+'"><div class="pn">'+p.tok+' '+p.name+'</div><div>'+(p.out?'💀 банкрот':p.money+' 🦢'+(p.jail?' · 🛂 таможня':''))+'</div></div>'}).join('');
+ const cp=S.players[S.cur];$('turn').textContent=S.over?'Игра окончена':'Ходит: '+cp.tok+' '+cp.name+' · '+cp.money+' 🦢';
+ renderPanel();
+}
+function log(m){const l=$('log');const d=document.createElement('div');d.innerHTML=m;l.prepend(d);while(l.children.length>30)l.removeChild(l.lastChild)}
+function setBtns(arr){const b=$('btns');b.innerHTML='';arr.forEach(function(x){const btn=document.createElement('button');btn.className='abtn '+(x.cls||'');btn.innerHTML=x.label;btn.onclick=x.fn;b.appendChild(btn)})}
+function groupCells(g){const r=[];CELLS.forEach(function(c,i){if(c.t==='s'&&c.g===g)r.push(i)});return r}
+function ownsSet(pi,g){return groupCells(g).every(function(i){return S.owners[i]===pi})}
+function countType(pi,t){let n=0;CELLS.forEach(function(c,i){if(c.t===t&&S.owners[i]===pi)n++});return n}
+function rentOf(i,roll){const c=CELLS[i];const o=S.owners[i];if(c.t==='s'){let r=c.r[S.houses[i]];if(S.houses[i]===0&&ownsSet(o,c.g))r*=2;return r}if(c.t==='rr')return 25*Math.pow(2,countType(o,'rr')-1);if(c.t==='u')return roll*(countType(o,'u')===2?10:4);return 0}
+function groupHouses(g){return groupCells(g).some(function(j){return S.houses[j]>0})}
+function canBuildAs(pi,i){const c=CELLS[i];if(S.owners[i]!==pi||S.mort[i]||S.houses[i]>=5||!ownsSet(pi,c.g))return false;const lv=groupCells(c.g).map(function(j){return S.houses[j]});return S.houses[i]<=Math.min.apply(null,lv)&&S.players[pi].money>=HCOST[c.g]}
+function canSellAs(pi,i){if(S.owners[i]!==pi||S.houses[i]<=0)return false;const lv=groupCells(CELLS[i].g).map(function(j){return S.houses[j]});return S.houses[i]>=Math.max.apply(null,lv)}
+function renderPanel(){
+ if(!S)return;const pi=0;const rows=[];
+ for(let i=0;i<40;i++){if(S.owners[i]!==pi)continue;const c=CELLS[i];let info='',btns='';
+  if(c.t==='s'){info=S.houses[i]===5?'🏨 гостиница':('🏠'.repeat(S.houses[i])||'без домов');
+   if(canBuildAs(pi,i))btns+='<button class="sbtn" onclick="buildHouse('+i+')">+🏠 '+HCOST[c.g]+'</button>';
+   if(canSellAs(pi,i))btns+='<button class="sbtn warn" onclick="sellHouse('+i+')">−🏠 +'+(HCOST[c.g]/2)+'</button>';}
+  if(S.mort[i])btns+='<button class="sbtn gold" onclick="unmortgage('+i+')">Выкупить '+Math.ceil(c.p/2*1.1)+'</button>';
+  else if(c.t!=='s'||!groupHouses(c.g))btns+='<button class="sbtn" onclick="mortgage('+i+')">Залог +'+(c.p/2)+'</button>';
+  rows.push('<div class="prow"><span class="dot" style="background:'+(c.t==='s'?GCOL[c.g]:'#999')+'"></span><span class="pn2">'+c.n+(S.mort[i]?' (в залоге)':'')+'</span><span>'+info+'</span>'+btns+'</div>');}
+ $('prows').innerHTML=rows.length?rows.join(''):'<div style="font-size:12px;color:#777">Пока нет улиц. Купи что-нибудь на поле!</div>';
+}
+function afterMoney(){render();save();const p=S.players[0];if(S.phase==='debt'&&p.money>=0&&!p.out){S.phase='act';log('✅ Erik снова при деньгах!');actButtons()}}
+window.buildHouse=function(i){const p=S.players[0];p.money-=HCOST[CELLS[i].g];S.houses[i]++;log('🏠 Erik построил дом: '+CELLS[i].n);afterMoney()};
+window.sellHouse=function(i){const p=S.players[0];p.money+=HCOST[CELLS[i].g]/2;S.houses[i]--;log('🏠 Erik продал дом: '+CELLS[i].n);afterMoney()};
+window.mortgage=function(i){const p=S.players[0];S.mort[i]=true;p.money+=CELLS[i].p/2;log('🏦 В залог: '+CELLS[i].n+' (+'+(CELLS[i].p/2)+' 🦢)');afterMoney()};
+window.unmortgage=function(i){const p=S.players[0];const cost=Math.ceil(CELLS[i].p/2*1.1);if(p.money<cost)return;p.money-=cost;S.mort[i]=false;log('🏦 Выкуплено: '+CELLS[i].n);afterMoney()};
+function togglePanel(){const pn=$('panel');pn.style.display=pn.style.display==='block'?'none':'block';renderPanel()}
+function openPanel(){$('panel').style.display='block';renderPanel()}
+// ===== ХОД ИГРЫ =====
+function curP(){return S.players[S.cur]}
+function turnStart(){
+ if(!S||S.over)return;const p=curP();
+ if(p.out){nextTurn();return}
+ S.dbl=0;render();
+ if(p.jail){jailStart(p);return}
+ if(p.money<0){debtPhase(p,null);return}
+ if(p.ai){aiTurn(p)}else{S.phase='roll';setBtns([{label:'🎲 Кинуть кубики',fn:function(){humanRoll()}}])}
+}
+function nextTurn(){save();if(S.players.filter(function(x){return !x.out}).length<=1)return;let n=S.cur;do{n=(n+1)%4}while(S.players[n].out);S.cur=n;turnStart()}
+function endTurnSoon(){setBtns([]);S.dbl=0;render();save();setTimeout(function(){if(S&&!S.over)nextTurn()},650)}
+async function diceAnim(){const d=$('dice');for(let k=0;k<6;k++){d.textContent=DF[Math.floor(Math.random()*6)]+' '+DF[Math.floor(Math.random()*6)];await sleep(70)}}
+async function rollDice(){await diceAnim();const d1=1+Math.floor(Math.random()*6),d2=1+Math.floor(Math.random()*6);$('dice').textContent=DF[d1-1]+' '+DF[d2-1];return[d1,d2]}
+async function moveSteps(p,n){for(let k=0;k<n;k++){p.pos=(p.pos+1)%40;if(p.pos===0){p.money+=200;log('🏁 '+p.name+' проходит СТАРТ: +200 🦢')}render();await sleep(150)}}
+async function moveBack(p,n){for(let k=0;k<n;k++){p.pos=(p.pos+39)%40;render();await sleep(150)}}
+async function humanRoll(){
+ setBtns([]);const p=curP();const r=await rollDice();const d1=r[0],d2=r[1],sum=d1+d2;S.lastRoll=sum;
+ if(d1===d2){S.dbl++;if(S.dbl>=3){log('🎲 Третий дубль подряд! Таможня! 🚔');sendJail(p);endTurnSoon();return}log('🎲 '+p.name+': '+d1+' и '+d2+' — дубль, ходи ещё!')}
+ else log('🎲 '+p.name+': '+d1+' и '+d2);
+ await moveSteps(p,sum);await resolve(p);
+}
+function sendJail(p){p.pos=10;p.jail=1;p.tries=0;S.dbl=0;render()}
+function jailStart(p){
+ if(p.ai){aiJail(p);return}
+ S.phase='jail';render();
+ setBtns([
+  {label:'💸 Заплатить 50 и выйти',fn:async function(){p.money-=50;p.jail=0;p.tries=0;log('🛂 Erik заплатил 50 🦢 и вышел с таможни');render();if(p.money<0){debtPhase(p,null);return}S.phase='roll';setBtns([{label:'🎲 Кинуть кубики',fn:function(){humanRoll()}}])}},
+  {label:'🎲 Кидать на дубль',fn:function(){humanJailRoll()}}]);
+}
+async function humanJailRoll(){
+ setBtns([]);const p=curP();const r=await rollDice();const d1=r[0],d2=r[1],sum=d1+d2;S.lastRoll=sum;
+ if(d1===d2){p.jail=0;p.tries=0;log('🎲 Дубль! Erik свободен!');await moveSteps(p,sum);await resolve(p);return}
+ p.tries++;log('🎲 Не дубль. Попытка '+p.tries+' из 3');render();
+ if(p.tries>=3){p.money-=50;p.jail=0;p.tries=0;log('🛂 Третья попытка — штраф 50 🦢, выходишь и ходишь на '+sum);render();await moveSteps(p,sum);await resolve(p);return}
+ endTurnSoon();
+}
+async function resolve(p){
+ const i=p.pos,c=CELLS[i],pi=S.players.indexOf(p);
+ if(c.t==='tax'){p.money-=c.a;log('💰 '+p.name+': «'+c.n+'» −'+c.a+' 🦢');render();afterResolve(p,null);return}
+ if(c.t==='ch'||c.t==='cc'){await drawCard(p,c.t);return}
+ if(c.t==='gotojail'){log('🚔 '+p.name+' отправляется на таможню!');sendJail(p);endTurnSoon();return}
+ if(c.t==='free')log('🌴 '+p.name+' отдыхает у фонтана');
+ if(c.t==='jail')log('🛂 '+p.name+' просто заглянул на таможню в гости');
+ if(c.t==='s'||c.t==='rr'||c.t==='u'){
+  const o=S.owners[i];
+  if(o===-1){buyPhase(p,i);return}
+  if(o!==pi&&!S.mort[i]){const r=rentOf(i,S.lastRoll||7);const owner=S.players[o];p.money-=r;owner.money+=r;log('💸 '+p.name+' платит аренду '+r+' 🦢 — '+owner.name+' за «'+c.n+'»');render();afterResolve(p,owner);return}
+  if(o===pi)log('🏠 '+p.name+': своя улица «'+c.n+'»');
+ }
+ afterResolve(p,null);
+}
+function afterResolve(p,creditor){
+ render();save();
+ if(p.money<0){
+  if(p.ai){aiSolveDebt(p);if(p.money<0){bankrupt(p,creditor);endTurnSoon();return}render()}
+  else{debtPhase(p,creditor);return}
+ }
+ if(p.ai)aiAfter(p);else actButtons();
+}
+function actButtons(){
+ S.phase='act';const arr=[];
+ if(S.dbl>0)arr.push({label:'🎲 Дубль! Кинуть ещё',fn:function(){humanRoll()}});
+ else arr.push({label:'✅ Завершить ход',fn:function(){endTurnSoon()}});
+ arr.push({label:'🏠 Мои улицы',cls:'gold',fn:function(){togglePanel()}});
+ setBtns(arr);render();
+}
+function buyPhase(p,i){
+ const c=CELLS[i],pi=S.players.indexOf(p);
+ if(p.ai){
+  if(p.money-c.p>=80||completesSet(pi,i)){S.owners[i]=pi;p.money-=c.p;log('🛒 '+p.name+' покупает «'+c.n+'» за '+c.p+' 🦢')}
+  else log('🛒 '+p.name+' не стал покупать «'+c.n+'»');
+  render();afterResolve(p,null);return}
+ S.phase='buy';render();
+ setBtns([
+  {label:'🛒 Купить за '+c.p+' 🦢',cls:'gold',fn:function(){if(p.money<c.p)return;S.owners[i]=0;p.money-=c.p;log('🛒 Erik купил «'+c.n+'» за '+c.p+' 🦢');render();afterResolve(p,null)}},
+  {label:'Не брать',cls:'grey',fn:function(){log('Erik не стал покупать «'+c.n+'»');afterResolve(p,null)}}]);
+}
+function completesSet(pi,i){const c=CELLS[i];if(c.t!=='s')return false;return groupCells(c.g).filter(function(j){return j!==i}).every(function(j){return S.owners[j]===pi})}
+async function drawCard(p,t){
+ const isCh=t==='ch';const cards=isCh?CHANCE:CHEST;
+ let deck=isCh?S.ch:S.cc;
+ if(!deck.length){deck=shuffle(cards.map(function(_,k){return k}));if(isCh)S.ch=deck;else S.cc=deck}
+ const card=cards[deck.pop()];
+ log((isCh?'❓ Шанс: ':'📜 Страна: ')+card.txt);render();await sleep(550);
+ if(card.money!=null){p.money+=card.money;render();afterResolve(p,null);return}
+ if(card.move!=null){const steps=(card.move-p.pos+40)%40;await moveSteps(p,steps);await resolve(p);return}
+ if(card.back){await moveBack(p,card.back);await resolve(p);return}
+ if(card.jail){sendJail(p);endTurnSoon();return}
+ if(card.repair){let cost=0;const pi=S.players.indexOf(p);for(let j=0;j<40;j++){if(S.owners[j]===pi){if(S.houses[j]===5)cost+=100;else cost+=S.houses[j]*25}}p.money-=cost;log('🔧 Ремонт обошёлся в '+cost+' 🦢');render();afterResolve(p,null);return}
+ if(card.fromEach){S.players.forEach(function(q){if(q!==p&&!q.out){q.money-=card.fromEach;p.money+=card.fromEach;if(q.money<0&&q.ai)aiSolveDebt(q)}});render();afterResolve(p,null);return}
+ afterResolve(p,null);
+}
+function netWorth(p){const pi=S.players.indexOf(p);let w=p.money;for(let i=0;i<40;i++){if(S.owners[i]===pi){if(!S.mort[i])w+=CELLS[i].p/2;if(CELLS[i].t==='s')w+=S.houses[i]*(HCOST[CELLS[i].g]/2)}}return w}
+function debtPhase(p,creditor){
+ S.phase='debt';
+ log('⚠️ Не хватает лебединок! Продай дома или заложи улицы в панели 🏠');
+ openPanel();
+ const arr=[{label:'🏠 Мои улицы',cls:'gold',fn:function(){openPanel()}}];
+ if(netWorth(p)<0)arr.push({label:'💀 Объявить банкротство',cls:'red',fn:function(){bankrupt(p,creditor);endTurnSoon()}});
+ setBtns(arr);render();
+}
+function bankrupt(p,creditor){
+ const pi=S.players.indexOf(p);p.out=true;p.jail=0;
+ log('💀 '+p.name+' — БАНКРОТ! Всё имущество уходит '+(creditor?('игроку '+creditor.name):'стране'));
+ for(let i=0;i<40;i++){if(S.owners[i]===pi){if(creditor)S.owners[i]=S.players.indexOf(creditor);else{S.owners[i]=-1;S.houses[i]=0;S.mort[i]=false}}}
+ if(creditor&&p.money>0)creditor.money+=p.money;
+ p.money=0;render();save();checkWin();
+}
+function checkWin(){const alive=S.players.filter(function(x){return !x.out});if(alive.length===1){S.over=true;$('winTxt').textContent=alive[0].tok+' '+alive[0].name+' — монополист Лебедяна!';$('win').style.display='flex';setBtns([]);save()}}
+// ===== КОМПЬЮТЕРНЫЕ СОПЕРНИКИ =====
+async function aiTurn(p){await sleep(700);if(S.over||p.out)return;await aiRollOnce(p)}
+async function aiRollOnce(p){
+ const r=await rollDice();const d1=r[0],d2=r[1],sum=d1+d2;S.lastRoll=sum;
+ if(d1===d2){S.dbl++;if(S.dbl>=3){log('🎲 '+p.name+': три дубля подряд — таможня! 🚔');sendJail(p);endTurnSoon();return}log('🎲 '+p.name+': '+d1+' и '+d2+' — дубль!')}
+ else log('🎲 '+p.name+': '+d1+' и '+d2);
+ await moveSteps(p,sum);await resolve(p);
+}
+async function aiAfter(p){
+ if(p.out||S.over)return;
+ if(p.jail){endTurnSoon();return}
+ if(S.dbl>0){await sleep(600);await aiRollOnce(p);return}
+ aiBuild(p);render();save();endTurnSoon();
+}
+async function aiJail(p){
+ await sleep(600);
+ if(p.money>250){p.money-=50;p.jail=0;p.tries=0;log('🛂 '+p.name+' платит 50 🦢 и выходит с таможни');render();await aiRollOnce(p);return}
+ const r=await rollDice();const d1=r[0],d2=r[1],sum=d1+d2;S.lastRoll=sum;
+ if(d1===d2){p.jail=0;p.tries=0;log('🎲 '+p.name+': дубль — свобода!');await moveSteps(p,sum);await resolve(p);return}
+ p.tries++;
+ if(p.tries>=3){p.money-=50;p.jail=0;p.tries=0;log('🛂 '+p.name+': штраф 50 🦢, выход и ход на '+sum);render();await moveSteps(p,sum);await resolve(p);return}
+ log('🛂 '+p.name+' остаётся на таможне (попытка '+p.tries+' из 3)');render();endTurnSoon();
+}
+function aiBuild(p){
+ const pi=S.players.indexOf(p);let built=true,guard=0;
+ while(built&&guard++<24){built=false;
+  for(let g=0;g<8&&!built;g++){if(!ownsSet(pi,g))continue;const cells=groupCells(g);const minL=Math.min.apply(null,cells.map(function(j){return S.houses[j]}));
+   for(let k=0;k<cells.length;k++){const j=cells[k];if(S.houses[j]===minL&&S.houses[j]<5&&!S.mort[j]&&p.money-HCOST[g]>=120){p.money-=HCOST[g];S.houses[j]++;log('🏠 '+p.name+' строит дом: '+CELLS[j].n);built=true;break}}}}
+}
+function aiSolveDebt(p){
+ const pi=S.players.indexOf(p);let guard=0;
+ while(p.money<0&&guard++<60){
+  let sold=false;
+  for(let g=0;g<8&&!sold;g++){const cells=groupCells(g);const maxL=Math.max.apply(null,cells.map(function(j){return S.houses[j]}));if(maxL>0){for(let k=0;k<cells.length;k++){const j=cells[k];if(S.houses[j]===maxL){S.houses[j]--;p.money+=HCOST[g]/2;sold=true;break}}}}
+  if(sold)continue;
+  let cand=-1;for(let i=0;i<40;i++){if(S.owners[i]===pi&&!S.mort[i]&&(CELLS[i].t!=='s'||!groupHouses(CELLS[i].g))){if(cand===-1||CELLS[i].p<CELLS[cand].p)cand=i}}
+  if(cand>=0){S.mort[cand]=true;p.money+=CELLS[cand].p/2;continue}
+  break}
+ render();
+}
+// ===== СТАРТ =====
+$('btnPanel').onclick=function(){togglePanel()};
+$('btnNew').onclick=function(){if(confirm('Начать новую игру? Текущая сотрётся.'))newGame()};
+window.newGame=newGame;
+if(!load())newGame();
+
+</script>
+</body>
+</html>
