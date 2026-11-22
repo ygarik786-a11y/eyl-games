@@ -34,8 +34,9 @@
   @keyframes starGlow { 0%,100%{ filter:drop-shadow(0 0 4px rgba(255,215,80,.7)); transform:scale(1);} 50%{ filter:drop-shadow(0 0 13px rgba(255,215,80,1)); transform:scale(1.1);} }
 
   /* ===== Телевизор ===== */
-  .tv { position:absolute; left:32.9%; top:5.4%; width:26.4%; height:28.6%; z-index:4;
-    background:#000; border-radius:3px; overflow:hidden; }
+  .tv { position:absolute; left:24%; top:1%; width:48%; height:40.5%; z-index:4;
+    background:#000; border:3px solid #191919; border-radius:6px; overflow:hidden; box-sizing:border-box;
+    box-shadow:0 14px 30px rgba(0,0,0,.5); }
   .tv:fullscreen { left:0; top:0; width:100%; height:100%; border-radius:0; }
   .tv.on { box-shadow:0 10px 22px rgba(0,0,0,.65), 0 0 26px rgba(120,180,255,.28), inset 0 0 0 2px #26262b; }
   .tv video { width:100%; height:100%; display:block; background:#000; object-fit:cover; }
@@ -47,7 +48,7 @@
   .tv .chname { position:absolute; top:4px; left:4px; z-index:5; background:rgba(0,0,0,.62); color:#fff; font-size:10px; font-weight:700;
     padding:2px 6px; border-radius:6px; opacity:0; transition:opacity .4s; pointer-events:none; max-width:92%; }
   .tv .chname.show { opacity:1; }
-  .tvstand { position:absolute; right:48px; top:130px; width:104px; height:5px; border-radius:3px; background:#1c1c20; z-index:3; }
+  .tvstand { display:none; }
 
   /* ===== Камин ===== */
   .mantel { position:absolute; right:6px; bottom:298px; width:224px; height:14px; border-radius:6px;
@@ -164,7 +165,7 @@
     <div><b id="stCh">16</b>каналов в телике</div>
   </div>
 
-  <a class="back" href="../?u=45">← Все игры E.Y.L</a>
+  <a class="back" href="../?u=46">← Все игры E.Y.L</a>
 </div>
 
 <script>
