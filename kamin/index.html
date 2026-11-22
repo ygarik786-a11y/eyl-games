@@ -68,7 +68,7 @@
   .hearth { position:absolute; right:2px; bottom:96px; width:240px; height:14px; border-radius:6px;
     background:linear-gradient(180deg,#3d2c20,#241812); box-shadow:0 6px 14px rgba(0,0,0,.6); z-index:2; }
   .woodpile { position:absolute; right:206px; bottom:100px; font-size:23px; z-index:4; filter:drop-shadow(0 4px 6px rgba(0,0,0,.5)); }
-  .stockings { position:absolute; left:30.5%; top:49.2%; width:38%; z-index:4; }
+  .stockings { position:absolute; left:4%; top:44%; width:27%; z-index:4; }
   .stockimg { width:100%; display:block; transform-origin:50% 0; animation:sway 3.6s ease-in-out infinite; filter:drop-shadow(0 4px 5px rgba(0,0,0,.45)); }
   .stocking { position:absolute; top:0; height:100%; width:33.33%; cursor:pointer; font-size:0; touch-action:manipulation; border-radius:10px; }
   .stocking[data-who="Erik"] { left:0; }
@@ -132,7 +132,7 @@
       <span class="stocking" data-who="Mita"><span class="nm">MITA</span></span>
       <span class="stocking" data-who="E.Y.L"><span class="nm">E.Y.L</span></span>
     </div>
-    <div class="firebox"><canvas id="fire" width="392" height="256"></canvas><video id="firevid" src="https://eriksocial.alwaysdata.net/static/kamin-fire.mp4" muted loop autoplay playsinline preload="auto"></video></div>
+    <div class="firebox"><canvas id="fire" width="392" height="256"></canvas><video id="firevid" src="https://eriksocial.alwaysdata.net/static/kamin-fire.mp4" poster="https://eriksocial.alwaysdata.net/static/kamin-fire-poster.jpg" muted loop autoplay playsinline preload="auto"></video></div>
     <div class="marsh" id="marsh">🍡</div>
 
   </div>
@@ -164,58 +164,113 @@
     <div><b id="stCh">16</b>каналов в телике</div>
   </div>
 
-  <a class="back" href="../?u=44">← Все игры E.Y.L</a>
+  <a class="back" href="../?u=45">← Все игры E.Y.L</a>
 </div>
 
 <script>
 (function(){
   /* ================= ТЕЛЕВИЗОР ================= */
   var CHANNELS = [
-    { n:'📺 СТС', u:'https://tshift-1.telecoma.tv/sts/index.m3u8' },
-    { n:'📺 1+1 International', u:'https://dash2.antik.sk/live/test_one_plus_one_int_tizen/playlist.m3u8' },
-    { n:'📺 1+1 Марафон', u:'https://dash2.antik.sk/live/1plus1_marathon/playlist.m3u8' },
+    { n:'📺 36.6 TV', u:'https://dash2.antik.sk/live/test_tridsatsest_hd_atktv/playlist.m3u8' },
+    { n:'📺 Dacha', u:'https://dash2.antik.sk/live/test_dacha_tv_atktv/playlist.m3u8' },
     { n:'📺 Inter+', u:'https://cdn15.live-tv.cloud/ua_infinitas_tv/inter-abr/playlist.m3u8' },
-    { n:'📺 Квартал ТВ', u:'https://dash2.antik.sk/live/kvartal_tv/playlist.m3u8' },
-    { n:'📺 ТВ Центр International', u:'https://stream8.cinerama.uz/1281/tracks-v1a1/mono.m3u8' },
-    { n:'📺 Дача', u:'https://dash2.antik.sk/live/test_dacha_tv_atktv/playlist.m3u8' },
-    { n:'📺 Кускус: кулинария', u:'https://dash2.antik.sk/live/test_kuskus_tv_atktv/playlist.m3u8' },
-    { n:'📺 36.6: здоровье', u:'https://dash2.antik.sk/live/test_tridsatsest_hd_atktv/playlist.m3u8' },
     { n:'📺 Islandia', u:'https://cdn15.live-tv.cloud/ua_infinitas_tv/islandiya-abr/playlist.m3u8' },
+    { n:'📺 Kus-Kus', u:'https://dash2.antik.sk/live/test_kuskus_tv_atktv/playlist.m3u8' },
+    { n:'📺 Квартал ТВ', u:'https://dash2.antik.sk/live/kvartal_tv/playlist.m3u8' },
+    { n:'📺 Смотрим: 100% Праздник', u:'https://stream.smotrim.ru/hls/fasttv04/playlist_3.m3u8' },
     { n:'📺 RAI Украина', u:'https://stream.rai.ua/rai/stream.m3u8' },
+    { n:'📺 Belarus-1 HD', u:'https://ngtrk.dc.beltelecom.by/ngtrk/smil:belarus1.smil/playlist.m3u8' },
+    { n:'📺 Belarus-2 HD', u:'https://ngtrk.dc.beltelecom.by/ngtrk/smil:belarus2.smil/playlist.m3u8' },
+    { n:'📺 BST', u:'https://bsttv.bonus-tv.ru/cdn/bst/playlist.m3u8' },
+    { n:'📺 Channel One (Russia) Europa', u:'https://streaming.thestream.cyou/live/210-req_offset_28000000-req_window_0-1k_v5.m3u8' },
+    { n:'📺 Drive', u:'https://stream8.cinerama.uz/1421/tracks-v1a1/mono.m3u8' },
+    { n:'📺 Eurasia', u:'https://infochh.trkeurasia.ru/hlsinfoch/infochhd.m3u8' },
+    { n:'📺 Glazami Turista', u:'https://stream8.cinerama.uz/1423/tracks-v1a1/mono.m3u8' },
     { n:'📺 ETV+', u:'https://sb.err.ee/live/etvpluss.m3u8' },
-    { n:'📺 The Explorers: путешествия', u:'https://sofast-yupptv.vgcdn.net/v1/master/611d79b11b77e2f571934fd80ca1413453772ac7/4804aca3-dd54-43d1-8caa-0b836a76d9e9/manifest.m3u8' },
-    { n:'📺 Здоровое ТВ', u:'https://stream8.cinerama.uz/1428/tracks-v1a1/mono.m3u8' },
-    { n:'🎬 FilmUA Live: фильмы и сериалы', u:'https://dash2.antik.sk/live/test_film_life_atktv/playlist.m3u8' },
+    { n:'📺 Kulinar TV', u:'https://api.alpaca.t62a.com/hls/9110/stream0.m3u8' },
+    { n:'📺 Istoki', u:'https://istoki.tv/live/stream1/playlist.m3u8' },
+    { n:'📺 Moskva. Doveriye', u:'https://stream.smotrim.ru/hls2/doverie/playlist_3.m3u8' },
+    { n:'📺 Kuraj-TV', u:'https://bsttv.bonus-tv.ru/cdn/kurai/playlist.m3u8' },
+    { n:'📺 Ministerstvo idey', u:'https://live-minidey.cdnvideo.ru/minidey-srt/minidey/playlist.m3u8' },
+    { n:'📺 Moldova 2', u:'https://v0.trm.md/static/streaming-playlists/hls/d5fafab0-9c37-4746-9e7a-b2d6c0427015/master.m3u8' },
+    { n:'📺 Moldova 1', u:'https://v0.trm.md/static/streaming-playlists/hls/9b79338b-1870-4cd7-91d4-0f6ce5cac7ca/master.m3u8' },
+    { n:'📺 Qazaqstan International', u:'https://stream8.cinerama.uz/1431/tracks-v1a1/mono.m3u8' },
+    { n:'📺 Prima (Russia)', u:'https://tele2dvrnat01-02.cdnvideo.ru/stream/NAT_Prima/hls/index.m3u8' },
+    { n:'📺 Sankt-Peterburg HD', u:'https://stream.smotrim.ru/hls2/ext_spbtv/playlist_5.m3u8' },
+    { n:'📺 RTVi US', u:'https://amg17233-amg17233c1-wisptv-us-6409.playouts.now.amagi.tv/playlist.m3u8' },
+    { n:'📺 Rika TV', u:'https://live-rikatv.cdnvideo.ru/rikatv/rikatv_tcode.sdp/playlist.m3u8' },
+    { n:'📺 Смотрим: 100% Любовь', u:'https://stream.smotrim.ru/hls/fasttv01/playlist_2.m3u8' },
+    { n:'📺 Смотрим: 100% Факты', u:'https://stream.smotrim.ru/hls/fasttv06/playlist_3.m3u8' },
+    { n:'📺 Sevimli TV', u:'https://stream8.cinerama.uz/1017/tracks-v1a1/playlist.m3u8' },
+    { n:'📺 Silk Way', u:'https://hlspackager.akamaized.net/live/DB/SILKWAY/SILKWAY/SILKWAY.m3u8' },
+    { n:'📺 Sever', u:'https://2vko9pchwon.a.trbcdn.net/livemaster/8ilgc_cw63ucn03p.smil/playlist.m3u8' },
+    { n:'📺 STV (Belarus) HD', u:'https://ctv.dc.beltelecom.by/ctv/ctv.stream/playlist.m3u8' },
+    { n:'📺 TNV-Tatarstan', u:'https://user91229.clients-cdnnow.ru/hls/user91229_1.m3u8' },
+    { n:'📺 The Explorers', u:'https://sofast-yupptv.vgcdn.net/v1/master/611d79b11b77e2f571934fd80ca1413453772ac7/4804aca3-dd54-43d1-8caa-0b836a76d9e9/manifest.m3u8' },
+    { n:'📺 TV Centr International', u:'https://stream8.cinerama.uz/1281/tracks-v1a1/mono.m3u8' },
+    { n:'📺 Univer TV', u:'https://cdn.universmotri.ru/live/smil:univer.smil/playlist.m3u8' },
+    { n:'📺 Vmeste-RF', u:'https://qcpdqumitwf.a.trbcdn.net/livemastersrt/pr4mw_lvie-vmesterf-srt.smil/playlist.m3u8' },
+    { n:'📺 Zdorovoe TV', u:'https://stream8.cinerama.uz/1428/tracks-v1a1/mono.m3u8' },
+    { n:'🎬 Фантастика: кино', u:'https://cityeden.catcast.tv/content/45268/index.m3u8' },
+    { n:'🇺🇦 FilmUA Live: фильмы и сериалы', u:'https://dash2.antik.sk/live/test_film_life_atktv/playlist.m3u8' },
     { n:'🎬 Star Cinema', u:'https://dash2.antik.sk/live/test_star_cinema_atktv/playlist.m3u8' },
     { n:'🎬 Star Family: семейное кино', u:'https://dash2.antik.sk/live/test_star_family_atktv/playlist.m3u8' },
     { n:'🎬 Кинотеатр', u:'https://stream8.cinerama.uz/1009/playlist.m3u8' },
     { n:'🎬 Наше новое кино', u:'https://stream8.cinerama.uz/1051/tracks-v1a1/playlist.m3u8' },
     { n:'🎬 Приключения', u:'https://stream8.cinerama.uz/1420/tracks-v1a1/mono.m3u8' },
-    { n:'🎬 Фантастика: кино', u:'https://cityeden.catcast.tv/content/45268/index.m3u8' },
-    { n:'🎬 Болливуд HD', u:'https://xykt-fix.github.io/cinerama_edge01/hls/BOLLYWOOD_RU/Movie009.m3u8' },
+    { n:'🎬 Болливуд: индийское кино', u:'https://xykt-fix.github.io/cinerama_edge01/hls/BOLLYWOOD_RU/Movie009.m3u8' },
     { n:'🎬 КиноАзия', u:'https://cityeden.catcast.tv/content/34393/index.m3u8' },
     { n:'🎬 КиноАрт', u:'https://cityeden.catcast.tv/content/38398/index.m3u8' },
     { n:'🎬 КиноДетектив', u:'https://cityeden.catcast.tv/content/41327/index.m3u8' },
+    { n:'🎬 КиноКлассика', u:'https://cityeden.catcast.tv/content/34185/index.m3u8' },
+    { n:'🎬 КиноКомедия', u:'https://cityeden.catcast.tv/content/41331/index.m3u8' },
+    { n:'🎬 КиноМистика', u:'https://cityeden.catcast.tv/content/40783/index.m3u8' },
+    { n:'🎬 КиноФантастика', u:'https://cityeden.catcast.tv/content/45268/index.m3u8' },
+    { n:'🎬 Смотрим Мужское', u:'https://stream.smotrim.ru/hls/fasttv02/playlist_3.m3u8' },
+    { n:'🎬 Смотрим Классика', u:'https://stream.smotrim.ru/hls/fasttv03/playlist_3.m3u8' },
+    { n:'🎬 Кино 1', u:'https://kino-1.catcast.tv/content/38617/index.m3u8' },
+    { n:'🎬 Дом кино', u:'https://stream8.cinerama.uz/1054/tracks-v1a1/mono.m3u8' },
+    { n:'🎬 КиноХит', u:'https://stream8.cinerama.uz/1055/tracks-v1a1/mono.m3u8' },
+    { n:'🎬 Кинопоказ', u:'https://stream8.cinerama.uz/1057/tracks-v1a1/mono.m3u8' },
+    { n:'🎬 Кинопремьера', u:'https://stream8.cinerama.uz/1207/tracks-v1a1/mono.m3u8' },
+    { n:'🎬 Horoshee Kino', u:'https://live-rian.cdnvideo.ru/rian/rus-radio/playlist.m3u8' },
+    { n:'🎬 КиноДрама', u:'https://cityeden.catcast.tv/content/45269/index.m3u8' },
+    { n:'🎬 КиноЭкшен', u:'https://cityeden.catcast.tv/content/41333/index.m3u8' },
     { n:'🧸 Детский', u:'https://stream8.cinerama.uz/1033/playlist.m3u8' },
+    { n:'🧸 Nickelodeon', u:'https://ma.anixa.tv/clips/stream/nickelodeon/playlist.php' },
     { n:'🧸 Nicktoons', u:'https://stream8.cinerama.uz/1502/playlist.m3u8' },
-    { n:'🧸 Nickelodeon', u:'https://stream8.cinerama.uz/1500/playlist.m3u8' },
-    { n:'🧸 Nick Jr.', u:'https://stream8.cinerama.uz/1501/playlist.m3u8' },
     { n:'🧸 Рыжий', u:'https://stream8.cinerama.uz/1407/tracks-v1a1/mono.m3u8' },
-    { n:'🏰 В гостях у сказки', u:'https://stream8.cinerama.uz/1270/playlist.m3u8' },
-    { n:'🧸 Тооку: мультики', u:'https://live-saha.cdnvideo.ru/saha/tooky/playlist.m3u8' },
-    { n:'🧸 Карусель', u:'https://stream.smotrim.ru/hls2/karusel/playlist_3.m3u8' },
     { n:'🧸 Gulli Girl', u:'https://stream8.cinerama.uz/1445/tracks-v1a1/mono.m3u8' },
+    { n:'🏰 В гостях у сказки', u:'https://stream8.cinerama.uz/1270/playlist.m3u8' },
+    { n:'🧸 Aqlvoy: мультики', u:'https://stream8.cinerama.uz/1205/tracks-v1a1/mono.m3u8' },
+    { n:'🧸 BabyFirst: малышам', u:'https://cdn.fast.jwp.services/v1/channel/1_jB6940Ei_TvhvIHDL/manifest.m3u8' },
+    { n:'🧸 Смотрим Детское', u:'https://stream.smotrim.ru/hls/fasttv05/playlist_3.m3u8' },
+    { n:'🧸 Тооку: мультики', u:'https://live-saha.cdnvideo.ru/saha/tooky/playlist.m3u8' },
+    { n:'🧸 Smile TV', u:'https://5d23269b3ec0c.streamlock.net/WEB_Smilik/ngrp:Smilik.stream-adaptive/playlist.m3u8' },
+    { n:'🧸 Тамыр: детям', u:'https://bsttv.bonus-tv.ru/cdn/tamyr/playlist.m3u8' },
     { n:'🧸 Капитан Фантастика', u:'https://stream8.cinerama.uz/1406/tracks-v1a1/mono.m3u8' },
-    { n:'🎵 Song TV: музыка', u:'https://songtv.hls.iptvdc.com/web-russia/playlist.m3u8' },
-    { n:'🎵 Музвар', u:'https://cdn15.live-tv.cloud/ua_infinitas_tv/muzvar-abr/playlist.m3u8' },
-    { n:'🎵 NASHE Music', u:'https://cdn15.live-tv.cloud/ua_infinitas_tv/nashemus-abr/playlist.m3u8' },
-    { n:'🎵 Майдан: музыка', u:'https://live-maidantv.cdnvideo.ru/maidantv/maidantv.smil/playlist.m3u8' },
+    { n:'🧸 Карусель', u:'https://stream.smotrim.ru/hls2/karusel/playlist_3.m3u8' },
+    { n:'🧸 Nick Jr.', u:'https://stream8.cinerama.uz/1501/playlist.m3u8' },
+    { n:'🧸 Nickelodeon CIS', u:'https://stream8.cinerama.uz/1500/playlist.m3u8' },
+    { n:'🎵 Maidan: музыка', u:'https://live-maidantv.cdnvideo.ru/maidantv/maidantv.smil/playlist.m3u8' },
+    { n:'🎵 Deluxe Dance: танцы', u:'https://sdn-global-live-streaming-packager-cache.3qsdn.com/64733/64733_264_live.m3u8' },
     { n:'🎵 Deluxe Music', u:'https://sdn-global-live-streaming-packager-cache.3qsdn.com/13456/13456_264_live.m3u8' },
     { n:'🎵 Kiss Kiss: музыка', u:'https://kk.fluid.stream/KKMulti/smil:KissKissTV.smil/chunklist.m3u8' },
-    { n:'🎵 Музыка кино', u:'https://kino-1.catcast.tv/content/37739/index.m3u8' },
-    { n:'🎵 Страна FM', u:'https://live-stranafm.cdnvideo.ru/stranafm/smil:stranafm.smil/playlist.m3u8' },
+    { n:'🎵 Radio M2O', u:'https://streamcdnm5-4c4b867c89244861ac216426883d1ad0.msvdn.net/live/S62628868/uhdWBlkC1AoO/index.m3u8' },
+    { n:'🎵 Классическая музыка', u:'https://cityeden.catcast.tv/content/47400/index.m3u8' },
+    { n:'🎵 Play: музыка', u:'https://cityeden.catcast.tv/content/34100/index.m3u8' },
+    { n:'🎵 Happy Radio', u:'https://tv.mediacp.eu:8081/happyradio/index.m3u8' },
     { n:'🎵 Hit FM', u:'https://hitfm.nfthost.net/hls/hitfm/live_all/playlist.m3u8' },
-    { n:'🎵 Play: музыка', u:'https://cityeden.catcast.tv/content/34100/index.m3u8' }
+    { n:'🎵 Музвар', u:'https://cdn15.live-tv.cloud/ua_infinitas_tv/muzvar-abr/playlist.m3u8' },
+    { n:'🎵 Музыка 1', u:'https://kino-1.catcast.tv/content/37745/index.m3u8' },
+    { n:'🎵 Музыка кино', u:'https://kino-1.catcast.tv/content/37739/index.m3u8' },
+    { n:'🎵 NASHE Music', u:'https://cdn15.live-tv.cloud/ua_infinitas_tv/nashemus-abr/playlist.m3u8' },
+    { n:'🎵 Radio Moldova', u:'https://radiolive.trm.md:8001/hls_rmm/muzical.m3u8' },
+    { n:'🎵 Страна FM', u:'https://live-stranafm.cdnvideo.ru/stranafm/smil:stranafm.smil/playlist.m3u8' },
+    { n:'🎵 Тезаур ТВ', u:'https://tezaurtv.md/stream/index.m3u8' },
+    { n:'🎵 Музыка 2', u:'https://kino-1.catcast.tv/content/37742/index.m3u8' },
+    { n:'🎵 Deluxe Rap', u:'https://sdn-global-live-streaming-packager-cache.3qsdn.com/65183/65183_264_live.m3u8' },
+    { n:'🎵 KroneHit', u:'https://bitcdn-kronehit.bitmovin.com/v2/hls/chunklist_b3128000.m3u8' }
   ];
   var video = document.getElementById('tv');
   var tvbox = document.getElementById('tvbox');
@@ -312,6 +367,7 @@
   var vidOk = false, lastVOp = -1;
   firevid.addEventListener('canplay', function(){ vidOk = true; firevid.play().catch(function(){}); });
   firevid.addEventListener('error', function(){ vidOk = false; }, true);
+  document.addEventListener('pointerdown', function pd(){ firevid.play().catch(function(){}); document.removeEventListener('pointerdown', pd); });
   var scene = document.getElementById('scene');
   var glow = document.getElementById('glow');
 
