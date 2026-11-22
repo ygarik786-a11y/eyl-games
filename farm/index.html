@@ -440,11 +440,24 @@ function initRivals(){
   S.rivals = RIVAL_SEED.map(r=>({ name:r.name, em:r.em, xp:r.xp }));
   S.rivalTick = now();
 }
+function fixRivals(){
+  // Разовая починка старых сейвов (22.11): соседи из-за бага роста убежали на десятки тысяч
+  // опыта вперёд, хотя начинали со 120–900. Возвращаем их в честную гонку рядом с игроком.
+  if (!S.rivals || S.rivalsFixed) return;
+  S.rivalsFixed = 1;
+  const top = Math.max.apply(null, S.rivals.map(r=>r.xp));
+  if (top > S.xp + 1500) {
+    const sorted = S.rivals.slice().sort((a,b)=>b.xp-a.xp);
+    const offs = [120, 60, 10, -80, -200];
+    sorted.forEach((r,i)=>{ r.xp = Math.max(10, S.xp + (offs[i] !== undefined ? offs[i] : -200 - (i-4)*60)); });
+  }
+}
 function growRivals(){
   const t = now();
   const mins = Math.min(24 * 60, Math.floor((t - (S.rivalTick || t)) / 60000));
   if (mins > 0 && S.rivals) {
-    S.rivals.forEach(r=>{ r.xp += mins * (1 + Math.floor(Math.random()*4)); });
+    // Честный рост: в среднем 0,04 опыта в минуту (~2,4 в час) — активный игрок обгоняет.
+    S.rivals.forEach(r=>{ r.xp += Math.round(mins * (0.02 + Math.random()*0.04)); });
     S.rivalTick = t;
   }
 }
@@ -1196,6 +1209,7 @@ window.addEventListener("storage", function(e){
   if (t > S.season.until) rollSeason();
   if (!S.order) genOrder();
   if (!S.rivals) initRivals();
+  fixRivals();
   growRivals();
   const day = new Date().toDateString();
   if (S.lastBonusDay !== day) {
