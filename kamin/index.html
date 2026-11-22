@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="theme-color" content="#120a06">
+<title>🔥 Камин — E.Y.L Games</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html,body { height:100%; }
+  body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; background:#120a06; color:#ffe9d2; overflow-x:hidden; }
+  .wrap { max-width:520px; margin:0 auto; padding:10px 12px 18px; }
+  h1 { text-align:center; font-size:22px; margin:4px 0 2px; }
+  .sub { text-align:center; font-size:13px; opacity:.75; margin-bottom:8px; }
+
+  /* ===== Сцена ===== */
+  .scene { position:relative; border-radius:18px; overflow:hidden; height:342px;
+    background:
+      radial-gradient(420px 240px at 50% 88%, rgba(255,120,30,.20), transparent 65%),
+      linear-gradient(180deg,#1c110a 0%, #241610 55%, #17100b 100%);
+    box-shadow:0 14px 34px rgba(0,0,0,.6), inset 0 0 0 1px rgba(255,180,90,.12);
+    transition:background 1s; }
+  .scene.warm { background:
+      radial-gradient(460px 280px at 50% 88%, rgba(255,140,40,.34), transparent 68%),
+      linear-gradient(180deg,#221410 0%, #2b1a10 55%, #1a110a 100%); }
+
+  /* Полка камина */
+  .mantel { position:absolute; left:50%; transform:translateX(-50%); bottom:196px; width:300px; height:16px; border-radius:6px;
+    background:linear-gradient(180deg,#6b4630,#4a2d1c); box-shadow:0 4px 10px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,220,170,.35); z-index:3; }
+  .mantel-items { position:absolute; left:50%; transform:translateX(-50%); bottom:210px; width:300px; display:flex; justify-content:space-between; padding:0 8px; font-size:21px; z-index:3; }
+  .mantel-items .candle { animation:candle 1.6s ease-in-out infinite; display:inline-block; }
+  @keyframes candle { 0%,100%{ transform:scale(1) rotate(-2deg);} 50%{ transform:scale(1.12) rotate(2deg); filter:drop-shadow(0 0 7px rgba(255,190,80,.9)); } }
+
+  /* Кирпичный портал */
+  .portal { position:absolute; left:50%; transform:translateX(-50%); bottom:34px; width:264px; height:168px; border-radius:14px 14px 6px 6px;
+    background:
+      repeating-linear-gradient(0deg, rgba(0,0,0,.22) 0 2px, transparent 2px 26px),
+      repeating-linear-gradient(90deg, rgba(0,0,0,.20) 0 2px, transparent 2px 52px),
+      linear-gradient(160deg,#7a4433,#5d3122 60%,#4c281b);
+    box-shadow:0 10px 24px rgba(0,0,0,.6), inset 0 2px 0 rgba(255,200,150,.18); z-index:2; }
+  /* Топка */
+  .firebox { position:absolute; left:50%; transform:translateX(-50%); bottom:44px; width:196px; height:128px; border-radius:12px 12px 4px 4px;
+    background:radial-gradient(120px 90px at 50% 82%, #2a1503 0%, #160b02 55%, #070302 100%);
+    box-shadow:inset 0 0 34px #000, inset 0 -14px 26px rgba(255,110,20,.20); overflow:hidden; z-index:2; }
+  #fire { position:absolute; inset:0; width:100%; height:100%; display:block; }
+  /* Под камина */
+  .hearth { position:absolute; left:50%; transform:translateX(-50%); bottom:22px; width:316px; height:16px; border-radius:6px;
+    background:linear-gradient(180deg,#3d2c20,#241812); box-shadow:0 6px 14px rgba(0,0,0,.6); z-index:2; }
+  /* Ковёр */
+  .rug { position:absolute; left:50%; transform:translateX(-50%); bottom:2px; width:360px; height:26px; border-radius:50%;
+    background:radial-gradient(ellipse at center, #6d2430 0%, #53202a 55%, rgba(60,20,28,0) 78%); z-index:1; }
+  /* Линда у камина */
+  .linda { position:absolute; right:12px; bottom:14px; font-size:38px; z-index:4; filter:drop-shadow(0 4px 6px rgba(0,0,0,.5)); }
+  .linda .zzz { position:absolute; top:-14px; right:-4px; font-size:13px; color:#cfd8ff; animation:zzz 2.6s ease-in-out infinite; }
+  @keyframes zzz { 0%{ transform:translateY(2px); opacity:.35;} 50%{ transform:translateY(-3px); opacity:1;} 100%{ transform:translateY(2px); opacity:.35;} }
+  .woodpile { position:absolute; left:10px; bottom:12px; font-size:30px; z-index:4; filter:drop-shadow(0 4px 6px rgba(0,0,0,.5)); }
+  /* Зефирка на палочке */
+  .marsh { position:absolute; left:50%; bottom:120px; font-size:30px; z-index:5; transform:translateX(-110px) rotate(-24deg); opacity:0; pointer-events:none; transition:opacity .25s; }
+  .marsh.on { opacity:1; animation:roast 1s ease-in-out infinite; }
+  @keyframes roast { 0%,100%{ transform:translateX(-110px) rotate(-24deg);} 50%{ transform:translateX(-104px) rotate(-16deg);} }
+  /* Свет огня по комнате */
+  .glow { position:absolute; inset:0; z-index:1; pointer-events:none; background:radial-gradient(340px 220px at 50% 84%, rgba(255,150,50,.28), transparent 70%); opacity:.25; }
+
+  /* ===== Панель ===== */
+  .heat { margin:10px 2px 4px; font-size:13px; display:flex; justify-content:space-between; }
+  .heatbar { height:12px; border-radius:8px; background:#2a1a10; box-shadow:inset 0 1px 3px rgba(0,0,0,.7); overflow:hidden; }
+  .heatfill { height:100%; width:30%; border-radius:8px; background:linear-gradient(90deg,#ff7b1c,#ffb03a,#ffe27a); transition:width .6s; box-shadow:0 0 12px rgba(255,150,50,.8); }
+  .status { text-align:center; font-size:14px; min-height:20px; margin:7px 0 2px; }
+  .btns { display:grid; grid-template-columns:1fr 1fr; gap:9px; margin-top:8px; }
+  button.act { border:none; border-radius:14px; padding:14px 8px; font-size:17px; font-weight:700; color:#fff; cursor:pointer;
+    box-shadow:0 6px 16px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.25); transition:transform .08s; touch-action:manipulation; }
+  button.act:active { transform:scale(.96); }
+  .b-wood { background:linear-gradient(160deg,#a05a2c,#7a3f1a); }
+  .b-stoke { background:linear-gradient(160deg,#e0641e,#b33e0e); }
+  .b-marsh { background:linear-gradient(160deg,#8a5aa8,#67407f); }
+  .b-sound { background:linear-gradient(160deg,#3d6e8f,#2a4f68); }
+  .stats { display:flex; justify-content:space-around; margin-top:12px; font-size:13px; opacity:.9; text-align:center; }
+  .stats b { display:block; font-size:17px; }
+  .back { display:block; text-align:center; margin-top:14px; color:#ffb03a; text-decoration:none; font-size:14px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>🔥 Камин</h1>
+  <div class="sub">Живой огонь: подкидывай дрова, слушай треск, грейся</div>
+
+  <div class="scene" id="scene">
+    <div class="glow" id="glow"></div>
+    <div class="mantel-items"><span>🖼️</span><span class="candle">🕯️</span><span>🕰️</span><span class="candle">🕯️</span><span>🎄</span></div>
+    <div class="mantel"></div>
+    <div class="portal"></div>
+    <div class="firebox"><canvas id="fire" width="392" height="256"></canvas></div>
+    <div class="hearth"></div>
+    <div class="rug"></div>
+    <div class="woodpile" id="woodpile">🪵🪵</div>
+    <div class="linda">🐶<span class="zzz">💤</span></div>
+    <div class="marsh" id="marsh">🍡</div>
+  </div>
+
+  <div class="heat"><span>🌡️ Тепло в комнате</span><span id="heatTxt">прохладно</span></div>
+  <div class="heatbar"><div class="heatfill" id="heatfill"></div></div>
+  <div class="status" id="status">Камин ждёт первое полено…</div>
+
+  <div class="btns">
+    <button class="act b-wood" id="btnWood">🪵 Подкинуть дрова</button>
+    <button class="act b-stoke" id="btnStoke">🔥 Пошевелить угли</button>
+    <button class="act b-marsh" id="btnMarsh">🍡 Пожарить зефирку</button>
+    <button class="act b-sound" id="btnSound">🔇 Включить треск</button>
+  </div>
+
+  <div class="stats">
+    <div><b id="stBurned">0</b>поленьев сгорело</div>
+    <div><b id="stMarsh">0</b>зефирок съедено</div>
+    <div><b id="stTime">0 мин</b>у камина</div>
+  </div>
+
+  <a class="back" href="../?u=33">← Все игры E.Y.L</a>
+</div>
+
+<script>
+(function(){
+  var cv = document.getElementById('fire'), ctx = cv.getContext('2d');
+  var W = cv.width, H = cv.height;
+  var logs = [];        // {x,y,ang,len,fuel}
+  var parts = [];       // частицы пламени
+  var sparks = [];      // искры
+  var smokes = [];      // дымок
+  var flare = 0;        // вспышка от нового полена/кочерги
+  var t = 0;
+  var soundOn = false, AC = null, noiseGain = null;
+  var stats = { burned:0, marsh:0, secs:0 };
+  try { var s = JSON.parse(localStorage.getItem('kamin_stats')||'null'); if (s) stats = s; } catch(e){}
+  var startStamp = Date.now();
+
+  var statusEl = document.getElementById('status');
+  var heatfill = document.getElementById('heatfill');
+  var heatTxt = document.getElementById('heatTxt');
+  var scene = document.getElementById('scene');
+  var glow = document.getElementById('glow');
+
+  function save(){ try { localStorage.setItem('kamin_stats', JSON.stringify(stats)); } catch(e){} }
+  function fuelTotal(){ var f=0; for (var i=0;i<logs.length;i++) f+=logs[i].fuel; return f; }
+  function fireLevel(){ return Math.min(1, fuelTotal()/260 + flare*0.55); }
+
+  function addLog(){
+    if (logs.length >= 6) { statusEl.textContent = 'Топка полная! Дай дровам прогореть 🔥'; return; }
+    var baseY = H - 26 - logs.length*7;
+    logs.push({ x: W/2 + (Math.random()*36-18), y: baseY, ang: (Math.random()*0.36-0.18), len: 118 + Math.random()*26, fuel: 100 });
+    flare = Math.min(1, flare + 0.7);
+    burstSparks(10);
+    cracklePop(0.5);
+    statusEl.textContent = pick(['Полено легло в огонь — пламя вспыхнуло! 🔥','Трещит! Хорошее полено 🪵','Огонь обрадовался новым дровам 😄']);
+  }
+  function pick(a){ return a[Math.floor(Math.random()*a.length)]; }
+
+  function stoke(){
+    if (!logs.length) { statusEl.textContent = 'Углей пока нет — подкинь сначала дрова 🪵'; return; }
+    flare = Math.min(1, flare + 0.85);
+    burstSparks(22);
+    cracklePop(0.9);
+    for (var i=0;i<logs.length;i++) logs[i].fuel = Math.min(100, logs[i].fuel + 4);
+    statusEl.textContent = pick(['Искры полетели! Огонь ожил 🔥','Угли засияли ярче ✨','Вот это жар пошёл!']);
+  }
+
+  var marshBusy = false;
+  function marsh(){
+    if (marshBusy) return;
+    if (fireLevel() < 0.18) { statusEl.textContent = 'Огонь слабоват — зефирка не поджарится. Подкинь дров! 🪵'; return; }
+    marshBusy = true;
+    var el = document.getElementById('marsh');
+    el.classList.add('on');
+    statusEl.textContent = 'Зефирка жарится над огнём… 🍡';
+    setTimeout(function(){
+      el.classList.remove('on');
+      marshBusy = false;
+      stats.marsh++; save(); updStats();
+      statusEl.textContent = pick(['Ммм, румяная зефирка готова! 😋','Поджарилась как надо! Ещё одну? 🍡','Тёплая, тягучая — объедение!']);
+    }, 3200);
+  }
+
+  function burstSparks(n){
+    for (var i=0;i<n;i++) sparks.push({ x: W/2 + (Math.random()*70-35), y: H-44, vx:(Math.random()*0.9-0.45), vy:-(1.4+Math.random()*2.4), life: 50+Math.random()*60, max:110 });
+  }
+
+  /* ===== Звук: треск костра (WebAudio) ===== */
+  function initAudio(){
+    if (AC) return;
+    try {
+      AC = new (window.AudioContext||window.webkitAudioContext)();
+      var len = AC.sampleRate * 2, buf = AC.createBuffer(1, len, AC.sampleRate), d = buf.getChannelData(0), last = 0;
+      for (var i=0;i<len;i++){ var w = Math.random()*2-1; last = (last + 0.02*w)/1.02; d[i] = last*3.2; } // коричневый шум — гул огня
+      var src = AC.createBufferSource(); src.buffer = buf; src.loop = true;
+      var f = AC.createBiquadFilter(); f.type='lowpass'; f.frequency.value = 420;
+      noiseGain = AC.createGain(); noiseGain.gain.value = 0;
+      src.connect(f); f.connect(noiseGain); noiseGain.connect(AC.destination); src.start();
+    } catch(e){ AC = null; }
+  }
+  function cracklePop(vol){
+    if (!soundOn || !AC) return;
+    var dur = 0.03 + Math.random()*0.05, n = Math.floor(AC.sampleRate*dur);
+    var buf = AC.createBuffer(1, n, AC.sampleRate), d = buf.getChannelData(0);
+    for (var i=0;i<n;i++) d[i] = (Math.random()*2-1) * (1 - i/n) * (0.5+Math.random()*0.5);
+    var src = AC.createBufferSource(); src.buffer = buf;
+    var g = AC.createGain(); g.gain.value = (vol||0.4) * (0.4+Math.random()*0.6);
+    var f = AC.createBiquadFilter(); f.type='bandpass'; f.frequency.value = 900 + Math.random()*1800;
+    src.connect(f); f.connect(g); g.connect(AC.destination); src.start();
+  }
+
+  /* ===== Отрисовка ===== */
+  function drawLog(lg){
+    ctx.save();
+    ctx.translate(lg.x, lg.y); ctx.rotate(lg.ang);
+    var L = lg.len, R = 11;
+    var char = 1 - lg.fuel/100; // 0 свежее — 1 уголь
+    var g = ctx.createLinearGradient(0,-R,0,R);
+    if (char < 0.55) { g.addColorStop(0,'#8a5a30'); g.addColorStop(0.5,'#6e4423'); g.addColorStop(1,'#4e2d15'); }
+    else { g.addColorStop(0,'#3a3a3a'); g.addColorStop(0.5,'#232323'); g.addColorStop(1,'#101010'); }
+    ctx.fillStyle = g;
+    ctx.beginPath(); ctx.roundRect(-L/2,-R,L,R*2,9); ctx.fill();
+    // торец полена
+    ctx.fillStyle = char < 0.55 ? '#c9a06b' : '#2c2c2c';
+    ctx.beginPath(); ctx.ellipse(-L/2+3,0,5,R-2,0,0,Math.PI*2); ctx.fill();
+    // тлеющие трещины на углях
+    if (char > 0.35) {
+      ctx.strokeStyle = 'rgba(255,' + Math.floor(90+Math.random()*90) + ',20,' + (0.35+Math.random()*0.4) + ')';
+      ctx.lineWidth = 1.6;
+      for (var i=0;i<3;i++){ ctx.beginPath(); var sx = -L/2+14+Math.random()*(L-28); ctx.moveTo(sx,-R+3); ctx.lineTo(sx+6, R-3); ctx.stroke(); }
+    }
+    ctx.restore();
+  }
+
+  function frame(){
+    t++;
+    // горение: каждое полено сгорает ~80 секунд
+    var burnRate = 100 / (80*60);
+    for (var i=logs.length-1;i>=0;i--){
+      logs[i].fuel -= burnRate * (1 + flare*0.6);
+      if (logs[i].fuel <= 0){ logs.splice(i,1); stats.burned++; save(); updStats(); statusEl.textContent = 'Полено сгорело дотла — остались угли 🔥'; }
+    }
+    flare *= 0.985;
+    var fl = fireLevel();
+
+    ctx.clearRect(0,0,W,H);
+    // свечение топки
+    if (fl > 0.02){
+      var gg = ctx.createRadialGradient(W/2,H-30,6, W/2,H-30, 150);
+      gg.addColorStop(0,'rgba(255,150,40,' + (0.5*fl + Math.random()*0.08) + ')');
+      gg.addColorStop(1,'rgba(255,80,0,0)');
+      ctx.fillStyle = gg; ctx.fillRect(0,0,W,H);
+    }
+    // дрова
+    for (var j=0;j<logs.length;j++) drawLog(logs[j]);
+    // угли под дровами
+    if (stats.burned > 0 || logs.length){
+      ctx.fillStyle = 'rgba(255,90,10,' + (0.25 + 0.3*fl + Math.random()*0.1) + ')';
+      for (var c=0;c<7;c++){ ctx.beginPath(); ctx.ellipse(W/2-52+c*17, H-16, 8, 3.4, 0, 0, Math.PI*2); ctx.fill(); }
+    }
+    // частицы пламени
+    var spawn = Math.floor(fl * 7) + (flare > 0.3 ? 3 : 0);
+    for (var s=0;s<spawn;s++){
+      parts.push({ x: W/2 + (Math.random()*84-42) * (0.5+fl*0.6), y: H-34, vx:(Math.random()*0.6-0.3), vy:-(1.1+Math.random()*1.9)*(0.5+fl), life:0, max: 34+Math.random()*30, r: 9+Math.random()*13*(0.6+fl) });
+    }
+    for (var p=parts.length-1;p>=0;p--){
+      var pt = parts[p]; pt.life++;
+      pt.x += pt.vx + Math.sin((t+pt.life)*0.22)*0.55; // трепетание
+      pt.y += pt.vy; pt.r *= 0.965;
+      var k = pt.life/pt.max;
+      if (k >= 1 || pt.r < 0.6){ parts.splice(p,1); continue; }
+      var col = k < 0.35 ? '255,214,90' : (k < 0.7 ? '255,130,26' : '216,52,10');
+      var rad = ctx.createRadialGradient(pt.x,pt.y,0, pt.x,pt.y, pt.r);
+      rad.addColorStop(0,'rgba(' + col + ',' + (0.5*(1-k)) + ')');
+      rad.addColorStop(1,'rgba(' + col + ',0)');
+      ctx.fillStyle = rad;
+      ctx.beginPath(); ctx.arc(pt.x,pt.y,pt.r,0,Math.PI*2); ctx.fill();
+    }
+    // искры
+    if (fl > 0.25 && Math.random() < fl*0.4) burstSparks(1);
+    for (var q=sparks.length-1;q>=0;q--){
+      var sp = sparks[q]; sp.life--; sp.x += sp.vx + Math.sin(t*0.3+q)*0.3; sp.y += sp.vy; sp.vy *= 0.99;
+      if (sp.life <= 0){ sparks.splice(q,1); continue; }
+      ctx.fillStyle = 'rgba(255,' + (170+Math.floor(Math.random()*70)) + ',60,' + Math.min(1, sp.life/40) + ')';
+      ctx.fillRect(sp.x, sp.y, 2.2, 2.2);
+    }
+    // дымок
+    if (fl > 0.15 && Math.random() < 0.05) smokes.push({ x: W/2+(Math.random()*30-15), y: 60, r: 8, life: 0 });
+    for (var m=smokes.length-1;m>=0;m--){
+      var sm = smokes[m]; sm.life++; sm.y -= 0.5; sm.r += 0.14; sm.x += Math.sin(t*0.05+m)*0.2;
+      if (sm.life > 90){ smokes.splice(m,1); continue; }
+      ctx.fillStyle = 'rgba(160,160,170,' + (0.10*(1-sm.life/90)) + ')';
+      ctx.beginPath(); ctx.arc(sm.x, sm.y, sm.r, 0, Math.PI*2); ctx.fill();
+    }
+
+    // свет по комнате и тепло
+    var flick = 0.85 + Math.random()*0.3;
+    glow.style.opacity = (0.15 + fl*0.75*flick).toFixed(2);
+    scene.classList.toggle('warm', fl > 0.35);
+    var heat = Math.round(fl*100);
+    heatfill.style.width = Math.max(3, heat) + '%';
+    heatTxt.textContent = heat < 8 ? 'огонь погас 🥶' : heat < 30 ? 'прохладно' : heat < 55 ? 'теплеет 🙂' : heat < 80 ? 'тепло и уютно 😊' : 'жарко, как в бане! 🥵';
+    if (noiseGain) noiseGain.gain.value = soundOn ? 0.05 + fl*0.16 : 0;
+    if (soundOn && fl > 0.1 && Math.random() < fl*0.14) cracklePop(0.35);
+
+    if (t % 60 === 0){ stats.secs = Math.floor((Date.now()-startStamp)/1000) + (stats.baseSecs||0); updStats(); }
+    requestAnimationFrame(frame);
+  }
+
+  function updStats(){
+    document.getElementById('stBurned').textContent = stats.burned;
+    document.getElementById('stMarsh').textContent = stats.marsh;
+    var mins = Math.floor(((Date.now()-startStamp)/1000 + (stats.baseSecs||0))/60);
+    document.getElementById('stTime').textContent = mins + ' мин';
+  }
+  setInterval(function(){ stats.baseSecs = (stats.baseSecs||0) + Math.floor((Date.now()-startStamp)/1000); startStamp = Date.now(); save(); }, 15000);
+
+  document.getElementById('btnWood').addEventListener('click', addLog);
+  document.getElementById('btnStoke').addEventListener('click', stoke);
+  document.getElementById('btnMarsh').addEventListener('click', marsh);
+  document.getElementById('btnSound').addEventListener('click', function(){
+    initAudio();
+    if (AC && AC.state === 'suspended') AC.resume();
+    soundOn = !soundOn;
+    this.textContent = soundOn ? '🔊 Треск включён' : '🔇 Включить треск';
+    if (soundOn) statusEl.textContent = 'Слушай, как трещат дрова… 🎧🔥';
+  });
+  document.querySelector('.firebox').addEventListener('click', addLog);
+
+  // Стартовый костерок, чтобы сразу было живо
+  addLog(); addLog(); logs[0].fuel = 82; logs[1].fuel = 64; flare = 0.4;
+  statusEl.textContent = 'Огонь уже горит — подкидывай дрова и грейся 🔥';
+  updStats();
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>

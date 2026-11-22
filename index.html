@@ -8,7 +8,7 @@
 <script>
 // Самообновление каталога: телефон Erik держал старую копию страницы
 // из кэша и не видел новые игры. Сверяемся с gversion.txt на сервере.
-var GAMES_VER = 32;
+var GAMES_VER = 33;
 fetch("gversion.txt?x=" + Date.now()).then(function(r){ return r.text(); }).then(function(t){
   var rv = parseInt(t, 10);
   if (rv && rv > GAMES_VER && sessionStorage.getItem("gamesUpd") !== String(rv)) {
@@ -179,6 +179,18 @@ fetch("gversion.txt?x=" + Date.now()).then(function(r){ return r.text(); }).then
 
   <h2 class="sec">🎮 Все игры</h2>
   <div class="grid">
+    <a class="game" href="kamin/?u=33">
+      <div class="cover c-yolochka">
+        <span class="tag">Уют • живой огонь</span><span class="new">НОВОЕ</span>
+        <span class="main">🔥</span>
+      </div>
+      <div class="gbody">
+        <h3>🔥 Камин</h3>
+        <p>Настоящий живой камин! Огонь горит и трепещет, дрова трещат, искры летят. Подкидывай поленья, шевели угли кочергой, жарь зефирки — и не дай огню погаснуть. Линда спит рядом у тепла.</p>
+        <div class="meta">🪵 Дрова • 🔊 Треск • 🍡 Зефирки • 🐶 Линда у огня</div>
+        <div class="play">Играть →</div>
+      </div>
+    </a>
     <a class="game" href="po-tu-storonu/?u=31">
       <div class="cover c-yolochka">
         <span class="tag">Мистика • охота на призраков</span><span class="new">НОВОЕ</span>
