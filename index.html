@@ -8,7 +8,7 @@
 <script>
 // Самообновление каталога: телефон Erik держал старую копию страницы
 // из кэша и не видел новые игры. Сверяемся с gversion.txt на сервере.
-var GAMES_VER = 50;
+var GAMES_VER = 51;
 fetch("gversion.txt?x=" + Date.now()).then(function(r){ return r.text(); }).then(function(t){
   var rv = parseInt(t, 10);
   if (rv && rv > GAMES_VER && sessionStorage.getItem("gamesUpd") !== String(rv)) {
@@ -144,6 +144,7 @@ fetch("gversion.txt?x=" + Date.now()).then(function(r){ return r.text(); }).then
     <p class="sub">Игровая империя президента <b>Erik Lebed</b> 🎮<br>Бесплатные игры прямо в браузере — без скачивания и регистрации.<br>Открыл — и играешь. Прогресс сохраняется в телефоне.</p>
     <div class="chips">
       <span class="chip gold">👑 103 игры</span>
+      <span class="chip" id="visitsChip">👀 Заходов: …</span>
       <span class="chip">🎄 С наступающим Новым годом!</span>
       <span class="chip">💸 Полностью бесплатно</span>
       <span class="chip">📱 С телефона и компьютера</span>
@@ -541,5 +542,32 @@ fetch("gversion.txt?x=" + Date.now()).then(function(r){ return r.text(); }).then
     Игры созданы создателем Erik Lebed ✨
   </footer>
 </div>
+<script>
+// Счётчик заходов E.Y.L Games (Abacus, бесплатный): visits — заходы, players — люди (первый заход с телефона/браузера)
+(function(){
+  var API = "https://abacus.jasoncameron.dev/", NS = "eyl-games";
+  function hit(key){ return fetch(API + "hit/" + NS + "/" + key).then(function(r){ return r.json(); }); }
+  function get(key){ return fetch(API + "get/" + NS + "/" + key).then(function(r){ return r.json(); }); }
+  var chip = document.getElementById("visitsChip");
+  var vP = sessionStorage.getItem("eylCounted") ? get("visits") : hit("visits");
+  sessionStorage.setItem("eylCounted", "1");
+  var pP;
+  if (localStorage.getItem("eylPlayer")) { pP = get("players"); }
+  else { pP = hit("players"); localStorage.setItem("eylPlayer", "1"); }
+  Promise.all([vP, pP]).then(function(res){
+    if (chip && res[0] && typeof res[0].value === "number") {
+      chip.textContent = "👀 Заходов: " + res[0].value + (res[1] && typeof res[1].value === "number" ? " • 🎮 Игроков: " + res[1].value : "");
+    }
+  }).catch(function(){});
+  // Счётчик по каждой игре: клик по карточке игры
+  document.addEventListener("click", function(e){
+    var a = e.target.closest ? e.target.closest("a") : null;
+    if (!a) return;
+    var href = a.getAttribute("href") || "";
+    var m = href.match(/^([a-z0-9_-]+)\//i);
+    if (m) { try { fetch(API + "hit/" + NS + "/g-" + m[1], { keepalive: true }); } catch(_){} }
+  }, true);
+})();
+</script>
 </body>
 </html>
