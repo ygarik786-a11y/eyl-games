@@ -88,13 +88,17 @@
   .heatbar { height:12px; border-radius:8px; background:#2a1a10; box-shadow:inset 0 1px 3px rgba(0,0,0,.7); overflow:hidden; }
   .heatfill { height:100%; width:30%; border-radius:8px; background:linear-gradient(90deg,#ff7b1c,#ffb03a,#ffe27a); transition:width .6s; box-shadow:0 0 12px rgba(255,150,50,.8); }
   .status { text-align:center; font-size:14px; min-height:20px; margin:7px 0 2px; }
-  .tvbar { display:grid; grid-template-columns:1.4fr .6fr .6fr; gap:9px; margin-top:8px; }
+  .tvbar { display:grid; grid-template-columns:1.25fr .55fr .55fr .55fr; gap:9px; margin-top:8px; }
   .btns { display:grid; grid-template-columns:1fr 1fr; gap:9px; margin-top:9px; }
   button.act { border:none; border-radius:14px; padding:13px 6px; font-size:16px; font-weight:700; color:#fff; cursor:pointer;
     box-shadow:0 6px 16px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.25); transition:transform .08s; touch-action:manipulation; }
   button.act:active { transform:scale(.96); }
   .b-tv { background:linear-gradient(160deg,#2f6fb3,#1d4e80); }
   .b-ch { background:linear-gradient(160deg,#44506b,#2c364a); }
+  .b-list { background:linear-gradient(160deg,#7a4fa3,#553377); }
+  .chlist { max-height:230px; overflow-y:auto; margin-top:8px; background:rgba(10,14,24,.92); border:1px solid #3a4a6b; border-radius:12px; padding:6px; }
+  .chlist button { display:block; width:100%; text-align:left; background:transparent; border:0; border-bottom:1px solid rgba(255,255,255,.07); color:#e8eefc; font-size:15px; padding:9px 10px; cursor:pointer; }
+  .chlist button.cur { background:rgba(122,79,163,.35); font-weight:700; }
   .b-wood { background:linear-gradient(160deg,#a05a2c,#7a3f1a); }
   .b-stoke { background:linear-gradient(160deg,#e0641e,#b33e0e); }
   .b-marsh { background:linear-gradient(160deg,#8a5aa8,#67407f); }
@@ -245,7 +249,10 @@
     <button class="act b-tv" id="btnTv">📺 Включить ТВ</button>
     <button class="act b-ch" id="btnPrev">⏮</button>
     <button class="act b-ch" id="btnNext">⏭</button>
+    <button class="act b-list" id="btnList">📋</button>
   </div>
+
+  <div class="chlist" id="chlist" style="display:none"></div>
 
   <div class="heat"><span>🌡️ Тепло в комнате</span><span id="heatTxt">прохладно</span></div>
   <div class="heatbar"><div class="heatfill" id="heatfill"></div></div>
@@ -264,7 +271,7 @@
     <div><b id="stCh">16</b>каналов в телике</div>
   </div>
 
-  <a class="back" href="../?u=38">← Все игры E.Y.L</a>
+  <a class="back" href="../?u=40">← Все игры E.Y.L</a>
 </div>
 
 <script>
@@ -272,6 +279,19 @@
   /* ================= ТЕЛЕВИЗОР ================= */
   var CHANNELS = [
     { n:'📺 СТС', u:'https://tshift-1.telecoma.tv/sts/index.m3u8' },
+    { n:'📺 1+1 International', u:'https://dash2.antik.sk/live/test_one_plus_one_int_tizen/playlist.m3u8' },
+    { n:'📺 1+1 Марафон', u:'https://dash2.antik.sk/live/1plus1_marathon/playlist.m3u8' },
+    { n:'📺 Inter+', u:'https://cdn15.live-tv.cloud/ua_infinitas_tv/inter-abr/playlist.m3u8' },
+    { n:'📺 Квартал ТВ', u:'https://dash2.antik.sk/live/kvartal_tv/playlist.m3u8' },
+    { n:'📺 ТВ Центр International', u:'https://stream8.cinerama.uz/1281/tracks-v1a1/mono.m3u8' },
+    { n:'📺 Дача', u:'https://dash2.antik.sk/live/test_dacha_tv_atktv/playlist.m3u8' },
+    { n:'📺 Кускус: кулинария', u:'https://dash2.antik.sk/live/test_kuskus_tv_atktv/playlist.m3u8' },
+    { n:'📺 36.6: здоровье', u:'https://dash2.antik.sk/live/test_tridsatsest_hd_atktv/playlist.m3u8' },
+    { n:'📺 Islandia', u:'https://cdn15.live-tv.cloud/ua_infinitas_tv/islandiya-abr/playlist.m3u8' },
+    { n:'📺 RAI Украина', u:'https://stream.rai.ua/rai/stream.m3u8' },
+    { n:'📺 ETV+', u:'https://sb.err.ee/live/etvpluss.m3u8' },
+    { n:'📺 The Explorers: путешествия', u:'https://sofast-yupptv.vgcdn.net/v1/master/611d79b11b77e2f571934fd80ca1413453772ac7/4804aca3-dd54-43d1-8caa-0b836a76d9e9/manifest.m3u8' },
+    { n:'📺 Здоровое ТВ', u:'https://stream8.cinerama.uz/1428/tracks-v1a1/mono.m3u8' },
     { n:'🎬 FilmUA Live: фильмы и сериалы', u:'https://dash2.antik.sk/live/test_film_life_atktv/playlist.m3u8' },
     { n:'🎬 Star Cinema', u:'https://dash2.antik.sk/live/test_star_cinema_atktv/playlist.m3u8' },
     { n:'🎬 Star Family: семейное кино', u:'https://dash2.antik.sk/live/test_star_family_atktv/playlist.m3u8' },
@@ -279,14 +299,30 @@
     { n:'🎬 Наше новое кино', u:'https://stream8.cinerama.uz/1051/tracks-v1a1/playlist.m3u8' },
     { n:'🎬 Приключения', u:'https://stream8.cinerama.uz/1420/tracks-v1a1/mono.m3u8' },
     { n:'🎬 Фантастика: кино', u:'https://cityeden.catcast.tv/content/45268/index.m3u8' },
+    { n:'🎬 Болливуд HD', u:'https://xykt-fix.github.io/cinerama_edge01/hls/BOLLYWOOD_RU/Movie009.m3u8' },
+    { n:'🎬 КиноАзия', u:'https://cityeden.catcast.tv/content/34393/index.m3u8' },
+    { n:'🎬 КиноАрт', u:'https://cityeden.catcast.tv/content/38398/index.m3u8' },
+    { n:'🎬 КиноДетектив', u:'https://cityeden.catcast.tv/content/41327/index.m3u8' },
     { n:'🧸 Детский', u:'https://stream8.cinerama.uz/1033/playlist.m3u8' },
     { n:'🧸 Nicktoons', u:'https://stream8.cinerama.uz/1502/playlist.m3u8' },
+    { n:'🧸 Nickelodeon', u:'https://stream8.cinerama.uz/1500/playlist.m3u8' },
+    { n:'🧸 Nick Jr.', u:'https://stream8.cinerama.uz/1501/playlist.m3u8' },
     { n:'🧸 Рыжий', u:'https://stream8.cinerama.uz/1407/tracks-v1a1/mono.m3u8' },
     { n:'🏰 В гостях у сказки', u:'https://stream8.cinerama.uz/1270/playlist.m3u8' },
-    { n:'🎬 Болливуд HD', u:'https://xykt-fix.github.io/cinerama_edge01/hls/BOLLYWOOD_RU/Movie009.m3u8' },
     { n:'🧸 Тооку: мультики', u:'https://live-saha.cdnvideo.ru/saha/tooky/playlist.m3u8' },
+    { n:'🧸 Карусель', u:'https://stream.smotrim.ru/hls2/karusel/playlist_3.m3u8' },
+    { n:'🧸 Gulli Girl', u:'https://stream8.cinerama.uz/1445/tracks-v1a1/mono.m3u8' },
+    { n:'🧸 Капитан Фантастика', u:'https://stream8.cinerama.uz/1406/tracks-v1a1/mono.m3u8' },
     { n:'🎵 Song TV: музыка', u:'https://songtv.hls.iptvdc.com/web-russia/playlist.m3u8' },
-    { n:'🎵 Музвар', u:'https://cdn15.live-tv.cloud/ua_infinitas_tv/muzvar-abr/playlist.m3u8' }
+    { n:'🎵 Музвар', u:'https://cdn15.live-tv.cloud/ua_infinitas_tv/muzvar-abr/playlist.m3u8' },
+    { n:'🎵 NASHE Music', u:'https://cdn15.live-tv.cloud/ua_infinitas_tv/nashemus-abr/playlist.m3u8' },
+    { n:'🎵 Майдан: музыка', u:'https://live-maidantv.cdnvideo.ru/maidantv/maidantv.smil/playlist.m3u8' },
+    { n:'🎵 Deluxe Music', u:'https://sdn-global-live-streaming-packager-cache.3qsdn.com/13456/13456_264_live.m3u8' },
+    { n:'🎵 Kiss Kiss: музыка', u:'https://kk.fluid.stream/KKMulti/smil:KissKissTV.smil/chunklist.m3u8' },
+    { n:'🎵 Музыка кино', u:'https://kino-1.catcast.tv/content/37739/index.m3u8' },
+    { n:'🎵 Страна FM', u:'https://live-stranafm.cdnvideo.ru/stranafm/smil:stranafm.smil/playlist.m3u8' },
+    { n:'🎵 Hit FM', u:'https://hitfm.nfthost.net/hls/hitfm/live_all/playlist.m3u8' },
+    { n:'🎵 Play: музыка', u:'https://cityeden.catcast.tv/content/34100/index.m3u8' }
   ];
   var video = document.getElementById('tv');
   var tvbox = document.getElementById('tvbox');
@@ -339,6 +375,26 @@
   btnTv.addEventListener('click', function(){ setTv(!tvOn); });
   document.getElementById('btnNext').addEventListener('click', function(){ if (!tvOn) setTv(true); else { trying = 0; loadChannel(chIdx + 1); } });
   document.getElementById('btnPrev').addEventListener('click', function(){ if (!tvOn) setTv(true); else { trying = 0; loadChannel(chIdx - 1); } });
+  var chlistEl = document.getElementById('chlist');
+  document.getElementById('stCh').textContent = CHANNELS.length;
+  CHANNELS.forEach(function(c, i){
+    var b = document.createElement('button');
+    b.textContent = (i+1) + '. ' + c.n;
+    b.addEventListener('click', function(){
+      trying = 0;
+      chlistEl.style.display = 'none';
+      if (!tvOn) { chIdx = i; setTv(true); } else { loadChannel(i); }
+    });
+    chlistEl.appendChild(b);
+  });
+  document.getElementById('btnList').addEventListener('click', function(){
+    var open = chlistEl.style.display !== 'none';
+    chlistEl.style.display = open ? 'none' : 'block';
+    if (!open) {
+      var kids = chlistEl.children;
+      for (var k = 0; k < kids.length; k++) kids[k].classList.toggle('cur', k === chIdx);
+    }
+  });
   tvbox.addEventListener('click', function(){ if (tvOn) { video.muted = !video.muted; statusEl.textContent = video.muted ? 'Звук телика выключен 🔇 Тапни по телику, чтобы вернуть' : 'Звук телика включён 🔊'; } });
 
   /* ================= КАМИН (огонь — кодом, в два слоя) ================= */
