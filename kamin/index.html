@@ -64,6 +64,13 @@
   .woodpile { position:absolute; left:8px; bottom:34px; font-size:26px; z-index:4; filter:drop-shadow(0 4px 6px rgba(0,0,0,.5)); }
   .sofa { position:absolute; left:50%; transform:translateX(-50%); bottom:-8px; font-size:64px; z-index:5; filter:drop-shadow(0 -2px 10px rgba(0,0,0,.45)); line-height:1; }
   .cat { position:absolute; right:16px; bottom:40px; font-size:22px; z-index:4; opacity:.95; }
+  /* Рождественские носочки на камине — как в американских фильмах */
+  .stockings { position:absolute; left:50%; transform:translateX(-50%); bottom:118px; z-index:4; display:flex; gap:34px; }
+  .stocking { font-size:27px; cursor:pointer; transform-origin:50% -6px; animation:sway 3.4s ease-in-out infinite; filter:drop-shadow(0 4px 5px rgba(0,0,0,.45)); position:relative; touch-action:manipulation; }
+  .stocking:nth-child(2) { animation-delay:1.1s; }
+  .stocking:nth-child(3) { animation-delay:2.2s; }
+  .stocking .nm { position:absolute; top:-13px; left:50%; transform:translateX(-50%); font-size:9.5px; font-weight:700; color:#ffd98a; text-shadow:0 1px 3px #000; letter-spacing:.4px; }
+  @keyframes sway { 0%,100%{ transform:rotate(-4deg);} 50%{ transform:rotate(4deg);} }
   .marsh { position:absolute; left:50%; bottom:104px; font-size:27px; z-index:6; transform:translateX(-100px) rotate(-24deg); opacity:0; pointer-events:none; transition:opacity .25s; }
   .marsh.on { opacity:1; animation:roast 1s ease-in-out infinite; }
   @keyframes roast { 0%,100%{ transform:translateX(-100px) rotate(-24deg);} 50%{ transform:translateX(-94px) rotate(-16deg);} }
@@ -110,6 +117,11 @@
 
     <div class="mantel-items"><span>🎄</span><span class="candle">🕯️</span><span>⭐</span><span class="candle">🕯️</span><span>🎅</span></div>
     <div class="mantel"></div>
+    <div class="stockings">
+      <span class="stocking" data-who="Erik">🧦<span class="nm">ERIK</span></span>
+      <span class="stocking" data-who="Mita">🧦<span class="nm">MITA</span></span>
+      <span class="stocking" data-who="E.Y.L">🧦<span class="nm">E.Y.L</span></span>
+    </div>
     <div class="portal"></div>
     <div class="firebox"><canvas id="fire" width="356" height="208"></canvas></div>
     <div class="hearth"></div>
@@ -142,7 +154,7 @@
     <div><b id="stCh">16</b>каналов в телике</div>
   </div>
 
-  <a class="back" href="../?u=34">← Все игры E.Y.L</a>
+  <a class="back" href="../?u=36">← Все игры E.Y.L</a>
 </div>
 
 <script>
@@ -156,12 +168,12 @@
     { n:'🎬 Кинотеатр', u:'https://stream8.cinerama.uz/1009/playlist.m3u8' },
     { n:'🎬 Наше новое кино', u:'https://stream8.cinerama.uz/1051/tracks-v1a1/playlist.m3u8' },
     { n:'🎬 Приключения', u:'https://stream8.cinerama.uz/1420/tracks-v1a1/mono.m3u8' },
-    { n:'🎬 Киносерия', u:'https://fs.uplink.kz/kinoseria/mono.m3u8?token=<redacted>' },
+    { n:'🎬 Фантастика: кино', u:'https://cityeden.catcast.tv/content/45268/index.m3u8' },
     { n:'🧸 Детский', u:'https://stream8.cinerama.uz/1033/playlist.m3u8' },
     { n:'🧸 Nicktoons', u:'https://stream8.cinerama.uz/1502/playlist.m3u8' },
     { n:'🧸 Рыжий', u:'https://stream8.cinerama.uz/1407/tracks-v1a1/mono.m3u8' },
     { n:'🏰 В гостях у сказки', u:'https://stream8.cinerama.uz/1270/playlist.m3u8' },
-    { n:'🧸 Мультиландия', u:'https://stream8.cinerama.uz/1440/tracks-v1a1/mono.m3u8' },
+    { n:'🎬 Болливуд HD', u:'https://xykt-fix.github.io/cinerama_edge01/hls/BOLLYWOOD_RU/Movie009.m3u8' },
     { n:'🧸 Тооку: мультики', u:'https://live-saha.cdnvideo.ru/saha/tooky/playlist.m3u8' },
     { n:'🎵 Song TV: музыка', u:'https://songtv.hls.iptvdc.com/web-russia/playlist.m3u8' },
     { n:'🎵 Музвар', u:'https://cdn15.live-tv.cloud/ua_infinitas_tv/muzvar-abr/playlist.m3u8' }
@@ -227,8 +239,8 @@
   var logs = [], parts = [], sparks = [], smokes = [];
   var flare = 0, t = 0;
   var soundOn = false, AC = null, noiseGain = null;
-  var stats = { burned:0, marsh:0 };
-  try { var s = JSON.parse(localStorage.getItem('kamin_stats')||'null'); if (s) stats = { burned:s.burned||0, marsh:s.marsh||0 }; } catch(e){}
+  var stats = { burned:0, marsh:0, gifts:0 };
+  try { var s = JSON.parse(localStorage.getItem('kamin_stats')||'null'); if (s) stats = { burned:s.burned||0, marsh:s.marsh||0, gifts:s.gifts||0 }; } catch(e){}
   var heatfill = document.getElementById('heatfill');
   var heatTxt = document.getElementById('heatTxt');
   var scene = document.getElementById('scene');
@@ -393,6 +405,23 @@
     if (soundOn) statusEl.textContent = 'Слушай, как трещат дрова… 🎧🔥';
   });
   document.querySelector('.firebox').addEventListener('click', addLog);
+
+  /* Носочки: Санта кладёт в них подарочки — заглядывай! */
+  var treats = ['🍬 конфета','🍫 шоколадка','🍭 леденец','🎁 маленький подарок','🪙 золотая монетка','🍊 мандаринка','⭐ звёздочка на ёлку','🧸 крошечный мишка'];
+  var stockEls = document.querySelectorAll('.stocking');
+  for (var si=0; si<stockEls.length; si++){
+    stockEls[si].addEventListener('click', function(){
+      var who = this.getAttribute('data-who');
+      if (Math.random() < 0.22) {
+        statusEl.textContent = 'В носочке ' + who + ' пока пусто… Санта ещё не приходил 🎅 Загляни позже!';
+      } else {
+        stats.gifts++; save();
+        statusEl.textContent = 'В носочке ' + who + ' нашлось: ' + pick(treats) + '! 🎅 Всего подарков из носочков: ' + stats.gifts;
+      }
+      this.style.transform = 'scale(1.25)';
+      var el = this; setTimeout(function(){ el.style.transform = ''; }, 220);
+    });
+  }
 
   addLog(); addLog(); logs[0].fuel = 82; logs[1].fuel = 64; flare = 0.4;
   updStats();
