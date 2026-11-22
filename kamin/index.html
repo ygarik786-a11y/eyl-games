@@ -170,7 +170,7 @@
     <div><b id="stCh">16</b>каналов в телике</div>
   </div>
 
-  <a class="back" href="../?u=48">← Все игры E.Y.L</a>
+  <a class="back" href="../?u=49">← Все игры E.Y.L</a>
 </div>
 
 <script>
@@ -358,6 +358,21 @@
     } catch(e){}
   });
   tvbox.addEventListener('click', function(){ if (tvOn) { video.muted = !video.muted; statusEl.textContent = video.muted ? 'Звук телика выключен 🔇 Тапни по телику, чтобы вернуть' : 'Звук телика включён 🔊'; } });
+
+  /* Ушёл со страницы — всё само выключается и молчит */
+  function allQuiet(){
+    if (tvOn) setTv(false);
+    try { firevid.pause(); } catch(e){}
+    if (AC) { try { AC.suspend(); } catch(e){} }
+  }
+  document.addEventListener('visibilitychange', function(){
+    if (document.hidden) allQuiet();
+    else {
+      if (vidOk && fl > 0.05) firevid.play().catch(function(){});
+      if (AC && soundOn) { try { AC.resume(); } catch(e){} }
+    }
+  });
+  window.addEventListener('pagehide', allQuiet);
 
   /* ================= КАМИН (огонь — кодом, в два слоя) ================= */
   var cv = document.getElementById('fire'), ctx = cv.getContext('2d');
