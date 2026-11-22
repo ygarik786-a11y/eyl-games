@@ -8,7 +8,7 @@
 <script>
 // Самообновление каталога: телефон Erik держал старую копию страницы
 // из кэша и не видел новые игры. Сверяемся с gversion.txt на сервере.
-var GAMES_VER = 49;
+var GAMES_VER = 50;
 fetch("gversion.txt?x=" + Date.now()).then(function(r){ return r.text(); }).then(function(t){
   var rv = parseInt(t, 10);
   if (rv && rv > GAMES_VER && sessionStorage.getItem("gamesUpd") !== String(rv)) {
@@ -143,7 +143,7 @@ fetch("gversion.txt?x=" + Date.now()).then(function(r){ return r.text(); }).then
     <h1><span class="gold">E.Y.L</span> GAMES</h1>
     <p class="sub">Игровая империя президента <b>Erik Lebed</b> 🎮<br>Бесплатные игры прямо в браузере — без скачивания и регистрации.<br>Открыл — и играешь. Прогресс сохраняется в телефоне.</p>
     <div class="chips">
-      <span class="chip gold">👑 102 игры</span>
+      <span class="chip gold">👑 103 игры</span>
       <span class="chip">🎄 С наступающим Новым годом!</span>
       <span class="chip">💸 Полностью бесплатно</span>
       <span class="chip">📱 С телефона и компьютера</span>
@@ -179,6 +179,18 @@ fetch("gversion.txt?x=" + Date.now()).then(function(r){ return r.text(); }).then
 
   <h2 class="sec">🎮 Все игры</h2>
   <div class="grid">
+    <a class="game" href="monopoly/">
+      <div class="cover c-yolochka">
+        <span class="tag">Настольная • Лебедян</span><span class="new">НОВОЕ</span>
+        <span class="main">🎲</span>
+      </div>
+      <div class="gbody">
+        <h3>🎲 Монополия Лебедяна</h3>
+        <p>Настоящая монополия по нашей стране! Кидай кубики, скупай улицы Лебедяна — от переулка Линды до проспекта Создателя, строй дома и гостиницы, держи аренду с соседей. Соперники — Бабушка Зина, Коля и Дядя Витя. Только не попади на таможню!</p>
+        <div class="meta">🦢 Лебединки • 🏠 Дома и гостиницы • 🛂 Таможня • ❓ Шанс • 👵 3 соперника</div>
+        <div class="play">Играть →</div>
+      </div>
+    </a>
     <a class="game" href="kamin/?u=38">
       <div class="cover c-yolochka">
         <span class="tag">Уют • комната мечты</span><span class="new">НОВОЕ</span>
