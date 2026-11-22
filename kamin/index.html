@@ -52,31 +52,31 @@
   .tvstand { position:absolute; right:52px; top:140px; width:110px; height:5px; border-radius:3px; background:#1c1c20; z-index:3; }
 
   /* ===== Камин ===== */
-  .mantel { position:absolute; right:16px; bottom:158px; width:238px; height:14px; border-radius:6px;
+  .mantel { position:absolute; right:10px; bottom:182px; width:252px; height:14px; border-radius:6px;
     background:linear-gradient(180deg,#6b4630,#4a2d1c); box-shadow:0 4px 10px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,220,170,.35); z-index:3; }
-  .mantel-items { position:absolute; right:16px; bottom:172px; width:238px; display:flex; justify-content:space-between; padding:0 8px; font-size:18px; z-index:3; }
+  .mantel-items { position:absolute; right:10px; bottom:196px; width:252px; display:flex; justify-content:space-between; padding:0 8px; font-size:18px; z-index:3; }
   .mantel-items .candle { animation:candle 1.6s ease-in-out infinite; display:inline-block; }
   @keyframes candle { 0%,100%{ transform:scale(1) rotate(-2deg);} 50%{ transform:scale(1.12) rotate(2deg); filter:drop-shadow(0 0 7px rgba(255,190,80,.9)); } }
-  .portal { position:absolute; right:24px; bottom:26px; width:222px; height:136px; border-radius:14px 14px 6px 6px;
+  .portal { position:absolute; right:14px; bottom:26px; width:240px; height:160px; border-radius:14px 14px 6px 6px;
     background:
       repeating-linear-gradient(0deg, rgba(0,0,0,.22) 0 2px, transparent 2px 24px),
       repeating-linear-gradient(90deg, rgba(0,0,0,.20) 0 2px, transparent 2px 46px),
       linear-gradient(160deg,#7a4433,#5d3122 60%,#4c281b);
     box-shadow:0 10px 24px rgba(0,0,0,.6), inset 0 2px 0 rgba(255,200,150,.18); z-index:2; }
-  .firebox { position:absolute; right:44px; bottom:35px; width:182px; height:104px; border-radius:12px 12px 4px 4px;
+  .firebox { position:absolute; right:36px; bottom:34px; width:196px; height:128px; border-radius:12px 12px 4px 4px;
     background:radial-gradient(110px 80px at 50% 82%, #2a1503 0%, #160b02 55%, #070302 100%);
     box-shadow:inset 0 0 30px #000, inset 0 -12px 22px rgba(255,110,20,.20); overflow:hidden; z-index:2; }
   #fire { position:absolute; inset:0; width:100%; height:100%; display:block; }
-  .hearth { position:absolute; right:8px; bottom:15px; width:262px; height:14px; border-radius:6px;
+  .hearth { position:absolute; right:2px; bottom:15px; width:276px; height:14px; border-radius:6px;
     background:linear-gradient(180deg,#3d2c20,#241812); box-shadow:0 6px 14px rgba(0,0,0,.6); z-index:2; }
   .woodpile { position:absolute; right:6px; bottom:36px; font-size:23px; z-index:4; filter:drop-shadow(0 4px 6px rgba(0,0,0,.5)); }
-  .stockings { position:absolute; right:52px; bottom:118px; z-index:4; display:flex; gap:30px; }
+  .stockings { position:absolute; right:58px; bottom:142px; z-index:4; display:flex; gap:30px; }
   .stocking { font-size:25px; cursor:pointer; transform-origin:50% -6px; animation:sway 3.4s ease-in-out infinite; filter:drop-shadow(0 4px 5px rgba(0,0,0,.45)); position:relative; touch-action:manipulation; }
   .stocking:nth-child(2) { animation-delay:1.1s; }
   .stocking:nth-child(3) { animation-delay:2.2s; }
   .stocking .nm { position:absolute; top:-12px; left:50%; transform:translateX(-50%); font-size:9px; font-weight:700; color:#ffd98a; text-shadow:0 1px 3px #000; }
   @keyframes sway { 0%,100%{ transform:rotate(-4deg);} 50%{ transform:rotate(4deg);} }
-  .marsh { position:absolute; right:196px; bottom:104px; font-size:26px; z-index:6; opacity:0; pointer-events:none; transition:opacity .25s; transform:rotate(-24deg); }
+  .marsh { position:absolute; right:216px; bottom:124px; font-size:26px; z-index:6; opacity:0; pointer-events:none; transition:opacity .25s; transform:rotate(-24deg); }
   .marsh.on { opacity:1; animation:roast 1s ease-in-out infinite; }
   @keyframes roast { 0%,100%{ transform:rotate(-24deg) translateX(0);} 50%{ transform:rotate(-16deg) translateX(5px);} }
 
@@ -201,7 +201,7 @@
       <span class="stocking" data-who="E.Y.L">🧦<span class="nm">E.Y.L</span></span>
     </div>
     <div class="portal"></div>
-    <div class="firebox"><canvas id="fire" width="364" height="208"></canvas></div>
+    <div class="firebox"><canvas id="fire" width="392" height="256"></canvas></div>
     <div class="hearth"></div>
     <div class="woodpile">🪵🪵</div>
     <div class="marsh" id="marsh">🍡</div>
@@ -264,7 +264,7 @@
     <div><b id="stCh">16</b>каналов в телике</div>
   </div>
 
-  <a class="back" href="../?u=37">← Все игры E.Y.L</a>
+  <a class="back" href="../?u=38">← Все игры E.Y.L</a>
 </div>
 
 <script>
@@ -361,8 +361,8 @@
 
   function addLog(){
     if (logs.length >= 6) { statusEl.textContent = 'Топка полная! Дай дровам прогореть 🔥'; return; }
-    var baseY = H - 22 - logs.length*6;
-    logs.push({ x: W/2 + (Math.random()*32-16), y: baseY, ang: (Math.random()*0.36-0.18), len: 108 + Math.random()*22, fuel: 100 });
+    var baseY = H - 24 - logs.length*7;
+    logs.push({ x: W/2 + (Math.random()*34-17), y: baseY, ang: (Math.random()*0.36-0.18), len: 122 + Math.random()*24, fuel: 100 });
     flare = Math.min(1, flare + 0.7);
     burstSparks(12); cracklePop(0.5);
     statusEl.textContent = pick(['Полено легло в огонь — пламя вспыхнуло! 🔥','Трещит! Хорошее полено 🪵','Огонь обрадовался новым дровам 😄']);
@@ -389,7 +389,7 @@
     }, 3200);
   }
   function burstSparks(n){
-    for (var i=0;i<n;i++) sparks.push({ x: W/2 + (Math.random()*64-32), y: H-38, vx:(Math.random()*0.9-0.45), vy:-(1.3+Math.random()*2.3), life: 50+Math.random()*60 });
+    for (var i=0;i<n;i++) sparks.push({ x: W/2 + (Math.random()*70-35), y: H-44, vx:(Math.random()*0.9-0.45), vy:-(1.5+Math.random()*2.6), life: 50+Math.random()*60 });
   }
 
   function initAudio(){
@@ -418,7 +418,7 @@
   function drawLog(lg){
     ctx.save();
     ctx.translate(lg.x, lg.y); ctx.rotate(lg.ang);
-    var L = lg.len, R = 10;
+    var L = lg.len, R = 11;
     var ch = 1 - lg.fuel/100;
     var g = ctx.createLinearGradient(0,-R,0,R);
     if (ch < 0.55) { g.addColorStop(0,'#8a5a30'); g.addColorStop(0.5,'#6e4423'); g.addColorStop(1,'#4e2d15'); }
@@ -446,7 +446,7 @@
     var fl = fireLevel();
     ctx.clearRect(0,0,W,H);
     if (fl > 0.02){
-      var gg = ctx.createRadialGradient(W/2,H-26,6, W/2,H-26, 136);
+      var gg = ctx.createRadialGradient(W/2,H-28,6, W/2,H-28, 168);
       gg.addColorStop(0,'rgba(255,150,40,' + (0.5*fl + Math.random()*0.08) + ')');
       gg.addColorStop(1,'rgba(255,80,0,0)');
       ctx.fillStyle = gg; ctx.fillRect(0,0,W,H);
@@ -454,14 +454,14 @@
     for (var j=0;j<logs.length;j++) drawLog(logs[j]);
     if (stats.burned > 0 || logs.length){
       ctx.fillStyle = 'rgba(255,90,10,' + (0.25 + 0.3*fl + Math.random()*0.1) + ')';
-      for (var c=0;c<7;c++){ ctx.beginPath(); ctx.ellipse(W/2-48+c*16, H-13, 7.5, 3, 0, 0, Math.PI*2); ctx.fill(); }
+      for (var c=0;c<7;c++){ ctx.beginPath(); ctx.ellipse(W/2-54+c*18, H-14, 8.5, 3.4, 0, 0, Math.PI*2); ctx.fill(); }
     }
     /* Пламя: внешний слой (оранжевый) + яркое ядро (жёлто-белое), режим наложения — свечение */
     ctx.globalCompositeOperation = 'lighter';
-    var spawn = Math.floor(fl * 8) + (flare > 0.3 ? 3 : 0);
+    var spawn = Math.floor(fl * 13) + (flare > 0.3 ? 4 : 0);
     for (var s2=0;s2<spawn;s2++){
-      parts.push({ x: W/2 + (Math.random()*78-39) * (0.5+fl*0.6), y: H-29, vx:(Math.random()*0.6-0.3), vy:-(1.0+Math.random()*1.8)*(0.5+fl), life:0, max: 32+Math.random()*28, r: 9+Math.random()*13*(0.6+fl) });
-      if (Math.random() < 0.55) cores.push({ x: W/2 + (Math.random()*44-22), y: H-27, vx:(Math.random()*0.4-0.2), vy:-(0.9+Math.random()*1.3)*(0.5+fl), life:0, max: 22+Math.random()*16, r: 5+Math.random()*7*(0.6+fl) });
+      parts.push({ x: W/2 + (Math.random()*100-50) * (0.5+fl*0.6), y: H-31, vx:(Math.random()*0.6-0.3), vy:-(1.35+Math.random()*2.3)*(0.55+fl), life:0, max: 42+Math.random()*30, r: 12+Math.random()*17*(0.6+fl) });
+      if (Math.random() < 0.6) cores.push({ x: W/2 + (Math.random()*58-29), y: H-29, vx:(Math.random()*0.4-0.2), vy:-(1.15+Math.random()*1.7)*(0.55+fl), life:0, max: 30+Math.random()*18, r: 7+Math.random()*9*(0.6+fl) });
     }
     for (var p=parts.length-1;p>=0;p--){
       var pt = parts[p]; pt.life++;
