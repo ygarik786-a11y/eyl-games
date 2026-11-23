@@ -8,7 +8,7 @@
 <script>
 // Самообновление каталога: телефон Erik держал старую копию страницы
 // из кэша и не видел новые игры. Сверяемся с gversion.txt на сервере.
-var GAMES_VER = 54;
+var GAMES_VER = 55;
 fetch("gversion.txt?x=" + Date.now()).then(function(r){ return r.text(); }).then(function(t){
   var rv = parseInt(t, 10);
   if (rv && rv > GAMES_VER && sessionStorage.getItem("gamesUpd") !== String(rv)) {
@@ -155,7 +155,7 @@ fetch("gversion.txt?x=" + Date.now()).then(function(r){ return r.text(); }).then
   </header>
 
   <h2 class="sec">⭐ Игра дня</h2>
-  <a class="game featured" href="farm/">
+  <a class="game featured" href="farm/?u=55">
     <div class="cover c-farm">
       <span class="tag">Ферма • хозяйство</span><span class="new">ОБНОВЛЕНО</span>
       <span class="main">🚜</span>
@@ -606,6 +606,15 @@ fetch("gversion.txt?x=" + Date.now()).then(function(r){ return r.text(); }).then
     var m = href.match(/^([a-z0-9_-]+)\//i);
     if (m) { try { fetch(API + "hit/" + NS + "/g-" + m[1], { keepalive: true }); } catch(_){} }
   }, true);
+})();
+</script>
+<!-- Значки-картинки (Twemoji): на компе Erik часть смайлов не рисуется шрифтом Windows и видна как □. Подменяем их картинками — одинаково на телефоне и на компе. -->
+<script src="https://cdn.jsdelivr.net/npm/twemoji@14.0.2/dist/twemoji.min.js" crossorigin="anonymous"></script>
+<style>img.emoji{height:1em;width:1em;margin:0 .05em 0 .1em;vertical-align:-.1em}</style>
+<script>
+(function(){
+  function parseAll(){ if(window.twemoji){ try{ twemoji.parse(document.body); }catch(e){} } }
+  if(document.readyState==='loading'){ document.addEventListener('DOMContentLoaded',parseAll); } else { parseAll(); }
 })();
 </script>
 </body>
