@@ -40,7 +40,7 @@ html,body{height:100%;background:#10131c;font-family:'Courier New',monospace;col
     <div id="softkeys"><span>◀ Меню</span><span><b>STACK ATTACK</b></span><span>Опции ▶</span></div>
     <div class="pad">
       <button class="kbtn" id="btnL">◀<span>ВЛЕВО</span></button>
-      <button class="kbtn act" id="btnA">⬆<span>ДЕЙСТВИЕ</span></button>
+      <button class="kbtn act" id="btnA">👊<span>ТОЛКАЙ</span></button>
       <button class="kbtn" id="btnR">▶<span>ВПРАВО</span></button>
       <button class="kbtn pause" id="btnP">⏸<span>ПАУЗА</span></button>
       <button class="kbtn" id="btnSnd">🔊<span>ЗВУК</span></button>
@@ -49,7 +49,7 @@ html,body{height:100%;background:#10131c;font-family:'Courier New',monospace;col
   </div>
   <div id="under">
     <b>STACK ATTACK</b> — та самая игра с Siemens A75<br>
-    Краны сбрасывают ящики • Толкай их человечком • Собери полный ряд — он разобьётся!<br>
+    Краны сбрасывают ящики • Толкай их человечком: иди в ящик или жми ТОЛКАЙ — двигается вся стопка! • Собери полный ряд — он разобьётся!<br>
     Ящик, упавший на человечка, — минус жизнь. Рекорд: <b id="hiScore">0</b>
   </div>
   <button class="btn gray" style="max-width:340px" onclick="location.href='../'">⬅️ На главную игр</button>
@@ -164,7 +164,7 @@ function supportY(man){
 function tryPush(dir){
   const m=G.man;
   const edge=dir>0?m.x+m.w:m.x;
-  const col=Math.floor((edge+dir*2-FX)/CELL);
+  const col=Math.floor((edge+dir*4-FX)/CELL);
   if(col<0||col>=COLS)return false;
   // ящик в ряду, на котором стоит человечек (ряд = (y-FY)/CELL, 0 — верх);
   // если в ряду ног пусто — пробуем ряд выше (ящик на уровне груди)
@@ -173,14 +173,26 @@ function tryPush(dir){
   for(const r of rows){
     if(r<0||r>=ROWS)continue;
     if(G.grid[r][col]){
-      // толкать можно только ящик без ящиков сверху и со свободным местом
-      if(r>0&&G.grid[r-1][col])return false;
+      // как в настоящей игре: толкается ВСЯ стопка над ящиком,
+      // а не только одинокий ящик — иначе двигать почти нечего
+      let top=r;
+      while(top>0&&G.grid[top-1][col])top--;
       const nc=col+dir;
-      if(nc<0||nc>=COLS||G.grid[r][nc])return false;
-      G.grid[r][nc]=G.grid[r][col];G.grid[r][col]=0;sfx.push();return true;
+      if(nc<0||nc>=COLS)return false;
+      for(let rr=top;rr<=r;rr++)if(G.grid[rr][nc])return false;
+      for(let rr=top;rr<=r;rr++){G.grid[rr][nc]=G.grid[rr][col];G.grid[rr][col]=0;}
+      sfx.push();return true;
     }
   }
   return false;
+}
+/* толкнуть ящик рядом в сторону, куда смотрит человечек; true — если толкнул */
+function pushNear(){
+  const m=G.man;
+  const dir=m.flip?-1:1;
+  if(!tryPush(dir))return false;
+  m.x=Math.max(FX,Math.min(FX+FW-m.w,m.x+dir*10));
+  return true;
 }
 function dropBox(crane){
   const col=Math.max(0,Math.min(COLS-1,Math.round((crane.x-FX)/CELL)));
@@ -267,7 +279,7 @@ function wouldHitBox(m,dir){
   const topRow=Math.max(0,Math.floor((m.y-FY)/CELL));
   const feetRow=Math.min(ROWS-1,Math.floor((m.y+m.h-1-FY)/CELL));
   const edge=dir>0?m.x+m.w:m.x;
-  const col=Math.floor((edge+dir*2-FX)/CELL);
+  const col=Math.floor((edge+dir*4-FX)/CELL);
   if(col<0||col>=COLS)return true;
   for(let r=topRow;r<=feetRow;r++)if(G.grid[r][col])return true;
   return false;
@@ -351,8 +363,8 @@ function draw(){
     ctx.font='bold 16px monospace';ctx.fillText('STACK ATTACK',100,88);
     ctx.font='11px monospace';ctx.fillText('SIEMENS A75 CLASSIC',100,108);
     ctx.fillText('Краны роняют ящики.',100,128);
-    ctx.fillText('Толкай их и собирай',100,142);
-    ctx.fillText('полные ряды!',100,156);
+    ctx.fillText('Иди в ящик — он сам',100,142);
+    ctx.fillText('толкнётся! ТОЛКАЙ — тоже',100,156);
     ctx.fillStyle='#ffd94d';ctx.font='bold 12px monospace';
     ctx.fillText('▶ НАЖМИ ДЕЙСТВИЕ',100,180);
     ctx.fillStyle='#fff';ctx.font='10px monospace';
@@ -385,7 +397,7 @@ function bindHold(id,on,off){
 }
 bindHold('btnL',()=>keys.left=true,()=>keys.left=false);
 bindHold('btnR',()=>keys.right=true,()=>keys.right=false);
-bindHold('btnA',()=>{keys.jump=true;actionPress();},()=>{keys.jump=false;});
+bindHold('btnA',()=>{if(G&&G.state==='play'&&pushNear())return;keys.jump=true;actionPress();},()=>{keys.jump=false;});
 bindHold('btnP',()=>togglePause(),()=>{});
 document.getElementById('btnSnd').addEventListener('click',()=>{cfg.sound=!cfg.sound;try{localStorage.setItem(SAVE_CFG,JSON.stringify(cfg));}catch(e){}document.getElementById('btnSnd').innerHTML=cfg.sound?'🔊<span>ЗВУК</span>':'🔇<span>ЗВУК</span>';if(cfg.sound)beep(660,.08);});
 document.getElementById('btnNew').addEventListener('click',()=>{startGame();});

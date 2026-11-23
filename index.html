@@ -8,7 +8,7 @@
 <script>
 // Самообновление каталога: телефон Erik держал старую копию страницы
 // из кэша и не видел новые игры. Сверяемся с gversion.txt на сервере.
-var GAMES_VER = 53;
+var GAMES_VER = 54;
 fetch("gversion.txt?x=" + Date.now()).then(function(r){ return r.text(); }).then(function(t){
   var rv = parseInt(t, 10);
   if (rv && rv > GAMES_VER && sessionStorage.getItem("gamesUpd") !== String(rv)) {
@@ -183,19 +183,19 @@ fetch("gversion.txt?x=" + Date.now()).then(function(r){ return r.text(); }).then
 
   <h2 class="sec">🎮 Все игры</h2>
   <div class="grid">
-    <a class="game" href="coloring/">
+    <a class="game" href="coloring/?u=54">
       <div class="cover c-color">
         <span class="tag">Раскраски • для всех</span><span class="new">НОВОЕ</span>
         <span class="main">🎨</span>
       </div>
       <div class="gbody">
         <h3>🎨 Раскраски E.Y.L</h3>
-        <p>Шесть картинок для раскрашивания: лебедь 🦢, ёлка 🎄, машинка 🚗, котик 🐱, домик 🏠 и Линда 🐶! Нажимай на части картинки — они закрашиваются твоей краской. Есть отмена, ластик, кнопка «Раскрасить за меня» и сохранение готовой картины как фото!</p>
+        <p>Двадцать картинок для раскрашивания: лебедь 🦢, ёлка 🎄, машинка 🚗, котик 🐱, домик 🏠, Линда 🐶, бабочка 🦋, цветок 🌸, солнышко ☀️, рыбка 🐟, яблоко 🍎, ракета 🚀, мяч ⚽, лев 🦁, зайчик 🐰, клубника 🍓, кораблик 🚢, шарик 🎈, радуга 🌈 и замок 🏰! Нажимай на части картинки — они закрашиваются твоей краской. Есть отмена, ластик, кнопка «Раскрасить за меня» и сохранение готовой картины как фото!</p>
         <div class="meta">🖌️ 14 красок • ↩ Отмена • ✨ Авто-раскраска • 💾 Сохранение картинки</div>
         <div class="play">Играть →</div>
       </div>
     </a>
-    <a class="game" href="emoji-racing/">
+    <a class="game" href="emoji-racing/?u=54">
       <div class="cover c-race">
         <span class="tag">Гонки • только эмодзи</span><span class="new">НОВОЕ</span>
         <span class="main">🏎️</span>
@@ -207,7 +207,7 @@ fetch("gversion.txt?x=" + Date.now()).then(function(r){ return r.text(); }).then
         <div class="play">Играть →</div>
       </div>
     </a>
-    <a class="game" href="stack-attack/">
+    <a class="game" href="stack-attack/?u=54">
       <div class="cover c-stack">
         <span class="tag">Ретро • Siemens A75</span><span class="new">НОВОЕ</span>
         <span class="main">🧱</span>
