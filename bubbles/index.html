@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>🎈 Шарики E.Y.L — E.Y.L Games</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:#0d0f1a;color:#eef;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;min-height:100vh;padding:14px 10px 30px}
+  .wrap{max-width:480px;margin:0 auto}
+  .back{display:inline-block;color:#ffa751;text-decoration:none;font-size:15px;margin-bottom:6px}
+  .back:active{opacity:.7}
+  h1{font-size:26px;letter-spacing:.5px}
+  h1 span{background:linear-gradient(90deg,#ffa751,#ffe259);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .sub{color:#9aa0c3;font-size:14px;margin:2px 0 12px}
+  .hud{display:flex;flex-wrap:wrap;gap:8px;align-items:stretch;margin-bottom:10px}
+  .hud .cell{background:#171a2e;border:1px solid #262a47;border-radius:10px;padding:6px 10px;font-size:14px;font-weight:600;display:flex;align-items:center;gap:6px}
+  .hud .cell b{color:#ffe259;font-size:16px}
+  .stage{position:relative;border:2px solid #262a47;border-radius:14px;overflow:hidden;background:#0a0c16;box-shadow:0 10px 40px rgba(0,0,0,.5);max-width:480px;margin:0 auto}
+  canvas{display:block;width:100%;height:auto;touch-action:none;-webkit-tap-highlight-color:transparent}
+  /* Меню/пауза/финал — оверлей на ВЕСЬ экран телефона (position:fixed):
+     кнопка ИГРАТЬ всегда видна и нажимается, ничего не обрезается полем */
+  .overlay{position:fixed;inset:0;background:rgba(8,9,18,.94);display:flex;flex-direction:column;align-items:center;justify-content:flex-start;text-align:center;padding:34px 18px 40px;gap:16px;z-index:50;overflow-y:auto}
+  .hidden{display:none!important}
+  .overlay h2{font-size:30px}
+  .overlay h2 span{background:linear-gradient(90deg,#ffa751,#ffe259);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .rules{font-size:15.5px;line-height:1.65;color:#dfe3ff;max-width:420px}
+  .bigbtn{background:linear-gradient(90deg,#ffa751,#ffe259);color:#231600;border:0;border-radius:14px;padding:15px 42px;font-size:20px;font-weight:800;cursor:pointer;box-shadow:0 6px 20px rgba(255,167,81,.35);font-family:inherit}
+  .bigbtn:active{transform:scale(.97)}
+  .final{font-size:18px;line-height:1.65}
+  .final b{color:#ffe259}
+  .bestline{color:#9aa0c3;font-size:15px}
+  .bestline b{color:#ffe259}
+  .controls{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+  .controls button{flex:1;min-width:140px;background:#1b1e33;border:1px solid #2c3050;color:#eef;border-radius:12px;padding:14px 10px;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit}
+  .controls button:active{transform:scale(.98);background:#232642}
+  .hint{color:#7c81a3;font-size:13px;margin-top:10px;text-align:center;line-height:1.55}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="back" href="../index.html">← Все игры</a>
+  <h1>🎈 Шарики <span>E.Y.L</span></h1>
+  <div class="sub">Лопай тройки, сбрасывай висячие шарики и не дай полю доползти до низа!</div>
+
+  <div class="hud">
+    <div class="cell">🏆 Очки: <b id="score">0</b></div>
+    <div class="cell">⭐ Рекорд: <b id="best">0</b></div>
+    <div class="cell">🚀 Уровень: <b id="level">1</b></div>
+    <div class="cell">⬇️ Спуск через: <b id="shots">8</b></div>
+  </div>
+
+  <div class="stage" id="stage">
+    <canvas id="cv" width="540" height="760"></canvas>
+  </div>
+
+  <div class="controls">
+    <button id="swapBtn">🔀 Обмен (Пробел)</button>
+    <button id="pauseBtn">⏸ Пауза (P)</button>
+  </div>
+  <div class="hint">📱 На телефоне: веди палец — шарик летит, когда отпустишь. 🖱️ На компьютере: целься мышью, стреляй кликом.<br>Тап по следующему шарику справа внизу — обмен. Пробел — тоже обмен.</div>
+</div>
+
+<div class="overlay" id="menuOv">
+  <h2>🎈 Шарики <span>E.Y.L</span></h2>
+  <div class="rules">
+    🎯 Целься и стреляй шариком: собери <b>3 и больше одного цвета</b> — они лопнут! Висячие шарики под лопнувшими падают вниз и дают ещё очки.<br>
+    ⬇️ Каждые 8 выстрелов без лопания поле опускается на ряд. Доползло до красной черты внизу — конец игры.<br>
+    🏆 Расчистил всё поле — следующий уровень: цветов больше, шариков плотнее!
+  </div>
+  <button class="bigbtn" id="playBtn">▶ ИГРАТЬ</button>
+  <div class="bestline">Рекорд: <b id="menuBest">0</b> очков</div>
+</div>
+
+<div class="overlay hidden" id="overOv">
+  <h2>🏁 ИГРА <span>ОКОНЧЕНА</span></h2>
+  <div class="final" id="finalText"></div>
+  <button class="bigbtn" id="againBtn">🔄 ЕЩЁ РАЗ</button>
+</div>
+
+<div class="overlay hidden" id="pauseOv">
+  <h2>⏸ <span>ПАУЗА</span></h2>
+  <div class="rules">Шарики подождут. Передохни — и обратно лопать!</div>
+  <button class="bigbtn" id="resumeBtn">▶ ДАЛЬШЕ</button>
+</div>
+
+<script>
+(() => {
+"use strict";
+const cv = document.getElementById("cv");
+const ctx = cv.getContext("2d");
+const $ = id => document.getElementById(id);
+const W = 540, H = 760;
+const R = 24, D = 48, ROW_H = D * 0.866, COLS = 10, TOP = 10;
+const DANGER = 648;
+const CANNON = { x: W / 2, y: 706 };
+const NEXT_POS = { x: W - 58, y: 716 };
+const PALETTE = [
+  { main: "#ff5252", light: "#ffa4a4" },
+  { main: "#ffd54d", light: "#fff3b0" },
+  { main: "#4fc3f7", light: "#b3e5fc" },
+  { main: "#69f0ae", light: "#c8f7dc" },
+  { main: "#ba68c8", light: "#e1bee7" },
+  { main: "#ff9e57", light: "#ffd0a8" },
+  { main: "#f48fb1", light: "#fcd3e3" }
+];
+
+let state = "menu"; // menu | play | pause | over
+let grid = [];
+let score = 0, level = 1, miss = 0;
+let best = 0;
+try { best = parseInt(localStorage.getItem("eyl-bubbles-best") || "0", 10) || 0; } catch (e) {}
+let cur = 0, next = 0;
+let flying = null;
+let fallers = [];
+let poppers = [];
+let aimAng = -Math.PI / 2;
+let pointerDown = false, suppressFire = false;
+let msgText = "", msgUntil = 0;
+let lastTs = 0;
+
+/* ---------- звук: короткие бипы ---------- */
+let AC = null;
+function beep(freq, dur, type, vol, slideTo) {
+  try {
+    if (!AC) AC = new (window.AudioContext || window.webkitAudioContext)();
+    if (AC.state === "suspended") AC.resume();
+    const o = AC.createOscillator(), g = AC.createGain();
+    o.type = type || "square"; o.frequency.value = freq;
+    if (slideTo) o.frequency.exponentialRampToValueAtTime(slideTo, AC.currentTime + dur);
+    g.gain.value = vol || 0.035;
+    g.gain.exponentialRampToValueAtTime(0.001, AC.currentTime + dur);
+    o.connect(g); g.connect(AC.destination);
+    o.start(); o.stop(AC.currentTime + dur);
+  } catch (e) {}
+}
+const sfx = {
+  shoot() { beep(520, 0.09, "square", 0.03, 240); },
+  stick() { beep(190, 0.07, "triangle", 0.04); },
+  pop() { beep(660, 0.08, "square", 0.04, 990); setTimeout(() => beep(880, 0.09, "square", 0.035, 1320), 55); },
+  drop() { beep(420, 0.16, "sawtooth", 0.03, 120); },
+  descend() { beep(140, 0.22, "sawtooth", 0.045, 90); },
+  swap() { beep(740, 0.06, "triangle", 0.03); },
+  level() { [523, 659, 784].forEach((f, i) => setTimeout(() => beep(f, 0.11, "square", 0.04), i * 85)); },
+  over() { beep(320, 0.4, "sawtooth", 0.045, 70); }
+};
+
+/* ---------- сетка ---------- */
+function cellX(r, c) { return 20 + R + c * D + (r % 2 ? D / 2 : 0); }
+function cellY(r) { return TOP + R + r * ROW_H; }
+function occupied(r, c) { return !!(grid[r] && grid[r][c] >= 0); }
+function neighbors(r, c) {
+  const out = [[r, c - 1], [r, c + 1]];
+  if (r % 2 === 0) out.push([r - 1, c - 1], [r - 1, c], [r + 1, c - 1], [r + 1, c]);
+  else out.push([r - 1, c], [r - 1, c + 1], [r + 1, c], [r + 1, c + 1]);
+  return out.filter(([nr, nc]) => nr >= 0 && nc >= 0 && nc < COLS);
+}
+function anyBubbles() {
+  for (const row of grid) for (const v of row) if (v >= 0) return true;
+  return false;
+}
+function fieldColors() {
+  const s = new Set();
+  grid.forEach(row => row.forEach(v => { if (v >= 0) s.add(v); }));
+  return [...s];
+}
+function levelColors() { return Math.min(4 + level, 7); } // уровень 1 — 5 цветов, дальше до 7
+function randFieldColor() {
+  const arr = fieldColors();
+  if (!arr.length) return Math.floor(Math.random() * levelColors());
+  return arr[Math.floor(Math.random() * arr.length)];
+}
+function newRow() {
+  const n = levelColors();
+  return Array.from({ length: COLS }, () => Math.floor(Math.random() * n));
+}
+
+/* ---------- игра ---------- */
+function showMsg(t) { msgText = t; msgUntil = performance.now() + 1700; }
+function updateHUD() {
+  $("score").textContent = score;
+  $("best").textContent = best;
+  $("level").textContent = level;
+  $("shots").textContent = 8 - miss;
+}
+function startLevel() {
+  grid = [];
+  const rows = Math.min(4 + level, 7);
+  for (let i = 0; i < rows; i++) grid.push(newRow());
+  miss = 0; flying = null; fallers = []; poppers = [];
+  cur = randFieldColor(); next = randFieldColor();
+  updateHUD();
+}
+function startGame() {
+  score = 0; level = 1;
+  startLevel();
+  state = "play";
+  $("menuOv").classList.add("hidden");
+  $("overOv").classList.add("hidden");
+  $("pauseOv").classList.add("hidden");
+  showMsg("Уровень 1");
+  const st = $("stage");
+  if (st) setTimeout(() => st.scrollIntoView({ behavior: "smooth", block: "center" }), 60);
+  updateHUD();
+}
+function gameOver() {
+  state = "over";
+  sfx.over();
+  if (score > best) {
+    best = score;
+    try { localStorage.setItem("eyl-bubbles-best", String(best)); } catch (e) {}
+  }
+  $("finalText").innerHTML = "Очки: <b>" + score + "</b><br>Уровень: <b>" + level + "</b><br>Рекорд: <b>" + best + "</b>";
+  $("overOv").classList.remove("hidden");
+  updateHUD();
+}
+function togglePause() {
+  if (state === "play") { state = "pause"; $("pauseOv").classList.remove("hidden"); }
+  else if (state === "pause") { state = "play"; $("pauseOv").classList.add("hidden"); }
+}
+function swapColors() {
+  if (state !== "play" || flying) return;
+  const t = cur; cur = next; next = t;
+  sfx.swap();
+}
+
+function fire() {
+  if (state !== "play" || flying || fallers.length) return;
+  flying = {
+    x: CANNON.x + Math.cos(aimAng) * 36,
+    y: CANNON.y + Math.sin(aimAng) * 36,
+    vx: Math.cos(aimAng) * 950,
+    vy: Math.sin(aimAng) * 950,
+    color: cur
+  };
+  sfx.shoot();
+}
+
+function snapBubble(fx, fy, color) {
+  // ближайшая пустая клетка: верхняя строка или соседняя с занятой
+  let br = -1, bc = -1, bd = Infinity;
+  const maxR = Math.min(grid.length, 22);
+  for (let r = 0; r <= maxR; r++) {
+    for (let c = 0; c < COLS; c++) {
+      if (occupied(r, c)) continue;
+      if (r > 0 && !neighbors(r, c).some(([nr, nc]) => occupied(nr, nc))) continue;
+      const dx = cellX(r, c) - fx, dy = cellY(r) - fy;
+      const d = dx * dx + dy * dy;
+      if (d < bd) { bd = d; br = r; bc = c; }
+    }
+  }
+  if (br < 0) { gameOver(); return; }
+  while (grid.length <= br) grid.push(new Array(COLS).fill(-1));
+  grid[br][bc] = color;
+  resolveSnap(br, bc, color);
+}
+
+function clusterOf(r, c, color) {
+  const seen = new Set([r + "," + c]);
+  const stack = [[r, c]], out = [];
+  while (stack.length) {
+    const [cr, cc] = stack.pop();
+    out.push([cr, cc]);
+    neighbors(cr, cc).forEach(([nr, nc]) => {
+      const k = nr + "," + nc;
+      if (!seen.has(k) && occupied(nr, nc) && grid[nr][nc] === color) { seen.add(k); stack.push([nr, nc]); }
+    });
+  }
+  return out;
+}
+
+function dropFloating() {
+  // всё, что не держится за верхний ряд, падает
+  const held = new Set();
+  const stack = [];
+  for (let c = 0; c < COLS; c++) if (occupied(0, c)) { held.add("0," + c); stack.push([0, c]); }
+  while (stack.length) {
+    const [cr, cc] = stack.pop();
+    neighbors(cr, cc).forEach(([nr, nc]) => {
+      const k = nr + "," + nc;
+      if (!held.has(k) && occupied(nr, nc)) { held.add(k); stack.push([nr, nc]); }
+    });
+  }
+  let dropped = 0;
+  grid.forEach((row, r) => row.forEach((v, c) => {
+    if (v >= 0 && !held.has(r + "," + c)) {
+      fallers.push({ x: cellX(r, c), y: cellY(r), color: v, vy: 0 });
+      grid[r][c] = -1;
+      dropped++;
+    }
+  }));
+  if (dropped) { score += dropped * 20; sfx.drop(); }
+  return dropped;
+}
+
+function checkDanger() {
+  for (let r = 0; r < grid.length; r++)
+    for (let c = 0; c < COLS; c++)
+      if (occupied(r, c) && cellY(r) + R >= DANGER) { gameOver(); return true; }
+  return false;
+}
+
+function resolveSnap(r, c, color) {
+  const cl = clusterOf(r, c, color);
+  let popped = 0;
+  if (cl.length >= 3) {
+    popped = cl.length;
+    cl.forEach(([cr, cc]) => {
+      poppers.push({ x: cellX(cr, cc), y: cellY(cr), color: grid[cr][cc], t: 0 });
+      grid[cr][cc] = -1;
+    });
+    score += popped * 10;
+    sfx.pop();
+    miss = 0;
+    dropFloating();
+  } else {
+    sfx.stick();
+    miss++;
+  }
+  // следующий шарик
+  cur = next; next = randFieldColor();
+  if (!anyBubbles()) {
+    score += 100;
+    level++;
+    sfx.level();
+    startLevel();
+    showMsg("Уровень " + level + "!");
+    return;
+  }
+  if (popped === 0 && miss >= 8) {
+    miss = 0;
+    grid.unshift(newRow()); // поле опускается на ряд
+    sfx.descend();
+    showMsg("Поле опустилось!");
+  }
+  updateHUD();
+  checkDanger();
+}
+
+/* ---------- обновление ---------- */
+function update(dt) {
+  poppers.forEach(p => { p.t += dt; });
+  poppers = poppers.filter(p => p.t < 0.22);
+  fallers.forEach(f => { f.vy += 1900 * dt; f.y += f.vy * dt; });
+  fallers = fallers.filter(f => f.y < H + 40);
+  if (state !== "play" || !flying) return;
+  // движение подшагами — чтобы не пролетать сквозь шарики
+  const steps = 3;
+  for (let s = 0; s < steps && flying; s++) {
+    flying.x += flying.vx * dt / steps;
+    flying.y += flying.vy * dt / steps;
+    if (flying.x < R) { flying.x = R; flying.vx = Math.abs(flying.vx); beep(300, 0.04, "triangle", 0.02); }
+    if (flying.x > W - R) { flying.x = W - R; flying.vx = -Math.abs(flying.vx); beep(300, 0.04, "triangle", 0.02); }
+    if (flying.y <= TOP + R) {
+      const f = flying; flying = null;
+      snapBubble(f.x, TOP + R, f.color);
+      break;
+    }
+    let hit = false;
+    for (let r = 0; r < grid.length && !hit; r++) {
+      for (let c = 0; c < COLS; c++) {
+        if (!occupied(r, c)) continue;
+        const dx = cellX(r, c) - flying.x, dy = cellY(r) - flying.y;
+        if (dx * dx + dy * dy < (D - 3) * (D - 3)) { hit = true; break; }
+      }
+    }
+    if (hit) {
+      const f = flying; flying = null;
+      snapBubble(f.x, f.y, f.color);
+    }
+  }
+}
+
+/* ---------- отрисовка ---------- */
+function drawBubble(x, y, r, ci, alpha) {
+  const col = PALETTE[ci] || PALETTE[0];
+  ctx.save();
+  if (alpha !== undefined) ctx.globalAlpha = alpha;
+  ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2);
+  ctx.fillStyle = col.main; ctx.fill();
+  ctx.lineWidth = 2; ctx.strokeStyle = "rgba(0,0,0,.28)"; ctx.stroke();
+  ctx.beginPath(); ctx.arc(x - r * 0.34, y - r * 0.36, r * 0.38, 0, Math.PI * 2);
+  ctx.fillStyle = col.light; ctx.globalAlpha = (alpha !== undefined ? alpha : 1) * 0.75; ctx.fill();
+  ctx.beginPath(); ctx.arc(x - r * 0.38, y - r * 0.42, r * 0.16, 0, Math.PI * 2);
+  ctx.fillStyle = "rgba(255,255,255,.85)"; ctx.fill();
+  ctx.restore();
+}
+function draw() {
+  ctx.clearRect(0, 0, W, H);
+  const g = ctx.createLinearGradient(0, 0, 0, H);
+  g.addColorStop(0, "#10142a"); g.addColorStop(1, "#0a0c16");
+  ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+  // верхняя планка
+  ctx.fillStyle = "#262a47"; ctx.fillRect(0, 0, W, TOP + 4);
+  // красная черта опасности
+  ctx.save();
+  ctx.strokeStyle = "rgba(255,82,82,.75)"; ctx.lineWidth = 2; ctx.setLineDash([10, 8]);
+  ctx.beginPath(); ctx.moveTo(6, DANGER); ctx.lineTo(W - 6, DANGER); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle = "rgba(255,82,82,.8)"; ctx.font = "700 13px system-ui, sans-serif"; ctx.textAlign = "left";
+  ctx.fillText("ОПАСНАЯ ЧЕРТА", 10, DANGER - 8);
+  ctx.restore();
+  // сетка шариков
+  grid.forEach((row, r) => row.forEach((v, c) => { if (v >= 0) drawBubble(cellX(r, c), cellY(r), R, v); }));
+  // падающие
+  fallers.forEach(f => drawBubble(f.x, f.y, R, f.color));
+  // лопающиеся — расходящиеся кольца
+  poppers.forEach(p => {
+    const k = p.t / 0.22;
+    ctx.save();
+    ctx.globalAlpha = 1 - k;
+    ctx.beginPath(); ctx.arc(p.x, p.y, R + k * 16, 0, Math.PI * 2);
+    ctx.lineWidth = 3; ctx.strokeStyle = PALETTE[p.color].light; ctx.stroke();
+    ctx.restore();
+    drawBubble(p.x, p.y, R * (1 - k * 0.7), p.color, 1 - k);
+  });
+  // летящий
+  if (flying) drawBubble(flying.x, flying.y, R, flying.color);
+  // прицел — пунктир от пушки
+  if (state === "play" && !flying) {
+    ctx.save();
+    ctx.strokeStyle = "rgba(255,255,255,.55)"; ctx.lineWidth = 3; ctx.setLineDash([4, 14]); ctx.lineCap = "round";
+    ctx.beginPath();
+    ctx.moveTo(CANNON.x + Math.cos(aimAng) * 44, CANNON.y + Math.sin(aimAng) * 44);
+    ctx.lineTo(CANNON.x + Math.cos(aimAng) * 190, CANNON.y + Math.sin(aimAng) * 190);
+    ctx.stroke();
+    ctx.restore();
+  }
+  // пушка
+  ctx.save();
+  ctx.translate(CANNON.x, CANNON.y);
+  ctx.rotate(aimAng + Math.PI / 2);
+  ctx.fillStyle = "#39406b";
+  ctx.fillRect(-9, -46, 18, 40);
+  ctx.fillStyle = "#ffa751";
+  ctx.fillRect(-9, -46, 18, 8);
+  ctx.restore();
+  ctx.beginPath(); ctx.arc(CANNON.x, CANNON.y, 20, 0, Math.PI * 2);
+  ctx.fillStyle = "#232848"; ctx.fill();
+  ctx.lineWidth = 3; ctx.strokeStyle = "#ffa751"; ctx.stroke();
+  // заряженный шарик и следующий
+  if (state === "play" || state === "pause") {
+    if (!flying) drawBubble(CANNON.x, CANNON.y - 4, R - 3, cur);
+    ctx.font = "600 13px system-ui, sans-serif"; ctx.textAlign = "center";
+    ctx.fillStyle = "#9aa0c3";
+    ctx.fillText("дальше", NEXT_POS.x, NEXT_POS.y - 34);
+    drawBubble(NEXT_POS.x, NEXT_POS.y, 17, next);
+    ctx.fillStyle = "#7c81a3";
+    ctx.fillText("тап — обмен", NEXT_POS.x, NEXT_POS.y + 36);
+  }
+  // сообщение уровня
+  if (performance.now() < msgUntil) {
+    ctx.save();
+    ctx.font = "900 40px system-ui, sans-serif"; ctx.textAlign = "center";
+    ctx.lineWidth = 8; ctx.strokeStyle = "rgba(0,0,0,.65)";
+    const y = H * 0.45;
+    ctx.strokeText(msgText, W / 2, y);
+    ctx.fillStyle = "#ffe259";
+    ctx.fillText(msgText, W / 2, y);
+    ctx.restore();
+  }
+}
+function loop(ts) {
+  const dt = Math.min(0.033, lastTs ? (ts - lastTs) / 1000 : 0.016);
+  lastTs = ts;
+  update(dt);
+  draw();
+  requestAnimationFrame(loop);
+}
+
+/* ---------- управление ---------- */
+function canvasPos(e) {
+  const rect = cv.getBoundingClientRect();
+  return { x: (e.clientX - rect.left) * W / rect.width, y: (e.clientY - rect.top) * H / rect.height };
+}
+function updateAim(pos) {
+  let ang = Math.atan2(pos.y - CANNON.y, pos.x - CANNON.x);
+  if (ang > 0) ang = pos.x >= CANNON.x ? -0.28 : -Math.PI + 0.28;
+  aimAng = Math.max(-Math.PI + 0.28, Math.min(-0.28, ang));
+}
+cv.addEventListener("pointerdown", e => {
+  if (state !== "play") return;
+  e.preventDefault();
+  const pos = canvasPos(e);
+  const dx = pos.x - NEXT_POS.x, dy = pos.y - NEXT_POS.y;
+  if (dx * dx + dy * dy < 42 * 42) { swapColors(); suppressFire = true; return; }
+  pointerDown = true;
+  updateAim(pos);
+});
+cv.addEventListener("pointermove", e => {
+  if (state !== "play") return;
+  if (e.pointerType === "mouse" || pointerDown) updateAim(canvasPos(e));
+});
+cv.addEventListener("pointerup", e => {
+  if (state !== "play") return;
+  e.preventDefault();
+  if (suppressFire) { suppressFire = false; pointerDown = false; return; }
+  if (pointerDown) { updateAim(canvasPos(e)); fire(); }
+  pointerDown = false;
+});
+cv.addEventListener("pointercancel", () => { pointerDown = false; });
+
+$("playBtn").onclick = () => startGame();
+$("againBtn").onclick = () => startGame();
+$("resumeBtn").onclick = () => togglePause();
+$("pauseBtn").onclick = () => togglePause();
+$("swapBtn").onclick = () => swapColors();
+document.addEventListener("keydown", e => {
+  if (e.code === "Space") { e.preventDefault(); if (state === "play") swapColors(); }
+  if (e.code === "KeyP") togglePause();
+});
+document.addEventListener("visibilitychange", () => {
+  if (document.hidden && state === "play") togglePause();
+});
+
+/* ---------- старт ---------- */
+$("menuBest").textContent = best;
+startLevel(); // поле за меню — для красоты
+state = "menu";
+updateHUD();
+requestAnimationFrame(loop);
+})();
+</script>
+<!-- Значки-картинки (Twemoji): на компе Erik часть смайлов не рисуется шрифтом Windows и видна как □. Подменяем их картинками — одинаково на телефоне и на компе. -->
+<script src="https://cdn.jsdelivr.net/npm/twemoji@14.0.2/dist/twemoji.min.js" crossorigin="anonymous"></script>
+<style>img.emoji{height:1em;width:1em;margin:0 .05em 0 .1em;vertical-align:-.1em}</style>
+<script>
+(function(){
+  function parseAll(){ if(window.twemoji){ try{ twemoji.parse(document.body); }catch(e){} } }
+  if(document.readyState==='loading'){ document.addEventListener('DOMContentLoaded',parseAll); } else { parseAll(); }
+  if(window.MutationObserver){
+    var mo=new MutationObserver(function(muts){
+      if(!window.twemoji) return;
+      muts.forEach(function(m){
+        m.addedNodes.forEach(function(n){
+          if(n.nodeType===1 && (!n.classList || !n.classList.contains('emoji'))){ try{ twemoji.parse(n); }catch(e){} }
+        });
+      });
+    });
+    mo.observe(document.body,{childList:true,subtree:true});
+  }
+})();
+</script>
+</body>
+</html>

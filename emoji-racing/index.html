@@ -341,6 +341,29 @@ quitRace(){RACE.running=false;ERT.show('menu');}
 };
 /* ============ ГОНКА ============ */
 const cv=$('cv'),ctx=cv.getContext('2d');
+/* Смайлы на canvas: на компе Erik шрифт не рисует эмодзи — рисуем их
+   картинками Twemoji (тот же CDN, что и для страниц), пока не загрузились — fillText */
+const EMOJI_IMG={};
+function emojiURL(e){
+  const cp=[...e].filter(c=>c.codePointAt(0)!==0xFE0F).map(c=>c.codePointAt(0).toString(16)).join('-');
+  return 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/72x72/'+cp+'.png';
+}
+function emojiImg(e){
+  let im=EMOJI_IMG[e];
+  if(!im){im=new Image();im.src=emojiURL(e);EMOJI_IMG[e]=im;}
+  return im;
+}
+function drawEmoji(e,x,y,size){
+  const im=emojiImg(e);
+  if(im.complete&&im.naturalWidth){ctx.drawImage(im,x-size/2,y-size/2,size,size);}
+  else{ctx.font=size+'px serif';ctx.fillText(e,x,y);}
+}
+function preloadRaceEmoji(){
+  const all=new Set(['🚧','🛢️','🪙','⚡','💨','💥','🏁']);
+  CARS.forEach(c=>all.add(c.e));
+  TRACKS.forEach(t=>t.deco.forEach(d=>all.add(d)));
+  all.forEach(e=>emojiImg(e));
+}
 /* Трасса всегда 400x560 без растяжения: подбираем размер под экран,
    иначе на высоком телефоне всё вытягивается и выглядит «криво» */
 function fitRace(){
@@ -366,7 +389,7 @@ function newRace(trackId){
   const st=effStats(car());
   const maxSpd=(170+st.spd*1.5)*tr.spd;
   G={tr,w,car:car(),st,maxSpd,
-    px:laneX(1),py:470,spd:0,nitro:st.nitro,nitroMax:st.nitro,coins:0,
+    px:laneX(1),py:470,spd:0,pvx:0,bumpT:0,nitro:st.nitro,nitroMax:st.nitro,coins:0,
     dist:0,lap:1,laps:3,time:0,shake:0,smoke:[],parts:[],
     roadOff:0,deco:[],obs:[],pickups:[],weatherP:[],
     ai:[],countdown:3.2,finished:false,place:6,msgT:0,
@@ -377,10 +400,11 @@ function newRace(trackId){
   for(let i=0;i<5;i++){
     const aiCar=CARS[2+Math.floor(Math.random()*(CARS.length-2))];
     G.ai.push({name:names[i],e:aiCar.e,lane:Math.floor(Math.random()*4),x:laneX(0),dist:120+i*90+Math.random()*80,
-      base:(0.78+Math.random()*0.14)*maxSpd,spd:0,wob:Math.random()*10,flash:0});
+      base:(0.78+Math.random()*0.14)*maxSpd,spd:0,vx:0,pushV:0,laneT:0,wob:Math.random()*10,flash:0});
     G.ai[i].x=laneX(G.ai[i].lane);
   }
   G.ai.sort((a,b)=>b.dist-a.dist);
+  preloadRaceEmoji();
   return G;
 }
 function spawnThings(){
@@ -434,11 +458,16 @@ function update(dt){
   if((keys.nitro||keys[' '])&&G.nitro>0&&G.spd>30){top*=1.45;G.nitro-=26*dt;if(Math.random()<0.6)G.parts.push({x:G.px,y:G.py+26,e:'💨',vy:120,life:0.5});if(Math.random()<0.1)beep(1200,.05,'sawtooth',.03);}
   else if(G.spd>0)G.nitro=Math.min(G.nitroMax,G.nitro+3*dt);
   G.spd=Math.max(0,Math.min(top,G.spd));
-  // руление (на малой скорости тоже слушается)
-  const steer=(0.55+st.hnd*0.004)*G.grip*260;
-  if(keys.left||keys.ArrowLeft)G.px-=steer*dt*(0.55+G.spd/G.maxSpd);
-  if(keys.right||keys.ArrowRight)G.px+=steer*dt*(0.55+G.spd/G.maxSpd);
+  // руление как у настоящей машины: поворот набирается плавно, машина
+  // кренится в поворот, а без руля сама выравнивается — без рывков вбок
+  const steerMax=(0.55+st.hnd*0.004)*G.grip*300;
+  const steerDir=(keys.left||keys.ArrowLeft)?-1:(keys.right||keys.ArrowRight)?1:0;
+  G.pvx+=steerDir*steerMax*6*dt*(0.55+G.spd/G.maxSpd);
+  if(!steerDir)G.pvx-=G.pvx*Math.min(1,7*dt);
+  G.pvx=Math.max(-steerMax,Math.min(steerMax,G.pvx));
+  G.px+=G.pvx*dt;
   G.px=Math.max(ROAD.x+18,Math.min(ROAD.x+ROAD.w-18,G.px));
+  if(G.px<=ROAD.x+18||G.px>=ROAD.x+ROAD.w-18)G.pvx=0;
   // дистанция и круги
   const mps=G.spd*0.28; // км/ч -> м/с
   G.dist+=mps*dt;
@@ -473,23 +502,99 @@ function update(dt){
     }
   });
   G.pickups=G.pickups.filter(p=>!p.taken);
-  // ИИ
+  // ИИ — ездят как живые: держат дистанцию, тормозят за медленным,
+  // обгоняют только в свободную полосу и не наезжают друг на друга
+  const aiY=a=>G.py-(a.dist-G.dist)*0.9;
+  function laneFree(a,lane){
+    const tx=laneX(lane);
+    for(const b of G.ai){if(b!==a&&Math.abs(aiY(b)-aiY(a))<120&&Math.abs(b.x-tx)<40)return false;}
+    if(Math.abs(G.px-tx)<36&&Math.abs(aiY(a)-G.py)<120)return false;
+    return true;
+  }
+  function aheadOf(a){
+    // ближайший впереди в той же полосе (и рядом с ней — во время перестроения):
+    // соперник или игрок (разрыв в px на экране)
+    let best=null;
+    for(const b of G.ai){
+      if(b===a)continue;
+      const gap=(b.dist-a.dist)*0.9;
+      if(gap>0&&gap<120&&Math.abs(b.x-a.x)<50&&(!best||gap<best.gap))best={gap,spd:b.spd};
+    }
+    const gp=(G.dist-a.dist)*0.9;
+    if(gp>0&&gp<120&&Math.abs(G.px-a.x)<50&&(!best||gp<best.gap))best={gap:gp,spd:G.spd};
+    return best;
+  }
+  function changeLane(a,lane){
+    // не чаще раза в 1.2 с — иначе машина мечется туда-сюда
+    if(lane===a.lane||G.time-(a.laneT||0)<1.2)return false;
+    a.lane=lane;a.laneT=G.time;return true;
+  }
+  function freeLanes(a){
+    return [a.lane-1,a.lane+1].filter(l=>l>=0&&l<=3&&laneFree(a,l));
+  }
   G.ai.forEach(a=>{
-    a.spd=a.base*(0.96+0.08*Math.sin(G.time*0.5+a.wob));
+    const ahead=aheadOf(a);
+    // скорость: плавно разгоняется и тормозит, а не прыгает
+    let target=a.base*(0.96+0.08*Math.sin(G.time*0.5+a.wob));
+    if(ahead&&ahead.gap<95)target=Math.min(target,ahead.spd*0.9);
+    a.spd+=(target-a.spd)*Math.min(1,1.5*dt);
     a.dist+=a.spd*0.28*dt;
-    // перестроения
-    if(Math.random()<dt*0.5){const nl=Math.max(0,Math.min(3,a.lane+(Math.random()<0.5?-1:1)));a.lane=nl;}
+    // обгон: впереди тесно — уйти в свободную соседнюю полосу
+    if(ahead&&ahead.gap<70&&Math.random()<dt*1.5){
+      const opts=freeLanes(a);
+      if(opts.length)changeLane(a,opts[Math.floor(Math.random()*opts.length)]);
+    }
+    // объезд препятствия — тоже только в свободную полосу
+    G.obs.forEach(o=>{
+      if(Math.abs(o.y-(G.py-160))<110&&Math.abs(laneX(o.lane)-a.x)<38){
+        const opts=freeLanes(a);
+        if(opts.length)changeLane(a,opts[Math.floor(Math.random()*opts.length)]);
+      }
+    });
+    // редкие спокойные перестроения — а не наугад каждые пару секунд
+    if(Math.random()<dt*0.08){
+      const opts=freeLanes(a);
+      if(opts.length&&Math.random()<0.5)changeLane(a,opts[Math.floor(Math.random()*opts.length)]);
+    }
+    // плавный выезд в полосу: боковая скорость ограничена, машина кренится
     const tx=laneX(a.lane);
-    a.x+=(tx-a.x)*dt*1.5;
-    // ИИ объезжает препятствия
-    G.obs.forEach(o=>{if(Math.abs(o.y-(G.py-160))<60&&Math.abs(laneX(o.lane)-a.x)<40){a.lane=a.lane>1?a.lane-1:a.lane+1;}});
-    // столкновение с игроком
-    const ay=G.py-(a.dist-G.dist)*0.9;
-    if(Math.abs(ay-G.py)<36&&Math.abs(a.x-G.px)<36){
-      G.spd*=0.7;a.spd*=0.85;G.shake=8;buzz(50);beep(200,.12,'sawtooth',.07);
+    a.vx=Math.max(-95,Math.min(95,(tx-a.x)*2.2));
+    a.x+=a.vx*dt;
+    // толчок вбок после столкновения — тоже плавный, а не телепорт
+    if(a.pushV){a.x+=a.pushV*dt;a.pushV-=a.pushV*Math.min(1,4*dt);if(Math.abs(a.pushV)<5)a.pushV=0;}
+    a.x=Math.max(ROAD.x+18,Math.min(ROAD.x+ROAD.w-18,a.x));
+    // столкновение с игроком: разъехаться вбок, а не слипнуться
+    const ay=aiY(a);
+    if(G.time>G.bumpT&&Math.abs(ay-G.py)<36&&Math.abs(a.x-G.px)<36){
+      const sgn=G.px>=a.x?1:-1;
+      // разъехаться плавно: толчок боковой скоростью, а не прыжок вбок
+      G.pvx+=sgn*260;
+      a.pushV-=sgn*200;
+      G.spd*=0.75;a.spd*=0.9;G.shake=8;buzz(50);beep(200,.12,'sawtooth',.07);
       G.parts.push({x:G.px,y:G.py,e:'💨',vy:60,life:0.4});
+      G.bumpT=G.time+0.5;
     }
   });
+  // соперники не наезжают друг на друга: тот, кто сзади, уходит в свободную
+  // полосу (как в жизни); если некуда деться — разъехаться плавным толчком
+  for(let i=0;i<G.ai.length;i++)for(let j=i+1;j<G.ai.length;j++){
+    const a=G.ai[i],b=G.ai[j];
+    if(Math.abs(aiY(a)-aiY(b))<38&&Math.abs(a.x-b.x)<36){
+      const behind=a.dist<b.dist?a:b;
+      const leader=behind===a?b:a;
+      // сзади идущий сразу сбрасывает скорость до скорости впереди идущего
+      behind.spd=Math.min(behind.spd,leader.spd*0.85);
+      const opts=freeLanes(behind);
+      let moved=false;
+      if(opts.length)moved=changeLane(behind,opts[Math.floor(Math.random()*opts.length)]);
+      if(!moved){
+        const push=(36-Math.abs(a.x-b.x))/2+1;
+        const sgn=a.x>=b.x?1:-1;
+        a.pushV=(a.pushV||0)+sgn*push*9;
+        b.pushV=(b.pushV||0)-sgn*push*9;
+      }
+    }
+  }
   // дым из выхлопа
   if(G.spd>40&&Math.random()<dt*6)G.smoke.push({x:G.px-8+Math.random()*16,y:G.py+24,life:0.7});
   G.smoke.forEach(s=>{s.y+=40*dt;s.life-=dt;});
@@ -521,9 +626,7 @@ function draw(){
   // декорации по бокам
   ctx.font='28px serif';ctx.textAlign='center';ctx.textBaseline='middle';
   G.deco.forEach(d=>{
-    const x=d.side===0?8+Math.random()*0:372;
-    ctx.font=d.s+'px serif';
-    ctx.fillText(d.e,d.side===0?26:374,d.y);
+    drawEmoji(d.e,d.side===0?26:374,d.y,d.s);
   });
   // дорога
   ctx.fillStyle=G.tr.road;ctx.fillRect(ROAD.x,0,ROAD.w,560);
@@ -534,44 +637,41 @@ function draw(){
   for(let i=1;i<ROAD.lanes;i++){ctx.beginPath();ctx.moveTo(ROAD.x+LANE_W*i,0);ctx.lineTo(ROAD.x+LANE_W*i,560);ctx.stroke();}
   ctx.setLineDash([]);
   // стартовая линия при начале круга
-  if(G.dist<LAP_LEN*0.02){ctx.font='20px serif';ctx.fillStyle='#fff';ctx.fillText('🏁 СТАРТ 🏁',200,60);}
+  if(G.dist<LAP_LEN*0.02){ctx.font='20px sans-serif';ctx.fillStyle='#fff';ctx.textAlign='center';ctx.fillText('СТАРТ',200,60);drawEmoji('🏁',140,60,20);drawEmoji('🏁',260,60,20);}
   // подборы и препятствия
-  ctx.font='30px serif';
-  G.pickups.forEach(p=>{ctx.fillText(p.e,laneX(p.lane),p.y);});
-  G.obs.forEach(o=>{ctx.fillText(o.e,laneX(o.lane),o.y);});
+  G.pickups.forEach(p=>{drawEmoji(p.e,laneX(p.lane),p.y,30);});
+  G.obs.forEach(o=>{drawEmoji(o.e,laneX(o.lane),o.y,30);});
   // ИИ-соперники
   G.ai.forEach(a=>{
     const ay=G.py-(a.dist-G.dist)*0.9;
     if(ay>-50&&ay<610){
-      ctx.font='34px serif';
-      ctx.fillText(a.e,a.x,ay);
-      if(Math.abs(ay-G.py)<120){ctx.font='11px sans-serif';ctx.fillStyle='#fff';ctx.fillText(a.name,a.x,ay-26);}
+      ctx.save();ctx.translate(a.x,ay);ctx.rotate(Math.max(-0.18,Math.min(0.18,(a.vx||0)/500)));drawEmoji(a.e,0,0,34);ctx.restore();
+      if(Math.abs(ay-G.py)<120){ctx.font='11px sans-serif';ctx.fillStyle='#fff';ctx.textAlign='center';ctx.fillText(a.name,a.x,ay-26);}
     }
   });
   // дым
-  G.smoke.forEach(s=>{ctx.globalAlpha=Math.max(0,s.life);ctx.font='18px serif';ctx.fillText('💨',s.x,s.y);ctx.globalAlpha=1;});
+  G.smoke.forEach(s=>{ctx.globalAlpha=Math.max(0,s.life);drawEmoji('💨',s.x,s.y,18);ctx.globalAlpha=1;});
   // игрок
-  ctx.font='40px serif';
-  const tilt=(keys.left?-0.12:keys.right?0.12:0);
+  const tilt=Math.max(-0.22,Math.min(0.22,(G.pvx||0)/1400));
   ctx.save();ctx.translate(G.px,G.py);ctx.rotate(tilt);
-  ctx.fillText(G.car.e,0,0);
+  drawEmoji(G.car.e,0,0,40);
   ctx.restore();
   // эффекты
-  G.parts.forEach(p=>{ctx.globalAlpha=Math.max(0,Math.min(1,p.life*2));ctx.font='26px serif';ctx.fillText(p.e,p.x,p.y);ctx.globalAlpha=1;});
+  G.parts.forEach(p=>{ctx.globalAlpha=Math.max(0,Math.min(1,p.life*2));drawEmoji(p.e,p.x,p.y,26);ctx.globalAlpha=1;});
   // погода
   if(G.w.id==='rain'||G.w.id==='storm'){
     ctx.strokeStyle='rgba(174,194,255,.5)';ctx.lineWidth=1;
     G.weatherP.forEach(p=>{ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.lineTo(p.x-4,p.y+14);ctx.stroke();});
-    if(G.w.id==='storm'&&Math.random()<0.01){ctx.fillStyle='rgba(255,255,200,.25)';ctx.fillRect(0,0,400,560);ctx.font='40px serif';ctx.fillText('⚡',200,100);}
+    if(G.w.id==='storm'&&Math.random()<0.01){ctx.fillStyle='rgba(255,255,200,.25)';ctx.fillRect(0,0,400,560);drawEmoji('⚡',200,100,40);}
   }
   if(G.w.id==='snow'){ctx.fillStyle='#fff';G.weatherP.forEach(p=>{ctx.beginPath();ctx.arc(p.x,p.y,2.4,0,7);ctx.fill();});}
   if(G.w.id==='night'){ctx.fillStyle='rgba(5,5,30,.35)';ctx.fillRect(0,0,400,560);ctx.fillStyle='rgba(255,255,180,.12)';ctx.beginPath();ctx.moveTo(G.px-30,G.py);ctx.lineTo(G.px+30,G.py);ctx.lineTo(G.px+90,G.py-190);ctx.lineTo(G.px-90,G.py-190);ctx.closePath();ctx.fill();}
   if(G.w.id==='sunset'){const gr=ctx.createLinearGradient(0,0,0,560);gr.addColorStop(0,'rgba(255,120,60,.18)');gr.addColorStop(1,'rgba(255,60,120,.12)');ctx.fillStyle=gr;ctx.fillRect(0,0,400,560);}
   // обратный отсчёт
   if(G.countdown>0&&G.countdown<=3.2){
-    ctx.font='bold 60px sans-serif';ctx.fillStyle='#fff';ctx.strokeStyle='#000';ctx.lineWidth=6;
     const t=G.countdown>3?'🏁':Math.ceil(G.countdown);
-    ctx.strokeText(t,200,240);ctx.fillText(t,200,240);
+    if(t==='🏁'){drawEmoji('🏁',200,240,60);}
+    else{ctx.font='bold 60px sans-serif';ctx.fillStyle='#fff';ctx.strokeStyle='#000';ctx.lineWidth=6;ctx.textAlign='center';ctx.textBaseline='middle';ctx.strokeText(t,200,240);ctx.fillText(t,200,240);}
   }
   ctx.restore();
 }
@@ -623,6 +723,26 @@ function finishRace(){
 }
 load();
 ERT.show('menu');
+</script>
+<!-- Значки-картинки (Twemoji): на компе Erik часть смайлов не рисуется шрифтом Windows и видна как □. Подменяем их картинками — одинаково на телефоне и на компе. -->
+<script src="https://cdn.jsdelivr.net/npm/twemoji@14.0.2/dist/twemoji.min.js" crossorigin="anonymous"></script>
+<style>img.emoji{height:1em;width:1em;margin:0 .05em 0 .1em;vertical-align:-.1em}</style>
+<script>
+(function(){
+  function parseAll(){ if(window.twemoji){ try{ twemoji.parse(document.body); }catch(e){} } }
+  if(document.readyState==='loading'){ document.addEventListener('DOMContentLoaded',parseAll); } else { parseAll(); }
+  if(window.MutationObserver){
+    var mo=new MutationObserver(function(muts){
+      if(!window.twemoji) return;
+      muts.forEach(function(m){
+        m.addedNodes.forEach(function(n){
+          if(n.nodeType===1 && (!n.classList || !n.classList.contains('emoji'))){ try{ twemoji.parse(n); }catch(e){} }
+        });
+      });
+    });
+    mo.observe(document.body,{childList:true,subtree:true});
+  }
+})();
 </script>
 </body>
 </html>

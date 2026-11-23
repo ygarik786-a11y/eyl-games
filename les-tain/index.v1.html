@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#0b2e1a">
+<title>🌲 Лес Тайн — E.Y.L Games</title>
+<script>
+var PAGE_VER=1;
+fetch("../gversion.txt?x="+Date.now()).then(function(r){return r.text()}).then(function(t){
+  var rv=parseInt(t,10);
+  if(rv&&rv>PAGE_VER&&sessionStorage.getItem("upd-les-tain")!==String(rv)){
+    sessionStorage.setItem("upd-les-tain",String(rv));
+    location.replace(location.pathname+"?u="+rv);
+  }
+}).catch(function(){});
+</script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{background:#07180f radial-gradient(1200px 600px at 50% -10%,#14532d55,transparent);color:#e8f5e9;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;min-height:100vh}
+.wrap{max-width:480px;margin:0 auto;padding:10px 12px 90px}
+.top{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.back{color:#a7f3d0;text-decoration:none;font-size:15px;font-weight:700;white-space:nowrap}
+h1{flex:1;text-align:center;font-size:21px;color:#fde68a;text-shadow:0 2px 12px rgba(253,230,138,.35)}
+.dayline{text-align:center;font-size:13px;color:#a7f3d0;margin-bottom:8px}
+.stats{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin-bottom:8px}
+.stat{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:999px;padding:6px 11px;font-size:13.5px;font-weight:700;white-space:nowrap}
+.stat small{color:#9ca3af;font-weight:500}
+.xpbar{height:8px;background:rgba(255,255,255,.1);border-radius:99px;overflow:hidden;margin-bottom:10px}
+.xpbar i{display:block;height:100%;background:linear-gradient(90deg,#f59e0b,#fde68a);border-radius:99px;transition:width .4s}
+.tabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:8px;scrollbar-width:none}
+.tab{flex:0 0 auto;background:#10291b;border:1px solid rgba(255,255,255,.12);color:#d1fae5;border-radius:999px;padding:9px 13px;font-size:14px;font-weight:700;cursor:pointer}
+.tab.sel{background:linear-gradient(92deg,#059669,#047857);color:#fff;border-color:#34d399}
+.card{background:linear-gradient(180deg,#10291b,#0b2013);border:1px solid rgba(255,255,255,.1);border-radius:18px;padding:14px;margin-bottom:10px}
+.card h2{font-size:17px;margin-bottom:6px;color:#fde68a}
+.card p{font-size:14px;line-height:1.5;color:#d1fae5}
+.muted{color:#9ca3af;font-size:13px;line-height:1.45}
+.loc{display:flex;gap:10px;align-items:center;background:#0d2417;border:1px solid rgba(255,255,255,.09);border-radius:16px;padding:12px;margin-bottom:8px;cursor:pointer}
+.loc.locked{opacity:.55}
+.loc .ic{font-size:34px}
+.loc .nm{font-size:15.5px;font-weight:800}
+.loc .ds{font-size:12.5px;color:#9ca3af;line-height:1.35}
+.loc .go{margin-left:auto;font-size:20px;color:#34d399}
+.btn{display:block;width:100%;background:linear-gradient(92deg,#059669,#047857);color:#fff;border:0;border-radius:14px;padding:13px 10px;font-size:15px;font-weight:800;cursor:pointer;margin-top:8px;box-shadow:0 6px 18px rgba(5,150,105,.35)}
+.btn.gold{background:linear-gradient(92deg,#f59e0b,#d97706);box-shadow:0 6px 18px rgba(245,158,11,.35)}
+.btn.ghost{background:rgba(255,255,255,.08);box-shadow:none;border:1px solid rgba(255,255,255,.14)}
+.btn.small{width:auto;display:inline-block;padding:9px 14px;font-size:13.5px;margin:4px 4px 0 0}
+.btn:disabled{opacity:.45;cursor:default}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+.row .btn{flex:1;min-width:140px}
+.item{display:flex;align-items:center;gap:10px;background:#0d2417;border:1px solid rgba(255,255,255,.09);border-radius:14px;padding:10px 12px;margin-bottom:7px}
+.item .e{font-size:28px}
+.item .n{flex:1;font-size:14.5px;font-weight:700;line-height:1.3}
+.item .n small{display:block;color:#9ca3af;font-weight:500;font-size:12px}
+.item .cnt{font-weight:800;color:#fde68a}
+.item .price{font-weight:800;color:#fde68a;white-space:nowrap}
+.badge{display:inline-block;background:rgba(253,230,138,.15);border:1px solid rgba(253,230,138,.4);color:#fde68a;border-radius:999px;padding:3px 9px;font-size:12px;font-weight:700;margin:2px 2px 0 0}
+.log{background:#08170e;border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:10px 12px;font-size:13.5px;line-height:1.6;color:#d1fae5;max-height:220px;overflow-y:auto}
+.log div{margin-bottom:4px}
+.toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%) translateY(20px);background:#14532d;border:1px solid #34d399;color:#fff;padding:12px 18px;border-radius:999px;font-size:14.5px;font-weight:700;opacity:0;pointer-events:none;transition:.25s;z-index:50;max-width:92vw;text-align:center;box-shadow:0 10px 30px rgba(0,0,0,.5)}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.choice{display:block;width:100%;text-align:left;background:#0d2417;border:1px solid rgba(255,255,255,.14);color:#e8f5e9;border-radius:14px;padding:13px;font-size:15px;font-weight:700;cursor:pointer;margin-top:8px}
+.choice small{display:block;color:#9ca3af;font-weight:500;font-size:12.5px;margin-top:3px}
+.quest{border-left:3px solid #f59e0b;padding:8px 10px;background:rgba(245,158,11,.07);border-radius:0 12px 12px 0;margin-bottom:8px;font-size:14px;line-height:1.5}
+.quest.done{border-color:#34d399;background:rgba(52,211,153,.07)}
+.foot{text-align:center;color:#6b7280;font-size:12px;margin-top:14px;line-height:1.6}
+.foot button{background:none;border:0;color:#6b7280;text-decoration:underline;font-size:12px;cursor:pointer}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top"><a class="back" href="../">← Игры</a><h1>🌲 Лес Тайн</h1><span style="width:52px"></span></div>
+  <div class="dayline" id="dayLine">🌅 День 1 • ☀️ Солнечно • 🌞 Утро</div>
+  <div class="stats">
+    <div class="stat">💰 <span id="stCoins">0</span></div>
+    <div class="stat">💎 <span id="stCrys">0</span></div>
+    <div class="stat">⭐ <span id="stLvl">1</span> ур.</div>
+    <div class="stat">⚡ <span id="stEnergy">100</span>/<span id="stEnergyMax">100</span></div>
+    <div class="stat">🎒 <span id="stItems">0</span></div>
+  </div>
+  <div class="xpbar"><i id="xpFill" style="width:0%"></i></div>
+  <div class="tabs" id="tabs"></div>
+  <div id="screen"></div>
+  <div class="foot">🌲 Лес Тайн • E.Y.L Games • прогресс сохраняется в телефоне<br><button id="resetBtn">начать заново</button></div>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+// ================= СОСТОЯНИЕ =================
+var SAVE_KEY='eyl-les-tain-v1';
+function defaultState(){return{
+  coins:100,crys:10,xp:0,level:1,energy:100,day:1,hour:8,
+  weather:'sun',inv:{map:1},animals:{},artifacts:{},
+  camp:{house:0,fire:0,storage:0,garden:0,pet:null,decor:0},
+  tools:{},story:0,storyDone:{},quests:{},daily:{date:'',claimed:false,streak:0},
+  ach:{},found:0,explores:0,meets:0,secrets:0,lastSeen:0,
+  log:['🌲 Ты вошёл в Лес Тайн. Где-то здесь исчезла целая деревня…']
+}}
+var S;
+try{S=JSON.parse(localStorage.getItem(SAVE_KEY))||defaultState()}catch(e){S=defaultState()}
+if(!S.inv)S=defaultState();
+if(S.lastSeen===undefined)S.lastSeen=0;
+function save(){S.lastSeen=Date.now();try{localStorage.setItem(SAVE_KEY,JSON.stringify(S))}catch(e){}}
+function $(id){return document.getElementById(id)}
+function esc(s){return String(s)}
+var toastTimer=null;
+function toast(t){var el=$('toast');el.textContent=t;el.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(function(){el.classList.remove('show')},2600)}
+function log(t){S.log.unshift(t);if(S.log.length>30)S.log.length=30}
+function rnd(n){return Math.floor(Math.random()*n)}
+function pick(arr){return arr[rnd(arr.length)]}
+function chance(p){return Math.random()<p}
+function todayStr(){return new Date().toDateString()}
+function xpNeed(l){return l*100}
+function maxEnergy(){return 100+S.camp.house*15+(S.camp.pet==='dog'?5:0)}
+function addXp(n){
+  S.xp+=n;
+  while(S.level<100&&S.xp>=xpNeed(S.level)){
+    S.xp-=xpNeed(S.level);S.level++;
+    S.coins+=20;S.crys+=2;
+    toast('🎉 Новый уровень! '+S.level+' ур. +20💰 +2💎');
+    log('🎉 Уровень '+S.level+'! Награда: +20💰 +2💎');
+  }
+}
+function addItem(id,n){S.inv[id]=(S.inv[id]||0)+(n||1);S.found+=(n||1)}
+function fmt(n){return String(n).replace(/\B(?=(\d{3})+(?!\d))/g,' ')}
+
+// ================= ДАННЫЕ =================
+var ITEMS={
+  mushroom:{e:'🍄',n:'Гриб',p:5,d:'Съедобный гриб. Продаётся у торговца.'},
+  herb:{e:'🌿',n:'Лечебная трава',p:8,d:'Пахнет мятой. Ценится у торговца.'},
+  wood:{e:'🪵',n:'Древесина',p:6,d:'Крепкая ветка. Нужна для лагеря.'},
+  berry:{e:'🫐',n:'Ягоды',p:10,d:'Сладкие лесные ягоды.'},
+  flower:{e:'🌸',n:'Лесной цветок',p:12,d:'Редкий цветок. Красивый и дорогой.'},
+  feather:{e:'🪶',n:'Перо совы',p:15,d:'Тёплое перо. К удаче.'},
+  honey:{e:'🍯',n:'Дикий мёд',p:25,d:'Липкий, сладкий, редкий.'},
+  acorn:{e:'🌰',n:'Жёлудь',p:4,d:'Жёлудь. Белки их обожают.'},
+  shard:{e:'🔮',n:'Осколок кристалла',p:40,d:'Светится в темноте. Очень ценный.'},
+  goldmush:{e:'🍄',n:'Золотой гриб',p:100,d:'Легендарный гриб! Встречается раз в жизни.'},
+  key:{e:'🗝️',n:'Старый ключ',p:40,d:'Открывает тайные сундуки и двери.'},
+  map:{e:'🧭',n:'Старая карта',p:0,d:'Карта исчезнувшей деревни. Начало истории.'},
+  note1:{e:'📜',n:'Дневник старосты, стр. 1',p:0,d:'«Деревня молчит уже третий день…»'},
+  note2:{e:'📜',n:'Дневник старосты, стр. 2',p:0,d:'«Оно живёт под озером. Не будите его…»'},
+  note3:{e:'📜',n:'Записка хранительницы',p:0,d:'«Кто вернёт деревне свет — тому лес откроет сердце».'},
+  artifact1:{e:'🏺',n:'Кувшин древних',p:200,d:'Артефакт исчезнувшей деревни.'},
+  artifact2:{e:'🗿',n:'Каменный идол',p:300,d:'Смотрит на тебя пустыми глазами…'},
+  artifact3:{e:'👑',n:'Корона лесного короля',p:500,d:'Легендарный артефакт леса!'},
+  chest:{e:'🎁',n:'Тайный сундук',p:0,d:'Открой его ключом 🗝️ — внутри сокровище!'}
+};
+var ANIMALS={
+  rabbit:{e:'🐰',n:'Кролик',r:'обычный',r2:0,places:['forest','mushroom','magic'],xp:20},
+  squirrel:{e:'🐿️',n:'Белка',r:'обычный',r2:0,places:['forest','ancient','mushroom'],xp:20},
+  hedgehog:{e:'🦔',n:'Ёж',r:'обычный',r2:0,places:['forest','thicket','mushroom'],xp:20},
+  butterfly:{e:'🦋',n:'Бабочка',r:'обычный',r2:0,places:['magic','lake','mushroom'],xp:25,weather:['sun']},
+  fox:{e:'🦊',n:'Лиса',r:'редкий',r2:1,places:['forest','thicket','fog'],xp:40},
+  owl:{e:'🦉',n:'Сова',r:'редкий',r2:1,places:['ancient','night','forest'],xp:40,night:true},
+  deer:{e:'🦌',n:'Олень',r:'редкий',r2:1,places:['forest','mountain','lake'],xp:40},
+  raccoon:{e:'🦝',n:'Енот',r:'редкий',r2:1,places:['village','fog','cave'],xp:45},
+  wolf:{e:'🐺',n:'Волк',r:'опасный',r2:2,places:['thicket','night','mountain'],xp:60},
+  bear:{e:'🐻',n:'Медведь',r:'легендарный',r2:3,places:['mountain','cave','ancient'],xp:80}
+};
+var LOCATIONS=[
+  {id:'forest',e:'🌳',n:'Старый лес',lvl:1,cost:10,d:'Густые кроны, мох под ногами и шёпот ветра. Здесь всё началось.',
+   items:[['mushroom',3],['herb',3],['wood',3],['acorn',3],['berry',2],['feather',1],['honey',1]],
+   animals:['rabbit','squirrel','hedgehog','fox','owl','deer'],
+   secret:{item:'note1',txt:'📜 Под корнями старого дуба — страница дневника старосты!'}},
+  {id:'village',e:'🏚️',n:'Заброшенная деревня',lvl:1,cost:10,d:'Пустые дома, скрип ставень. Здесь жила деревня, которой больше нет.',
+   items:[['wood',3],['herb',2],['key',1],['acorn',2],['shard',1]],
+   animals:['raccoon','rabbit','hedgehog'],
+   secret:{item:'artifact1',txt:'🏺 В заброшенном доме под половицей — кувшин древних!'}},
+  {id:'lake',e:'💧',n:'Таинственное озеро',lvl:2,cost:10,d:'Вода чёрная, как зеркало. Под ней что-то светится…',
+   items:[['berry',2],['herb',2],['shard',2],['flower',2],['key',1]],
+   animals:['butterfly','deer','owl'],
+   secret:{item:'note3',txt:'📜 У самой воды — записка хранительницы озера!'}},
+  {id:'mushroom',e:'🍄',n:'Грибная поляна',lvl:2,cost:10,d:'Грибы всех размеров. Некоторые светятся в темноте.',
+   items:[['mushroom',5],['berry',2],['herb',2],['goldmush',1]],
+   animals:['rabbit','squirrel','hedgehog','butterfly'],
+   secret:{item:'goldmush',txt:'🍄 Среди грибов — ЗОЛОТОЙ гриб! Легенда!'}},
+  {id:'ancient',e:'🌲',n:'Древние деревья',lvl:4,cost:10,d:'Деревьям тысяча лет. Они помнят всё.',
+   items:[['wood',3],['feather',2],['shard',2],['flower',1],['herb',2]],
+   animals:['owl','squirrel','deer','bear'],
+   secret:{item:'artifact2',txt:'🗿 В дупле исполина — каменный идол!'}},
+  {id:'mountain',e:'🏔️',n:'Горные тропы',lvl:6,cost:10,d:'Крутые камни, орлы в небе и ветер, который сдувает с ног.',
+   items:[['shard',3],['herb',2],['wood',2],['feather',2]],
+   animals:['deer','wolf','bear','owl'],
+   secret:{item:'chest',txt:'🎁 За камнем — тайный сундук! Нужен ключ 🗝️.'}},
+  {id:'cave',e:'🕳️',n:'Подземные пещеры',lvl:8,cost:10,d:'Темно, сыро, капает вода. Без фонаря сюда лучше не соваться.',need:'lantern',
+   items:[['shard',4],['key',2],['honey',1],['goldmush',1]],
+   animals:['raccoon','bear','owl'],
+   secret:{item:'note2',txt:'📜 В глубине пещеры — вторая страница дневника!'}},
+  {id:'castle',e:'🏰',n:'Руины старого замка',lvl:10,cost:10,d:'Башни без крыш, тронный зал без короля. Здесь решится судьба леса.',
+   items:[['artifact1',1],['shard',3],['key',2],['flower',2]],
+   animals:['owl','raccoon'],
+   secret:{item:'artifact3',txt:'👑 Под троном — корона лесного короля!'}},
+  {id:'fog',e:'🌫️',n:'Туманная долина',lvl:12,cost:10,d:'Туман такой густой, что не видно собственных рук. Что-то шевелится внутри…',
+   items:[['herb',3],['mushroom',3],['shard',2],['feather',1]],
+   animals:['fox','raccoon','wolf'],
+   secret:{item:'chest',txt:'🎁 В тумане — тайный сундук! Нужен ключ 🗝️.'}},
+  {id:'magic',e:'🌻',n:'Волшебная поляна',lvl:15,cost:10,d:'Цветы светятся, бабочки размером с ладонь. Лес показывает здесь свои чудеса.',
+   items:[['flower',4],['berry',3],['shard',2],['honey',2]],
+   animals:['butterfly','rabbit','deer'],
+   secret:{item:'goldmush',txt:'🍄 На волшебной поляне вырос ЗОЛОТОЙ гриб!'}},
+  {id:'thicket',e:'🐺',n:'Лесная чаща',lvl:18,cost:10,d:'Колючие заросли, следы волков. Сюда ходят только смельчаки.',
+   items:[['wood',3],['mushroom',2],['key',1],['shard',2]],
+   animals:['wolf','fox','hedgehog','bear'],
+   secret:{item:'artifact2',txt:'🗿 В чаще под корнями — ещё один каменный идол!'}},
+  {id:'night',e:'🌙',n:'Ночная территория',lvl:20,cost:10,d:'Сюда можно попасть только ночью. Светлячки, совы и тайны, которых нет при свете дня.',night:true,
+   items:[['shard',4],['feather',3],['flower',2],['key',1]],
+   animals:['owl','wolf','fox'],
+   secret:{item:'artifact3',txt:'👑 Под светом луны — корона лесного короля!'}}
+];
+var WEATHERS={
+  sun:{e:'☀️',n:'Солнечно',txt:'Ясное небо. Бабочки летают, грибы прячутся.'},
+  rain:{e:'🌧️',n:'Дождь',txt:'Дождь стучит по листьям. Грибов — видимо-невидимо!'},
+  storm:{e:'⛈️',n:'Гроза',txt:'Гроза! Исследование стоит на 5⚡ дороже, но находки реже и ценнее.'},
+  snow:{e:'❄️',n:'Снег',txt:'Снег укрыл лес. Животных мало, но кристаллы светятся ярче.'},
+  fog:{e:'🌫️',n:'Туман',txt:'Туман. Тайны леса открываются легче!'}
+};
+var TOOLS={
+  lantern:{e:'🔦',n:'Фонарь',p:150,d:'Открывает Подземные пещеры и +10% к тайнам.'},
+  compass:{e:'🧭',n:'Компас',p:200,d:'+15% к редким находкам.'},
+  boots:{e:'🥾',n:'Сапоги',p:120,d:'Исследование стоит на 2⚡ меньше.'},
+  bag:{e:'🎒',n:'Большой рюкзак',p:250,d:'+1 предмет за каждое исследование.'},
+  honey:{e:'🍯',n:'Мёд для зверей',p:30,d:'Покормить животное — оно точно подружится.'}
+};
+var CAMP={
+  house:[{n:'Палатка',p:0},{n:'Домик из веток',p:100},{n:'Деревянный дом',p:300},{n:'Дом с печкой',p:800}],
+  fire:[{n:'Костерок',p:0},{n:'Костёр',p:80},{n:'Большой костёр',p:250},{n:'Вечный огонь',p:600}],
+  storage:[{n:'Мешок',p:0},{n:'Ящик',p:60},{n:'Сарай',p:200},{n:'Склад',p:500}],
+  garden:[{n:'Нет грядок',p:0},{n:'Грядка ягод',p:150},{n:'Сад',p:400}]
+};
+var PETS={
+  fox:{e:'🦊',n:'Лисёнок',p:40,d:'+10% к находкам. Хитрый и быстрый.'},
+  owl:{e:'🦉',n:'Совёнок',p:40,d:'Ночные животные встречаются чаще.'},
+  dog:{e:'🐶',n:'Щенок',p:40,d:'+5 к максимуму энергии.'}
+};
+var STORY=[
+  {t:'Глава 1: Старая карта',d:'Ты нашёл карту исчезнувшей деревни. Исследуй Старый лес 3 раза, чтобы понять, куда идти.',check:function(){return S.explores>=3},reward:'+50💰'},
+  {t:'Глава 2: Дневник старосты',d:'Найди первую страницу дневника в Старом лесу. Кнопка «Искать тайну» в локации.',check:function(){return !!S.inv.note1},reward:'+100💰'},
+  {t:'Глава 3: Отшельник',d:'В Старом лесу живёт отшельник. Встреть его: исследуй лес, пока он не появится (случайное событие).',check:function(){return !!S.storyDone.hermit},reward:'+100💰, +5💎'},
+  {t:'Глава 4: Ключ от пещеры',d:'Найди старый ключ у Таинственного озера. Он откроет пещеру и сундуки.',check:function(){return !!S.inv.key||!!S.storyDone.key4},reward:'+100💰'},
+  {t:'Глава 5: Хранительница озера',d:'Посети озеро ночью (21:00–5:00 игрового времени). Она ждёт тебя.',check:function(){return !!S.storyDone.keeper},reward:'+150💰, +5💎'},
+  {t:'Глава 6: Вторая страница',d:'Найди вторую страницу дневника в Подземных пещерах. Нужен фонарь 🔦.',check:function(){return !!S.inv.note2},reward:'+150💰'},
+  {t:'Глава 7: Призрак деревни',d:'Посети Заброшенную деревню ночью. Призрак старосты расскажет правду.',check:function(){return !!S.storyDone.ghost},reward:'+200💰, +10💎'},
+  {t:'Глава 8: Финал',d:'Иди в Руины замка и выбери судьбу леса. Для концовок нужны: артефакты, монеты или уровень.',check:function(){return !!S.storyDone.ending},reward:'+500💰, +50💎'}
+];
+var ACH=[
+  {id:'exp1',e:'🥾',n:'Первый шаг',d:'Исследовать локацию 1 раз',check:function(){return S.explores>=1},r:5},
+  {id:'exp10',e:'🧭',n:'Исследователь',d:'Исследовать 10 раз',check:function(){return S.explores>=10},r:10},
+  {id:'exp50',e:'🗺️',n:'Следопыт',d:'Исследовать 50 раз',check:function(){return S.explores>=50},r:20},
+  {id:'an1',e:'🐰',n:'Друг зверей',d:'Встретить первое животное',check:function(){return S.meets>=1},r:5},
+  {id:'an5',e:'🦊',n:'Зверинец',d:'Подружиться с 5 животными',check:function(){return Object.keys(S.animals).length>=5},r:10},
+  {id:'an10',e:'👑',n:'Повелитель зверей',d:'Собрать всех 10 животных',check:function(){return Object.keys(S.animals).length>=10},r:50},
+  {id:'art1',e:'🏺',n:'Археолог',d:'Найти первый артефакт',check:function(){return Object.keys(S.artifacts).length>=1},r:10},
+  {id:'art3',e:'🗿',n:'Хранитель древностей',d:'Найти 3 артефакта',check:function(){return Object.keys(S.artifacts).length>=3},r:25},
+  {id:'loc',e:'🌲',n:'Весь лес',d:'Открыть все 12 локаций',check:function(){return LOCATIONS.every(function(l){return S.level>=l.lvl})},r:25},
+  {id:'lvl10',e:'⭐',n:'Опытный',d:'Достичь 10 уровня',check:function(){return S.level>=10},r:10},
+  {id:'lvl25',e:'🌟',n:'Мастер леса',d:'Достичь 25 уровня',check:function(){return S.level>=25},r:20},
+  {id:'lvl100',e:'💫',n:'Легенда леса',d:'Достичь 100 уровня',check:function(){return S.level>=100},r:100},
+  {id:'rich',e:'💰',n:'Богач',d:'Накопить 1000 монет',check:function(){return S.coins>=1000},r:10},
+  {id:'rich2',e:'🤑',n:'Лесной магнат',d:'Накопить 10000 монет',check:function(){return S.coins>=10000},r:25},
+  {id:'end',e:'🎭',n:'Судьба леса',d:'Пройти историю до концовки',check:function(){return !!S.storyDone.ending},r:50}
+];
+var DAILY_QUESTS=[
+  {id:'dq1',t:'Исследовать 3 раза',check:function(){return (S.quests.dq1||0)>=3},prog:function(){return Math.min(S.quests.dq1||0,3)+'/3'},r:30},
+  {id:'dq2',t:'Найти 5 предметов',check:function(){return (S.quests.dq2||0)>=5},prog:function(){return Math.min(S.quests.dq2||0,5)+'/5'},r:30},
+  {id:'dq3',t:'Встретить 2 животных',check:function(){return (S.quests.dq3||0)>=2},prog:function(){return Math.min(S.quests.dq3||0,2)+'/2'},r:40}
+];
+
+// ================= ВРЕМЯ, ПОГОДА, ЭНЕРГИЯ =================
+function isNight(){return S.hour>=21||S.hour<6}
+function timeName(){if(S.hour>=5&&S.hour<11)return '🌅 Утро';if(S.hour>=11&&S.hour<17)return '☀️ День';if(S.hour>=17&&S.hour<21)return '🌇 Вечер';return '🌙 Ночь'}
+function newWeather(){
+  var w=['sun','sun','rain','rain','fog','snow','storm'];
+  S.weather=pick(w);
+}
+function advanceHour(n){
+  S.hour+=n||1;
+  while(S.hour>=24){S.hour-=24;S.day++;newWeather();log('🌅 День '+S.day+'. Погода: '+WEATHERS[S.weather].e+' '+WEATHERS[S.weather].n)}
+}
+function energyCost(loc){
+  var c=loc.cost;
+  if(S.tools.boots)c-=2;
+  if(S.weather==='storm')c+=5;
+  return Math.max(4,c);
+}
+function regenEnergy(){
+  if(!S.lastSeen)return;
+  var mins=Math.floor((Date.now()-S.lastSeen)/60000);
+  if(mins<3)return;
+  var gain=Math.floor(mins/3)+S.camp.fire*5;
+  gain=Math.min(gain,maxEnergy()-S.energy);
+  if(gain>0){S.energy+=gain;log('⚡ Отдохнул: +'+gain+' энергии')}
+}
+// ================= ЭКРАНЫ =================
+var TAB='map',LOC=null,ENC=null;
+var TABS=[['map','🗺️ Карта'],['inv','🎒 Рюкзак'],['camp','🏕️ Лагерь'],['shop','🛒 Торговец'],['story','📖 История'],['ach','🏆 Достижения']];
+function renderTabs(){
+  $('tabs').innerHTML=TABS.map(function(t){
+    return '<button class="tab'+(TAB===t[0]?' sel':'')+'" data-tab="'+t[0]+'">'+t[1]+'</button>';
+  }).join('');
+}
+function renderStats(){
+  $('dayLine').textContent='🌅 День '+S.day+' • '+WEATHERS[S.weather].e+' '+WEATHERS[S.weather].n+' • '+timeName()+' ('+S.hour+':00)';
+  $('stCoins').textContent=fmt(S.coins);
+  $('stCrys').textContent=S.crys;
+  $('stLvl').textContent=S.level;
+  $('stEnergy').textContent=S.energy;
+  $('stEnergyMax').textContent=maxEnergy();
+  var items=0;for(var k in S.inv)items+=S.inv[k];
+  $('stItems').textContent=items;
+  var need=xpNeed(S.level);
+  $('xpFill').style.width=Math.min(100,Math.round(S.xp/need*100))+'%';
+}
+function render(){
+  regenEnergy();
+  renderStats();renderTabs();
+  var h='';
+  if(ENC){h=encScreen()}
+  else if(LOC){h=locScreen(locById(LOC))}
+  else if(TAB==='map')h=mapScreen();
+  else if(TAB==='inv')h=invScreen();
+  else if(TAB==='camp')h=campScreen();
+  else if(TAB==='shop')h=shopScreen();
+  else if(TAB==='story')h=storyScreen();
+  else if(TAB==='ach')h=achScreen();
+  $('screen').innerHTML=h;
+}
+function locById(id){return LOCATIONS.filter(function(l){return l.id===id})[0]}
+function locLocked(l){
+  if(S.level<l.lvl)return 'Нужен '+l.lvl+' уровень';
+  if(l.need&&!S.tools[l.need])return 'Нужен 🔦 Фонарь (у торговца)';
+  if(l.night&&!isNight())return 'Только ночью (21:00–5:00)';
+  return null;
+}
+function mapScreen(){
+  var h='<div class="card"><h2>🗺️ Карта Леса Тайн</h2><p>'+WEATHERS[S.weather].txt+'</p>';
+  h+='<div class="row"><button class="btn gold" id="dailyBtn">🎁 Подарок за вход'+(S.daily.date===todayStr()?' — завтра':'')+'</button></div>';
+  h+='<p class="muted" style="margin-top:8px">Серия дней подряд: 🔥 '+S.daily.streak+' • Исследований: '+S.explores+' • Найдено предметов: '+S.found+' • Встреч с животными: '+S.meets+'</p></div>';
+  h+='<div class="card"><h2>📋 Задания на сегодня</h2>';
+  DAILY_QUESTS.forEach(function(q){
+    var done=q.check(),claimed=!!S.quests['c_'+q.id];
+    h+='<div class="quest'+(done?' done':'')+'">'+(claimed?'✅ ':done?'🎉 ':'📌 ')+q.t+' <span class="muted">('+q.prog()+' • награда ❄️ нет, 💰 '+q.r+')</span>';
+    if(done&&!claimed)h+=' <button class="btn small gold" data-dq="'+q.id+'">Забрать +'+q.r+'💰</button>';
+    h+='</div>';
+  });
+  h+='</div>';
+  LOCATIONS.forEach(function(l){
+    var lock=locLocked(l);
+    h+='<div class="loc'+(lock?' locked':'')+'" data-loc="'+l.id+'"><span class="ic">'+l.e+'</span><span><span class="nm">'+l.n+'</span><br><span class="ds">'+(lock?('🔒 '+lock):l.d)+'</span></span><span class="go">'+(lock?'🔒':'›')+'</span></div>';
+  });
+  h+='<div class="card"><h2>📜 Дневник исследователя</h2><div class="log">'+S.log.map(function(x){return '<div>'+x+'</div>'}).join('')+'</div></div>';
+  return h;
+}
+function locScreen(l){
+  var lock=locLocked(l);
+  var h='<div class="card"><h2>'+l.e+' '+l.n+'</h2><p>'+l.d+'</p>';
+  h+='<p class="muted">Стоимость исследования: ⚡ '+energyCost(l)+' • Время: '+timeName()+' • Погода: '+WEATHERS[S.weather].e+' '+WEATHERS[S.weather].n+'</p>';
+  if(S.weather==='rain')h+='<p class="muted">🌧️ Дождь: грибов здесь больше!</p>';
+  if(S.weather==='fog')h+='<p class="muted">🌫️ Туман: тайны открываются легче!</p>';
+  if(lock){h+='<p style="margin-top:8px">🔒 '+lock+'</p><button class="btn ghost" id="backBtn">← Назад к карте</button></div>';return h}
+  h+='<button class="btn" data-act="explore">🔍 Исследовать <small style="font-weight:500">(−'+energyCost(l)+'⚡)</small></button>';
+  h+='<button class="btn" data-act="animal">🐾 Искать животное <small style="font-weight:500">(−15⚡)</small></button>';
+  h+='<button class="btn gold" data-act="secret">🗝️ Искать тайну <small style="font-weight:500">(−20⚡)</small></button>';
+  h+='<button class="btn ghost" id="backBtn">← Назад к карте</button></div>';
+  h+='<div class="card"><h2>📜 Дневник исследователя</h2><div class="log">'+S.log.map(function(x){return '<div>'+x+'</div>'}).join('')+'</div></div>';
+  return h;
+}
+function invScreen(){
+  var h='<div class="card"><h2>🎒 Рюкзак</h2><p class="muted">Нажимай на предмет, чтобы продать его торговцу. Сундуки открываются ключом 🗝️.</p></div>';
+  var has=false;
+  for(var id in S.inv){
+    if(!S.inv[id]||!ITEMS[id])continue;
+    has=true;
+    var it=ITEMS[id];
+    h+='<div class="item"><span class="e">'+it.e+'</span><span class="n">'+it.n+'<small>'+it.d+'</small></span>';
+    if(id==='chest')h+='<button class="btn small gold" data-open="1">Открыть 🔑</button>';
+    else if(it.p>0)h+='<button class="btn small" data-sell="'+id+'">Продать '+it.p+'💰</button>';
+    h+='<span class="cnt">×'+S.inv[id]+'</span></div>';
+  }
+  if(!has)h+='<div class="card"><p>Рюкзак пуст. Иди исследовать лес! 🌲</p></div>';
+  h+='<div class="card"><h2>🦊 Встреченные животные: '+Object.keys(S.animals).length+'/10</h2><p>';
+  for(var a in ANIMALS){
+    var got=S.animals[a];
+    h+='<span class="badge" style="'+(got?'':'opacity:.4')+'">'+ANIMALS[a].e+' '+ANIMALS[a].n+(got?' ×'+got:'')+'</span>';
+  }
+  h+='</p><h2 style="margin-top:10px">🏺 Артефакты: '+Object.keys(S.artifacts).length+'/3</h2><p>';
+  ['artifact1','artifact2','artifact3'].forEach(function(a){
+    h+='<span class="badge" style="'+(S.artifacts[a]?'':'opacity:.4')+'">'+ITEMS[a].e+' '+ITEMS[a].n+'</span>';
+  });
+  h+='</p></div>';
+  return h;
+}
+function campScreen(){
+  var h='<div class="card"><h2>🏕️ Твой лагерь</h2><p>Здесь ты отдыхаешь между походами. Улучшай лагерь — и лес будет щедрее к тебе.</p></div>';
+  var c=S.camp;
+  function upRow(key,icon,name,arr,desc){
+    var lv=c[key],max=arr.length-1;
+    var hh='<div class="item"><span class="e">'+icon+'</span><span class="n">'+name+' — '+arr[lv].n+'<small>'+desc+'</small></span>';
+    if(lv<max)hh+='<button class="btn small gold" data-camp="'+key+'">Улучшить '+arr[lv+1].p+'💰</button>';
+    else hh+='<span class="cnt">MAX</span>';
+    return hh+'</div>';
+  }
+  h+=upRow('house','🏠','Дом',CAMP.house,'+15 к максимуму энергии за уровень');
+  h+=upRow('fire','🔥','Костёр',CAMP.fire,'+5⚡ при каждом возвращении в игру');
+  h+=upRow('storage','📦','Склад',CAMP.storage,'Больше монет в подарке за вход');
+  h+=upRow('garden','🌷','Сад',CAMP.garden,'Выращивает ягоды каждый день');
+  h+='<div class="card"><h2>🐾 Питомец</h2><p class="muted">Питомец живёт в лагере и помогает в лесу. Можно взять только одного.</p>';
+  for(var p in PETS){
+    var owned=c.pet===p;
+    h+='<div class="item"><span class="e">'+PETS[p].e+'</span><span class="n">'+PETS[p].n+'<small>'+PETS[p].d+'</small></span>'+(owned?'<span class="cnt">Твой ❤️</span>':'<button class="btn small gold" data-pet="'+p+'">'+PETS[p].p+'💎</button>')+'</div>';
+  }
+  h+='</div>';
+  if(c.garden>0){
+    var ready=S.daily.date!==todayStr();
+    h+='<div class="card"><h2>🌷 Сад</h2><p>Ягоды поспели! Можно собрать урожай раз в день.</p><button class="btn gold" id="harvestBtn" '+(ready?'':'disabled')+'>🫐 Собрать урожай (+'+(c.garden*5)+' ягод)</button></div>';
+  }
+  h+='<div class="card"><h2>🌸 Украшения лагеря</h2><p class="muted">Красота лагеря: '+c.decor+' • Каждое украшение — +10 опыта.</p><button class="btn" id="decorBtn">Купить украшение (50💰, +10⭐)</button></div>';
+  return h;
+}
+function shopScreen(){
+  var h='<div class="card"><h2>🛒 Торговец Барсук 🦡</h2><p>«Заходи, путник! У меня всё для настоящего исследователя леса!»</p></div>';
+  h+='<div class="card"><h2>🧰 Снаряжение</h2>';
+  for(var t in TOOLS){
+    var owned=!!S.tools[t],tool=TOOLS[t];
+    h+='<div class="item"><span class="e">'+tool.e+'</span><span class="n">'+tool.n+'<small>'+tool.d+'</small></span>'+(owned?'<span class="cnt">Куплено ✅</span>':'<button class="btn small gold" data-buy="'+t+'">'+tool.p+'💰</button>')+'</div>';
+  }
+  h+='</div><div class="card"><h2>🗝️ Расходники</h2>';
+  h+='<div class="item"><span class="e">🗝️</span><span class="n">Старый ключ<small>Открывает сундуки и тайны</small></span><button class="btn small gold" data-buykey="1">40💰</button></div>';
+  h+='<div class="item"><span class="e">🍯</span><span class="n">Мёд для зверей<small>Животное точно подружится</small></span><button class="btn small gold" data-buyhoney="1">30💰</button></div>';
+  h+='</div><div class="card"><h2>💰 Продать находки</h2><p class="muted">Продавай лишнее — копи на снаряжение и улучшения лагеря.</p>';
+  var has=false;
+  for(var id in S.inv){
+    if(!S.inv[id]||!ITEMS[id]||ITEMS[id].p<=0)continue;
+    has=true;
+    h+='<div class="item"><span class="e">'+ITEMS[id].e+'</span><span class="n">'+ITEMS[id].n+'</span><button class="btn small" data-sell="'+id+'">Продать '+ITEMS[id].p+'💰</button><span class="cnt">×'+S.inv[id]+'</span></div>';
+  }
+  if(!has)h+='<p class="muted">Пока нечего продавать.</p>';
+  h+='</div>';
+  return h;
+}
+function storyScreen(){
+  var h='<div class="card"><h2>📖 История: Тайна исчезнувшей деревни</h2><p>Много лет назад в этом лесу стояла деревня. Однажды ночью все её жители исчезли — не осталось ни одного человека, только вещи, дома и тишина. Ты нашёл старую карту. Лес выбрал тебя.</p></div>';
+  STORY.forEach(function(ch,i){
+    var done=i<S.story;
+    var cur=i===S.story;
+    h+='<div class="quest'+(done?' done':'')+'">'+(done?'✅ ':cur?'📖 ':'🔒 ')+'<b>'+ch.t+'</b><br><span class="muted">'+ch.d+'</span><br><span class="muted">Награда: '+ch.reward+'</span>'+(cur&&ch.check()?'<br><button class="btn small gold" data-storynext="1">Завершить главу →</button>':'')+'</div>';
+  });
+  if(S.story>=STORY.length-1&&!S.storyDone.ending){
+    h+='<div class="card"><h2>🎭 Финал: выбери судьбу леса</h2><p>Ты стоишь в тронном зале замка. Три пути — три судьбы.</p>';
+    h+='<button class="choice" data-ending="restore">🌻 Вернуть деревню<small>Нужно: 3 артефакта. Жители вернутся домой, лес станет светлым.</small></button>';
+    h+='<button class="choice" data-ending="secret">🤫 Сохранить тайну<small>Нужно: 1000💰. Ты унесёшь тайну с собой и станешь хранителем.</small></button>';
+    h+='<button class="choice" data-ending="keeper">👑 Стать Хранителем леса<small>Нужно: 25 уровень. Лес признает тебя своим королём.</small></button>';
+    h+='</div>';
+  }
+  if(S.storyDone.ending){
+    h+='<div class="card"><h2>🎭 Твоя концовка</h2><p>'+S.storyDone.endingText+'</p><p class="muted">Ты можешь пройти историю заново — кнопка «начать заново» внизу страницы сбросит всё.</p></div>';
+  }
+  return h;
+}
+function achScreen(){
+  var h='<div class="card"><h2>🏆 Достижения</h2><p class="muted">Выполнено: '+Object.keys(S.ach).length+'/'+ACH.length+' • За каждое — кристаллы 💎</p></div>';
+  ACH.forEach(function(a){
+    var got=!!S.ach[a.id],done=a.check();
+    h+='<div class="item"><span class="e">'+a.e+'</span><span class="n">'+a.n+'<small>'+a.d+'</small></span>'+(got?'<span class="cnt">✅ +'+a.r+'💎</span>':done?'<button class="btn small gold" data-ach="'+a.id+'">Забрать '+a.r+'💎</button>':'<span class="muted">🔒</span>')+'</div>';
+  });
+  return h;
+}
+
+// ================= МЕХАНИКИ =================
+function resetDaily(){
+  if(S.questsDate===todayStr())return;
+  S.questsDate=todayStr();
+  S.quests={};
+}
+function doExplore(loc,mode){
+  var cost=mode==='animal'?15:mode==='secret'?20:energyCost(loc);
+  if(S.energy<cost){toast('⚡ Не хватает энергии! Подожди немного или улучши лагерь');return}
+  S.energy-=cost;
+  S.explores++;S.quests.dq1=(S.quests.dq1||0)+1;
+  advanceHour(1);
+  resetDaily();
+  if(mode==='animal'){startEncounter(loc);return}
+  if(mode==='secret'){doSecret(loc);return}
+  // случайное событие
+  if(chance(0.09)){if(rollEvent(loc))return}
+  var roll=Math.random();
+  var animalChance=S.camp.pet==='owl'&&isNight()?0.35:0.25;
+  if(roll<animalChance){startEncounter(loc);return}
+  if(roll<0.8){findItem(loc);return}
+  var noth=pick(['🍂 Только шорох листвы… Ничего не нашлось.','🌫️ Лес молчит. Попробуй ещё раз.','🐾 Следы ведут в никуда. Пусто.']);
+  log(noth);toast(noth);save();render();
+}
+function findItem(loc){
+  var pool=loc.items.slice();
+  if(S.weather==='rain')pool.push(['mushroom',3]);
+  if(S.weather==='snow')pool.push(['shard',2]);
+  var total=0;pool.forEach(function(p){total+=p[1]});
+  var r=Math.random()*total,it=pool[0][0];
+  for(var i=0;i<pool.length;i++){r-=pool[i][1];if(r<=0){it=pool[i][0];break}}
+  // компас: шанс на редкую находку
+  if(S.tools.compass&&chance(0.15))it=pick(['shard','goldmush','key']);
+  var n=1+(S.tools.bag?1:0);
+  addItem(it,n);
+  S.quests.dq2=(S.quests.dq2||0)+n;
+  addXp(5*n);
+  var msg='Нашёл: '+ITEMS[it].e+' '+ITEMS[it].n+(n>1?' ×'+n:'')+'!';
+  log('🔍 '+loc.n+': '+msg);
+  toast(msg);
+  save();render();
+}
+function doSecret(loc){
+  var bonus=(S.tools.lantern?0.1:0)+(S.weather==='fog'?0.1:0)+(S.tools.compass?0.1:0);
+  if(!chance(0.35+bonus)){
+    log('🗝️ Тайн не нашлось… Попробуй в туман или с фонарём.');
+    toast('🗝️ Пока пусто… Попробуй ещё раз!');
+    save();render();return;
+  }
+  S.secrets++;
+  var sid=loc.secret.item;
+  var already=(ITEMS[sid]&&sid.indexOf('artifact')===0&&S.artifacts[sid])||(sid.indexOf('note')===0&&S.inv[sid]);
+  if(already){
+    addItem('shard',2);addXp(30);
+    log('🗝️ '+loc.secret.txt+' Но здесь уже было найдено — зато нашлись осколки кристалла!');
+    toast('🔮 Нашёл осколки кристалла ×2!');
+  }else{
+    if(sid.indexOf('artifact')===0)S.artifacts[sid]=true;
+    addItem(sid,1);addXp(50);
+    log('🗝️ '+loc.secret.txt);
+    toast(loc.secret.txt);
+  }
+  save();render();
+}
+function pickAnimal(loc){
+  var list=loc.animals.filter(function(a){
+    var A=ANIMALS[a];
+    if(A.night&&!isNight())return false;
+    if(A.weather&&A.weather.indexOf(S.weather)<0)return false;
+    if(a==='butterfly'&&!isNight()&&S.weather!=='sun'&&chance(0.5))return false;
+    return true;
+  });
+  if(!list.length)list=loc.animals;
+  return pick(list);
+}
+function startEncounter(loc){
+  var a=pickAnimal(loc);
+  ENC={animal:a,loc:loc.id};
+  S.meets++;S.quests.dq3=(S.quests.dq3||0)+1;
+  log('🐾 Встреча: '+ANIMALS[a].e+' '+ANIMALS[a].n+'!');
+  save();render();
+}
+function encScreen(){
+  var A=ANIMALS[ENC.animal],loc=locById(ENC.loc);
+  var h='<div class="card" style="text-align:center"><div style="font-size:64px">'+A.e+'</div><h2>'+A.n+'</h2><p>Редкость: <b>'+A.r+'</b> • Место: '+loc.n+'</p><p class="muted">Животное заметило тебя. Что будешь делать?</p>';
+  h+='<button class="choice" data-enc="quiet">🤫 Подойти тихо<small>Осторожно, не спугни. Шанс подружиться: '+(A.r2>=2?'50%':'70%')+'</small></button>';
+  h+='<button class="choice" data-enc="feed">🍯 Покормить<small>'+(S.inv.honey?'У тебя есть мёд — почти наверняка подружитесь!':'Без мёда сработает хуже. Мёд — у торговца.')+'</small></button>';
+  h+='<button class="choice" data-enc="photo">📸 Сфотографировать<small>Останется память и опыт, даже если убежит.</small></button>';
+  h+='<button class="btn ghost" data-enc="leave">🚶 Уйти тихо</button></div>';
+  return h;
+}
+function resolveEnc(kind){
+  var A=ANIMALS[ENC.animal];
+  var ok=false,msg='';
+  if(kind==='leave'){log('🚶 Ты тихо ушёл. '+A.n+' остался в лесу.');ENC=null;save();render();return}
+  if(kind==='quiet')ok=chance(A.r2>=2?0.5:0.7);
+  if(kind==='feed'){
+    if(S.inv.honey){S.inv.honey--;if(S.inv.honey<=0)delete S.inv.honey;ok=chance(0.95)}
+    else if(S.inv.berry){S.inv.berry--;if(S.inv.berry<=0)delete S.inv.berry;ok=chance(0.7)}
+    else ok=chance(0.6);
+  }
+  if(kind==='photo'){ok=chance(0.5);addXp(10)}
+  if(ok){
+    var first=!S.animals[ENC.animal];
+    S.animals[ENC.animal]=(S.animals[ENC.animal]||0)+1;
+    addXp(A.xp);
+    msg='❤️ '+A.n+' подружился с тобой! +'+A.xp+'⭐';
+    if(first)msg+=' (новый вид в коллекции!)';
+    log(msg);toast(msg);
+  }else{
+    addXp(5);
+    msg='💨 '+A.n+' убежал… +5⭐ за попытку';
+    if(A.r2>=2){S.energy=Math.max(0,S.energy-15);msg+=' • Испугался: −15⚡'}
+    log(msg);toast(msg);
+  }
+  ENC=null;save();render();
+}
+function rollEvent(loc){
+  // сюжетные события — в приоритете
+  if(loc.id==='forest'&&S.story>=2&&!S.storyDone.hermit){
+    S.storyDone.hermit=true;
+    S.coins+=100;S.crys+=5;
+    log('👴 Отшельник вышел из-за деревьев: «Деревня не исчезла — её спрятали. Ищи страницы дневника». +100💰 +5💎');
+    toast('👴 Ты встретил Отшельника! +100💰 +5💎');
+    save();render();return true;
+  }
+  if(loc.id==='lake'&&isNight()&&S.story>=4&&!S.storyDone.keeper){
+    S.storyDone.keeper=true;
+    S.coins+=150;S.crys+=5;
+    log('🧜 Хранительница озера поднялась из воды: «Ключ у тебя? Тогда слушай…» +150💰 +5💎');
+    toast('🧜 Хранительница озера! +150💰 +5💎');
+    save();render();return true;
+  }
+  if(loc.id==='village'&&isNight()&&S.story>=6&&!S.storyDone.ghost){
+    S.storyDone.ghost=true;
+    S.coins+=200;S.crys+=10;
+    log('👻 Призрак старосты: «Мы не умерли. Мы спим под озером. Разбуди нас!» +200💰 +10💎');
+    toast('👻 Призрак старосты! +200💰 +10💎');
+    save();render();return true;
+  }
+  var ev=pick(['trader','hiker','thief','butterfly','rain','whisper']);
+  if(ev==='trader'){
+    log('🦡 Торговец Барсук встретился на тропе: «Ключ? Мёд? Недорого!» — загляни в магазин.');
+    toast('🦡 Встретил торговца на тропе!');
+  }else if(ev==='hiker'){
+    S.coins+=30;addXp(15);
+    log('🥾 Потерявшийся грибник: ты вывел его из леса. Благодарность: +30💰 +15⭐');
+    toast('🥾 Помог грибнику! +30💰');
+  }else if(ev==='thief'){
+    if(S.coins>=10){S.coins-=10;log('🦝 Енот-воришка стащил 10 монет! Вот нахал.');toast('🦝 Енот стащил 10💰!')}
+    else{addItem('acorn',2);log('🦝 Енот хотел тебя обокрасть, но ты его перехитрил: +2🌰');toast('🦝 Перехитрил енота! +2🌰')}
+  }else if(ev==='butterfly'&&!isNight()&&S.weather==='sun'){
+    S.crys+=5;addXp(20);
+    log('🦋 Золотая бабочка села тебе на плечо! +5💎 +20⭐');
+    toast('🦋 Золотая бабочка! +5💎');
+  }else if(ev==='rain'&&S.weather==='rain'){
+    addItem('mushroom',3);S.quests.dq2=(S.quests.dq2||0)+3;
+    log('🌧️ После дождя грибы лезут отовсюду: +3🍄');
+    toast('🌧️ Грибной дождь! +3🍄');
+  }else if(ev==='whisper'&&S.weather==='fog'){
+    log('🌫️ Туман шепчет: «Тайна рядом…» — попробуй «Искать тайну» сейчас!');
+    toast('🌫️ Туман шепчет… Ищи тайну!');
+  }else{
+    return false;
+  }
+  save();render();return true;
+}
+// ================= ДЕЙСТВИЯ =================
+function storyReward(){
+  var R=[[50,0],[100,0],[100,5],[100,0],[150,5],[150,0],[200,10],[0,0]];
+  var r=R[Math.min(S.story,R.length-1)];
+  S.coins+=r[0];S.crys+=r[1];
+  return (r[0]?'+'+r[0]+'💰':'')+(r[1]?' +'+r[1]+'💎':'');
+}
+document.addEventListener('click',function(e){
+  var t=e.target.closest('[data-tab],[data-loc],[data-act],[data-dq],[data-sell],[data-open],[data-camp],[data-pet],[data-buy],[data-buykey],[data-buyhoney],[data-ach],[data-storynext],[data-ending],[data-enc],#backBtn,#dailyBtn,#harvestBtn,#decorBtn,#resetBtn');
+  if(!t)return;
+  if(t.dataset.tab){TAB=t.dataset.tab;LOC=null;ENC=null;save();render();return}
+  if(t.dataset.loc){
+    var l=locById(t.dataset.loc);
+    if(locLocked(l)){toast('🔒 '+locLocked(l));return}
+    LOC=l.id;save();render();return;
+  }
+  if(t.id==='backBtn'){LOC=null;save();render();return}
+  if(t.dataset.act){var l=locById(LOC);doExplore(l,t.dataset.act);return}
+  if(t.dataset.enc){resolveEnc(t.dataset.enc);return}
+  if(t.id==='dailyBtn'){
+    if(S.daily.date===todayStr()){toast('🎁 Подарок уже забран — приходи завтра!');return}
+    var streak=(S.daily.lastDate&&((Date.now()-new Date(S.daily.lastDate).getTime())<86400000*2))?S.daily.streak+1:1;
+    S.daily.streak=streak;S.daily.date=todayStr();S.daily.lastDate=todayStr();
+    var rew=50+S.camp.storage*25;
+    S.coins+=rew;
+    var bonus=pick(['mushroom','berry','herb','wood','shard']);
+    addItem(bonus,2);
+    if(streak>=3)S.crys+=5;
+    addXp(20);
+    log('🎁 Подарок за вход: +'+rew+'💰 +2'+ITEMS[bonus].e+' • Серия: '+streak+' дн.'+(streak>=3?' +5💎':''));
+    toast('🎁 +'+rew+'💰 +2'+ITEMS[bonus].e+'! Серия: '+streak+' дн.');
+    save();render();return;
+  }
+  if(t.dataset.dq){
+    var q=DAILY_QUESTS.filter(function(x){return x.id===t.dataset.dq})[0];
+    if(q&&q.check()&&!S.quests['c_'+q.id]){S.quests['c_'+q.id]=true;S.coins+=q.r;log('📋 Задание выполнено: +'+q.r+'💰');toast('📋 +'+q.r+'💰 за задание!');save();render()}
+    return;
+  }
+  if(t.dataset.sell){
+    var id=t.dataset.sell;
+    if(!S.inv[id])return;
+    S.inv[id]--;if(S.inv[id]<=0)delete S.inv[id];
+    S.coins+=ITEMS[id].p;
+    toast('Продано: '+ITEMS[id].e+' '+ITEMS[id].n+' +'+ITEMS[id].p+'💰');
+    save();render();return;
+  }
+  if(t.dataset.open){
+    if(!S.inv.key){toast('🗝️ Нужен ключ! Купи у торговца за 40💰');return}
+    if(!S.inv.chest)return;
+    S.inv.key--;if(S.inv.key<=0)delete S.inv.key;
+    S.inv.chest--;if(S.inv.chest<=0)delete S.inv.chest;
+    var r=Math.random(),msg='';
+    if(r<0.4){var c=50+rnd(101);S.coins+=c;msg='🎁 В сундуке: +'+c+'💰!'}
+    else if(r<0.7){var it=pick(['mushroom','berry','herb','shard','honey']);addItem(it,2);msg='🎁 В сундуке: '+ITEMS[it].e+' '+ITEMS[it].n+' ×2!'}
+    else if(r<0.9){var cr=3+rnd(6);S.crys+=cr;msg='🎁 В сундуке: +'+cr+'💎!'}
+    else{
+      var missing=['artifact1','artifact2','artifact3'].filter(function(a){return !S.artifacts[a]});
+      if(missing.length){var a=pick(missing);S.artifacts[a]=true;addItem(a,1);msg='🎁 В сундуке — АРТЕФАКТ: '+ITEMS[a].e+' '+ITEMS[a].n+'!'}
+      else{S.coins+=200;msg='🎁 В сундуке: +200💰!'}
+    }
+    addXp(30);log(msg);toast(msg);save();render();return;
+  }
+  if(t.dataset.camp){
+    var k=t.dataset.camp,lv=S.camp[k],next=CAMP[k][lv+1];
+    if(!next)return;
+    if(S.coins<next.p){toast('💰 Не хватает монет! Нужно '+next.p+'💰');return}
+    S.coins-=next.p;S.camp[k]++;
+    log('🏕️ Улучшено: '+next.n+'!');
+    toast('🏕️ '+next.n+'!');save();render();return;
+  }
+  if(t.dataset.pet){
+    var p=t.dataset.pet;
+    if(S.crys<PETS[p].p){toast('💎 Не хватает кристаллов! Нужно '+PETS[p].p+'💎');return}
+    S.crys-=PETS[p].p;S.camp.pet=p;
+    log('🐾 Новый питомец: '+PETS[p].e+' '+PETS[p].n+'!');
+    toast('🐾 '+PETS[p].n+' теперь с тобой!');save();render();return;
+  }
+  if(t.id==='harvestBtn'){
+    if(S.gardenDate===todayStr())return;
+    S.gardenDate=todayStr();
+    var n=S.camp.garden*5;addItem('berry',n);
+    log('🌷 Собрал урожай: +'+n+'🫐');toast('🫐 Урожай: +'+n+' ягод!');save();render();return;
+  }
+  if(t.id==='decorBtn'){
+    if(S.coins<50){toast('💰 Не хватает монет! Нужно 50💰');return}
+    S.coins-=50;S.camp.decor++;addXp(10);
+    log('🌸 Украсил лагерь! +10⭐');toast('🌸 Лагерь стал красивее! +10⭐');save();render();return;
+  }
+  if(t.dataset.buy){
+    var tool=TOOLS[t.dataset.buy];
+    if(S.tools[t.dataset.buy])return;
+    if(S.coins<tool.p){toast('💰 Не хватает монет! Нужно '+tool.p+'💰');return}
+    S.coins-=tool.p;S.tools[t.dataset.buy]=true;
+    log('🛒 Куплено: '+tool.e+' '+tool.n);toast('🛒 '+tool.n+' — твоё!');save();render();return;
+  }
+  if(t.dataset.buykey){
+    if(S.coins<40){toast('💰 Не хватает монет! Нужно 40💰');return}
+    S.coins-=40;addItem('key',1);toast('🗝️ Куплен ключ!');save();render();return;
+  }
+  if(t.dataset.buyhoney){
+    if(S.coins<30){toast('💰 Не хватает монет! Нужно 30💰');return}
+    S.coins-=30;addItem('honey',1);toast('🍯 Куплен мёд!');save();render();return;
+  }
+  if(t.dataset.ach){
+    var a=ACH.filter(function(x){return x.id===t.dataset.ach})[0];
+    if(a&&a.check()&&!S.ach[a.id]){S.ach[a.id]=true;S.crys+=a.r;log('🏆 Достижение: '+a.n+' +'+a.r+'💎');toast('🏆 '+a.n+'! +'+a.r+'💎');save();render()}
+    return;
+  }
+  if(t.dataset.storynext){
+    var ch=STORY[S.story];
+    if(ch&&ch.check()){
+      var rw=storyReward();
+      S.story++;
+      log('📖 Глава завершена: '+ch.t+' • Награда: '+rw);
+      toast('📖 Глава пройдена! '+rw);
+      save();render();
+    }
+    return;
+  }
+  if(t.dataset.ending){
+    var end=t.dataset.ending,ok=false,txt='';
+    if(end==='restore'&&Object.keys(S.artifacts).length>=3){ok=true;txt='🌻 Ты вернул деревне свет! Дома засветились, жители вернулись, а лес запел. Ты — герой Леса Тайн!'}
+    if(end==='secret'&&S.coins>=1000){S.coins-=1000;ok=true;txt='🤫 Ты унёс тайну с собой. Деревня спит под озером, а ты — её единственный хранитель. Лес доверяет тебе.'}
+    if(end==='keeper'&&S.level>=25){ok=true;txt='👑 Лес признал тебя! Корона лесного короля — твоя. Теперь ты — Хранитель Леса Тайн.'}
+    if(!ok){toast('🔒 Не хватает условий для этой концовки!');return}
+    S.storyDone.ending=end;S.storyDone.endingText=txt;S.story=STORY.length;
+    S.coins+=500;S.crys+=50;addXp(200);
+    log('🎭 ФИНАЛ: '+txt);toast('🎭 Концовка открыта! +500💰 +50💎');
+    save();render();return;
+  }
+  if(t.id==='resetBtn'){
+    if(!confirm('Начать заново? Весь прогресс Леса Тайн пропадёт.'))return;
+    S=defaultState();TAB='map';LOC=null;ENC=null;save();render();
+    toast('🌲 Новый лес ждёт тебя!');
+    return;
+  }
+});
+// ================= СТАРТ =================
+(function init(){
+  resetDaily();
+  if(!S.weather)newWeather();
+  // энергия за время отсутствия
+  if(S.lastSeen){
+    var mins=Math.floor((Date.now()-S.lastSeen)/60000);
+    if(mins>=3){
+      var gain=Math.min(Math.floor(mins/3)+S.camp.fire*5,maxEnergy()-S.energy);
+      if(gain>0){S.energy+=gain;setTimeout(function(){toast('⚡ Отдохнул: +'+gain+' энергии')},800)}
+    }
+  }
+  render();
+})();
+</script>
+<!-- Значки-картинки (Twemoji): на компе Erik часть смайлов не рисуется шрифтом Windows и видна как □. Подменяем их картинками — одинаково на телефоне и на компе. -->
+<script src="https://cdn.jsdelivr.net/npm/twemoji@14.0.2/dist/twemoji.min.js" crossorigin="anonymous"></script>
+<style>img.emoji{height:1em;width:1em;margin:0 .05em 0 .1em;vertical-align:-.1em}</style>
+<script>
+(function(){
+  function parseAll(){ if(window.twemoji){ try{ twemoji.parse(document.body); }catch(e){} } }
+  if(document.readyState==='loading'){ document.addEventListener('DOMContentLoaded',parseAll); } else { parseAll(); }
+  if(window.MutationObserver){
+    var mo=new MutationObserver(function(muts){
+      if(!window.twemoji) return;
+      muts.forEach(function(m){
+        m.addedNodes.forEach(function(n){
+          if(n.nodeType===1 && (!n.classList || !n.classList.contains('emoji'))){ try{ twemoji.parse(n); }catch(e){} }
+        });
+      });
+    });
+    mo.observe(document.body,{childList:true,subtree:true});
+  }
+})();
+</script>
+</body>
+</html>

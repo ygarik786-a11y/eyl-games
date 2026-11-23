@@ -627,4 +627,24 @@ function buildMenu(){
 newGrid(10,20);render();
 buildMenu();
 </script>
+<!-- Значки-картинки (Twemoji): на компе Erik часть смайлов не рисуется шрифтом Windows и видна как □. Подменяем их картинками — одинаково на телефоне и на компе. -->
+<script src="https://cdn.jsdelivr.net/npm/twemoji@14.0.2/dist/twemoji.min.js" crossorigin="anonymous"></script>
+<style>img.emoji{height:1em;width:1em;margin:0 .05em 0 .1em;vertical-align:-.1em}</style>
+<script>
+(function(){
+  function parseAll(){ if(window.twemoji){ try{ twemoji.parse(document.body); }catch(e){} } }
+  if(document.readyState==='loading'){ document.addEventListener('DOMContentLoaded',parseAll); } else { parseAll(); }
+  if(window.MutationObserver){
+    var mo=new MutationObserver(function(muts){
+      if(!window.twemoji) return;
+      muts.forEach(function(m){
+        m.addedNodes.forEach(function(n){
+          if(n.nodeType===1 && (!n.classList || !n.classList.contains('emoji'))){ try{ twemoji.parse(n); }catch(e){} }
+        });
+      });
+    });
+    mo.observe(document.body,{childList:true,subtree:true});
+  }
+})();
+</script>
 </body></html>

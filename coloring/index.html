@@ -10,7 +10,10 @@ html,body{background:#1b1030;font-family:'Segoe UI',system-ui,sans-serif;color:#
 #app{max-width:480px;margin:0 auto;padding:12px 12px 24px}
 h1{text-align:center;font-size:28px;line-height:1.2}
 .sub{text-align:center;color:#d8b4fe;font-size:13px;margin:4px 0 12px}
-.picker{display:flex;gap:8px;overflow-x:auto;padding:4px 2px 10px;scrollbar-width:none}
+.pickerWrap{display:flex;align-items:center;gap:6px}
+.pnav{flex:0 0 auto;width:38px;height:58px;border:0;border-radius:12px;background:#ffffff22;color:#fff;font-size:20px;cursor:pointer}
+.pnav:active{background:#ffd94d44}
+.picker{flex:1;min-width:0;display:flex;gap:8px;overflow-x:auto;padding:4px 2px 10px;scrollbar-width:none}
 .picker::-webkit-scrollbar{display:none}
 .pick{flex:0 0 auto;border:2px solid #ffffff33;background:#ffffff14;border-radius:16px;padding:10px 14px;font-size:15px;font-weight:700;color:#fff;cursor:pointer;font-family:inherit}
 .pick .e{font-size:26px;display:block;text-align:center}
@@ -42,7 +45,7 @@ h1{text-align:center;font-size:28px;line-height:1.2}
 <div id="app">
   <h1>🎨 Раскраски E.Y.L</h1>
   <p class="sub">Выбери картинку, возьми краску и раскрась! Нажми на часть картинки — она закрасится</p>
-  <div class="picker" id="picker"></div>
+  <div class="pickerWrap"><button class="pnav" id="pickPrev" aria-label="Назад">◀</button><div class="picker" id="picker"></div><button class="pnav" id="pickNext" aria-label="Вперёд">▶</button></div>
   <div id="stageCard"><div id="stage"></div></div>
   <div id="progress"></div>
   <div id="doneMsg"></div>
@@ -343,6 +346,10 @@ document.getElementById('picker').addEventListener('click',e=>{
   const b=e.target.closest?e.target.closest('.pick'):null;if(!b)return;
   cur=PICS.find(p=>p.id===b.dataset.id);render();
 });
+/* Листание картинок: на компе — стрелки по бокам или колёсико мыши над полоской, на телефоне — свайп */
+document.getElementById('pickPrev').addEventListener('click',()=>{document.getElementById('picker').scrollBy({left:-240,behavior:'smooth'});});
+document.getElementById('pickNext').addEventListener('click',()=>{document.getElementById('picker').scrollBy({left:240,behavior:'smooth'});});
+document.getElementById('picker').addEventListener('wheel',e=>{e.preventDefault();document.getElementById('picker').scrollLeft+=e.deltaY;},{passive:false});
 document.getElementById('palette').innerHTML=COLORS.map((c,i)=>'<button class="sw'+(i===0?' sel':'')+(c.v==='#ffffff'?' eraser':'')+'" style="background:'+c.v+'" data-i="'+i+'" title="'+c.name+'">'+(c.v==='#ffffff'?'✕':'')+'</button>').join('');
 document.getElementById('palette').addEventListener('click',e=>{
   const b=e.target.closest?e.target.closest('.sw'):null;if(!b)return;
@@ -390,6 +397,26 @@ document.getElementById('btnSave').addEventListener('click',()=>{
   }catch(e){alert('Не получилось сохранить — попробуй ещё раз');}
 });
 render();
+</script>
+<!-- Значки-картинки (Twemoji): на компе Erik часть смайлов не рисуется шрифтом Windows и видна как □. Подменяем их картинками — одинаково на телефоне и на компе. -->
+<script src="https://cdn.jsdelivr.net/npm/twemoji@14.0.2/dist/twemoji.min.js" crossorigin="anonymous"></script>
+<style>img.emoji{height:1em;width:1em;margin:0 .05em 0 .1em;vertical-align:-.1em}</style>
+<script>
+(function(){
+  function parseAll(){ if(window.twemoji){ try{ twemoji.parse(document.body); }catch(e){} } }
+  if(document.readyState==='loading'){ document.addEventListener('DOMContentLoaded',parseAll); } else { parseAll(); }
+  if(window.MutationObserver){
+    var mo=new MutationObserver(function(muts){
+      if(!window.twemoji) return;
+      muts.forEach(function(m){
+        m.addedNodes.forEach(function(n){
+          if(n.nodeType===1 && (!n.classList || !n.classList.contains('emoji'))){ try{ twemoji.parse(n); }catch(e){} }
+        });
+      });
+    });
+    mo.observe(document.body,{childList:true,subtree:true});
+  }
+})();
 </script>
 </body>
 </html>

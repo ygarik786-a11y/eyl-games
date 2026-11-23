@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>🐤 Флаппи Ерик — E.Y.L Games</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:#0d0f1a;color:#eef;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;min-height:100vh;padding:14px 10px 30px}
+  .wrap{max-width:920px;margin:0 auto}
+  .back{display:inline-block;color:#ffa751;text-decoration:none;font-size:15px;margin-bottom:6px}
+  .back:active{opacity:.7}
+  h1{font-size:26px;letter-spacing:.5px}
+  h1 span{background:linear-gradient(90deg,#ffa751,#ffe259);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .sub{color:#9aa0c3;font-size:14px;margin:2px 0 12px}
+  .stage{position:relative;border:2px solid #262a47;border-radius:14px;overflow:hidden;background:#2a4d8f;box-shadow:0 10px 40px rgba(0,0,0,.5)}
+  canvas{display:block;width:100%;height:auto;touch-action:none;-webkit-tap-highlight-color:transparent}
+  /* Меню и финал — на ВЕСЬ экран телефона (урок Тира: кнопка всегда видна) */
+  .overlay{position:fixed;inset:0;background:rgba(8,9,18,.94);display:flex;flex-direction:column;align-items:center;justify-content:flex-start;text-align:center;padding:36px 18px 44px;gap:16px;z-index:50;overflow-y:auto}
+  .hidden{display:none!important}
+  .overlay h2{font-size:32px}
+  .overlay h2 span{background:linear-gradient(90deg,#ffa751,#ffe259);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .rules{font-size:16px;line-height:1.65;color:#dfe3ff;max-width:560px}
+  .bigbtn{background:linear-gradient(90deg,#ffa751,#ffe259);color:#231600;border:0;border-radius:14px;padding:16px 46px;font-size:21px;font-weight:800;cursor:pointer;box-shadow:0 6px 20px rgba(255,167,81,.35);font-family:inherit}
+  .bigbtn:active{transform:scale(.97)}
+  .final{font-size:19px;line-height:1.7}
+  .final b{color:#ffe259}
+  .medal{font-size:64px;line-height:1.1}
+  .bestline{color:#9aa0c3;font-size:15px}
+  .bestline b{color:#ffe259}
+  .newbest{color:#ffe259;font-weight:800;font-size:17px}
+  .hint{color:#7c81a3;font-size:13px;margin-top:10px;text-align:center;line-height:1.55}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="back" href="../index.html">← Все игры</a>
+  <h1>🐤 Флаппи <span>Ерик</span></h1>
+  <div class="sub">Птенец президента летит между трубами — не врежься!</div>
+
+  <div class="stage" id="stage">
+    <canvas id="cv" width="880" height="495"></canvas>
+  </div>
+
+  <div class="hint">📱 На телефоне: тапай по полю — птенец взмахивает крылом. 🖱️ На компьютере: клик или пробел.<br>Каждая труба — +1 очко. Дальше — быстрее! Медали: 🥉 10 • 🥈 25 • 🥇 40 • 👑 60</div>
+</div>
+
+<!-- СТАРТ (на весь экран) -->
+<div class="overlay" id="menuOv">
+  <h2>🐤 Флаппи <span>Ерик</span></h2>
+  <div class="rules">
+    👆 Тап, клик или пробел — птенец взлетает, а гравитация тянет его вниз.<br>
+    🟩 Пролетай между зелёными трубами: каждая — +1 очко. Врезался в трубу или в землю — конец полёта!
+  </div>
+  <button class="bigbtn" id="playBtn">▶ ИГРАТЬ</button>
+  <div class="bestline">Рекорд: <b id="menuBest">0</b> очков<br>Первый тап по полю — и полетели! 🚀</div>
+</div>
+
+<!-- ФИНАЛ (на весь экран) -->
+<div class="overlay hidden" id="overOv">
+  <h2>🏁 Полёт <span>окончен</span></h2>
+  <div class="medal" id="medal"></div>
+  <div class="final" id="finalText"></div>
+  <div class="newbest hidden" id="newBest">🎉 Новый рекорд!</div>
+  <button class="bigbtn" id="againBtn">🔄 ЕЩЁ РАЗ</button>
+  <div class="bestline">Рекорд: <b id="overBest">0</b> очков</div>
+</div>
+
+<script>
+(() => {
+"use strict";
+const cv = document.getElementById("cv");
+const ctx = cv.getContext("2d");
+const W = 880, H = 495;
+const $ = id => document.getElementById(id);
+const menuOv = $("menuOv"), overOv = $("overOv");
+
+/* ---------- звук (WebAudio-бипы) ---------- */
+let AC = null;
+function beep(freq, dur, type, vol, slideTo){
+  try {
+    if (!AC) AC = new (window.AudioContext || window.webkitAudioContext)();
+    if (AC.state === "suspended") AC.resume();
+    const o = AC.createOscillator(), g = AC.createGain();
+    o.type = type || "sine"; o.frequency.value = freq;
+    if (slideTo) o.frequency.exponentialRampToValueAtTime(slideTo, AC.currentTime + dur);
+    g.gain.value = vol || 0.05;
+    g.gain.exponentialRampToValueAtTime(0.001, AC.currentTime + dur);
+    o.connect(g); g.connect(AC.destination);
+    o.start(); o.stop(AC.currentTime + dur);
+  } catch(e) {}
+}
+const sndFlap = () => beep(320, 0.09, "square", 0.03, 560);
+const sndDing = () => { beep(1180, 0.08, "sine", 0.06); setTimeout(()=>beep(1560, 0.12, "sine", 0.06), 70); };
+const sndHit  = () => beep(200, 0.35, "sawtooth", 0.07, 45);
+
+/* ---------- состояние ---------- */
+const GROUND_H = 56;
+const BIRD_X = 230, BIRD_R = 26;
+const GRAV = 1550, FLAP_V = -478;
+const PIPE_W = 112, PIPE_SPACING = 330;
+
+let state = "menu"; // menu | ready | play | over
+let birdY = H * 0.46, birdVy = 0, wingT = 0;
+let pipes = [];       // {x, gapY, counted}
+let score = 0;
+let best = 0;
+try { best = parseInt(localStorage.getItem("eyl-flappy-best") || "0", 10) || 0; } catch(e) {}
+let scroll = 0;       // для параллакса холмов/облаков
+let clouds = [];
+let lastTs = 0, runId = 0;
+
+function speed(){ return Math.min(385, 238 + score * 3.2); }
+function gapSize(){ return Math.max(152, 196 - score * 1.1); }
+
+function resetWorld(){
+  birdY = H * 0.46; birdVy = 0; wingT = 0;
+  pipes = []; score = 0;
+  clouds = [];
+  for (let i = 0; i < 7; i++) clouds.push({ x: Math.random() * W, y: 26 + Math.random() * 130, s: 0.6 + Math.random() * 0.9 });
+}
+
+function startGame(){
+  resetWorld();
+  state = "ready";
+  menuOv.classList.add("hidden");
+  overOv.classList.add("hidden");
+  const st = $("stage");
+  if (st) setTimeout(()=>st.scrollIntoView({ behavior:"smooth", block:"center" }), 60);
+}
+
+function flap(){
+  if (state === "ready") state = "play";
+  if (state !== "play") return;
+  birdVy = FLAP_V;
+  wingT = 0;
+  sndFlap();
+}
+
+function gameOver(){
+  state = "over";
+  sndHit();
+  const isNew = score > best;
+  if (isNew) {
+    best = score;
+    try { localStorage.setItem("eyl-flappy-best", String(best)); } catch(e) {}
+  }
+  let medal = "", medalName = "";
+  if (score >= 60) { medal = "👑"; medalName = "Корона президента!"; }
+  else if (score >= 40) { medal = "🥇"; medalName = "Золотая медаль!"; }
+  else if (score >= 25) { medal = "🥈"; medalName = "Серебряная медаль!"; }
+  else if (score >= 10) { medal = "🥉"; medalName = "Бронзовая медаль!"; }
+  $("medal").textContent = medal;
+  $("finalText").innerHTML = "Твой счёт: <b>" + score + "</b>" +
+    (medalName ? "<br>" + medal + " " + medalName : "<br>До бронзы надо 10 — ещё чуть-чуть! 💪");
+  $("newBest").classList.toggle("hidden", !isNew);
+  $("overBest").textContent = best;
+  setTimeout(()=>overOv.classList.remove("hidden"), 450);
+}
+
+/* ---------- обновление ---------- */
+function spawnPipe(){
+  const g = gapSize();
+  const margin = 64;
+  const gapY = margin + g / 2 + Math.random() * (H - GROUND_H - margin * 2 - g);
+  pipes.push({ x: W + 20, gapY: gapY, counted: false });
+}
+
+function update(dt){
+  wingT += dt;
+  // облака плывут всегда (меню, игра) — небо живое
+  clouds.forEach(c => { c.x -= (state === "play" ? 26 : 12) * c.s * dt; if (c.x < -90) { c.x = W + 60; c.y = 26 + Math.random() * 130; } });
+  if (state === "ready") {
+    birdY = H * 0.46 + Math.sin(performance.now() / 280) * 9; // парит на месте
+    return;
+  }
+  if (state !== "play") return;
+
+  scroll += speed() * dt;
+  birdVy += GRAV * dt;
+  birdY += birdVy * dt;
+
+  // трубы: спавн по расстоянию
+  if (!pipes.length || pipes[pipes.length - 1].x < W - PIPE_SPACING) spawnPipe();
+  const g = gapSize();
+  for (const p of pipes) {
+    p.x -= speed() * dt;
+    if (!p.counted && p.x + PIPE_W < BIRD_X - BIRD_R) {
+      p.counted = true;
+      score++;
+      sndDing();
+    }
+  }
+  pipes = pipes.filter(p => p.x + PIPE_W > -30);
+
+  // столкновения (чуть щадящий радиус)
+  const r = BIRD_R * 0.86;
+  if (birdY + r >= H - GROUND_H || birdY - r <= 0) {
+    if (birdY - r <= 0) birdY = r; else { gameOver(); return; }
+    if (state !== "play") return;
+  }
+  for (const p of pipes) {
+    if (BIRD_X + r > p.x && BIRD_X - r < p.x + PIPE_W) {
+      const top = p.gapY - g / 2, bot = p.gapY + g / 2;
+      if (birdY - r < top || birdY + r > bot) { gameOver(); return; }
+    }
+  }
+  if (birdY + BIRD_R >= H - GROUND_H) gameOver();
+}
+
+/* ---------- отрисовка ---------- */
+function drawCloud(x, y, s){
+  ctx.save(); ctx.translate(x, y); ctx.scale(s, s);
+  ctx.fillStyle = "rgba(255,255,255,.92)";
+  ctx.beginPath();
+  ctx.arc(0, 0, 22, 0, 7); ctx.arc(24, -8, 28, 0, 7); ctx.arc(52, 0, 20, 0, 7); ctx.arc(26, 8, 26, 0, 7);
+  ctx.fill(); ctx.restore();
+}
+
+function drawPipe(x, y, h, flip){
+  if (h <= 0) return;
+  const grad = ctx.createLinearGradient(x, 0, x + PIPE_W, 0);
+  grad.addColorStop(0, "#3f9e2c"); grad.addColorStop(0.35, "#67c94e"); grad.addColorStop(0.75, "#3f9e2c"); grad.addColorStop(1, "#256b18");
+  ctx.fillStyle = grad;
+  ctx.fillRect(x, y, PIPE_W, h);
+  // ободок трубы
+  const capH = 30, capY = flip ? y : y + h - capH;
+  ctx.fillRect(x - 5, capY, PIPE_W + 10, capH);
+  ctx.strokeStyle = "rgba(0,0,0,.35)"; ctx.lineWidth = 2;
+  ctx.strokeRect(x, y, PIPE_W, h);
+  ctx.strokeRect(x - 5, capY, PIPE_W + 10, capH);
+}
+
+function drawBird(){
+  const tilt = Math.max(-0.45, Math.min(1.15, birdVy / 620));
+  ctx.save();
+  ctx.translate(BIRD_X, birdY);
+  ctx.rotate(tilt);
+  // крыло (машет: быстрее сразу после взмаха)
+  const flapPhase = wingT < 0.28 ? Math.sin(wingT / 0.28 * Math.PI * 3) : Math.sin(wingT * 6) * 0.35;
+  ctx.save();
+  ctx.translate(-8, 2); ctx.rotate(-0.5 * flapPhase - 0.15);
+  ctx.fillStyle = "#f59e0b";
+  ctx.beginPath(); ctx.ellipse(-12, 4, 17, 9, -0.5, 0, 7); ctx.fill();
+  ctx.restore();
+  // тело
+  const bg = ctx.createRadialGradient(-8, -10, 6, 0, 0, BIRD_R + 4);
+  bg.addColorStop(0, "#ffe97a"); bg.addColorStop(1, "#ffc21f");
+  ctx.fillStyle = bg;
+  ctx.beginPath(); ctx.arc(0, 0, BIRD_R, 0, 7); ctx.fill();
+  // животик
+  ctx.fillStyle = "rgba(255,246,200,.85)";
+  ctx.beginPath(); ctx.ellipse(4, 10, 13, 9, 0, 0, 7); ctx.fill();
+  // глаз
+  ctx.fillStyle = "#fff";
+  ctx.beginPath(); ctx.arc(11, -7, 8, 0, 7); ctx.fill();
+  ctx.fillStyle = "#22242e";
+  ctx.beginPath(); ctx.arc(13.5, -7, 4.2, 0, 7); ctx.fill();
+  ctx.fillStyle = "#fff";
+  ctx.beginPath(); ctx.arc(15, -8.5, 1.6, 0, 7); ctx.fill();
+  // клюв
+  ctx.fillStyle = "#ff7b1c";
+  ctx.beginPath();
+  ctx.moveTo(22, -3); ctx.lineTo(38, 1); ctx.lineTo(22, 6); ctx.closePath(); ctx.fill();
+  ctx.strokeStyle = "rgba(0,0,0,.18)"; ctx.lineWidth = 1.4;
+  ctx.beginPath(); ctx.moveTo(23, 1.5); ctx.lineTo(36, 1); ctx.stroke();
+  // корона президента 👑
+  ctx.save();
+  ctx.translate(0, -BIRD_R - 3); ctx.rotate(-tilt * 0.55);
+  ctx.fillStyle = "#ffd83d";
+  ctx.strokeStyle = "#c9930a"; ctx.lineWidth = 1.6;
+  ctx.beginPath();
+  ctx.moveTo(-13, 4); ctx.lineTo(-13, -6); ctx.lineTo(-6.5, 0); ctx.lineTo(0, -9);
+  ctx.lineTo(6.5, 0); ctx.lineTo(13, -6); ctx.lineTo(13, 4); ctx.closePath();
+  ctx.fill(); ctx.stroke();
+  ctx.fillStyle = "#e23b3b";
+  ctx.beginPath(); ctx.arc(0, -1, 2.4, 0, 7); ctx.fill();
+  ctx.restore();
+  ctx.restore();
+}
+
+function draw(){
+  // небо — рассвет
+  const sky = ctx.createLinearGradient(0, 0, 0, H);
+  sky.addColorStop(0, "#2a4d8f"); sky.addColorStop(0.55, "#7f7fc0"); sky.addColorStop(0.82, "#ffb36b"); sky.addColorStop(1, "#ffcf8a");
+  ctx.fillStyle = sky; ctx.fillRect(0, 0, W, H);
+  // солнце
+  ctx.fillStyle = "rgba(255,236,170,.95)";
+  ctx.beginPath(); ctx.arc(W - 150, 96, 40, 0, 7); ctx.fill();
+  ctx.fillStyle = "rgba(255,236,170,.25)";
+  ctx.beginPath(); ctx.arc(W - 150, 96, 62, 0, 7); ctx.fill();
+  // облака
+  clouds.forEach(c => drawCloud(c.x, c.y, c.s));
+  // дальние холмы (параллакс медленный)
+  ctx.fillStyle = "rgba(84,130,84,.55)";
+  ctx.beginPath(); ctx.moveTo(0, H - GROUND_H);
+  for (let x = 0; x <= W; x += 8) ctx.lineTo(x, H - GROUND_H - 34 - Math.sin((x + scroll * 0.3) / 130) * 22 - Math.sin((x + scroll * 0.3) / 47) * 8);
+  ctx.lineTo(W, H - GROUND_H); ctx.closePath(); ctx.fill();
+
+  // трубы
+  const g = gapSize();
+  for (const p of pipes) {
+    drawPipe(p.x, 0, p.gapY - g / 2, false);
+    drawPipe(p.x, p.gapY + g / 2, H - GROUND_H - (p.gapY + g / 2), true);
+  }
+
+  // земля
+  ctx.fillStyle = "#58a83c"; ctx.fillRect(0, H - GROUND_H, W, 10);
+  ctx.fillStyle = "#8a5a2b"; ctx.fillRect(0, H - GROUND_H + 10, W, GROUND_H - 10);
+  ctx.fillStyle = "rgba(0,0,0,.14)";
+  const off = -(scroll % 46);
+  for (let x = off; x < W; x += 46) {
+    ctx.beginPath(); ctx.moveTo(x, H - GROUND_H + 10); ctx.lineTo(x + 22, H - GROUND_H + 10); ctx.lineTo(x + 6, H); ctx.lineTo(x - 16, H); ctx.closePath(); ctx.fill();
+  }
+
+  drawBird();
+
+  // счёт крупно поверх поля
+  if (state === "play" || state === "over") {
+    ctx.font = "900 62px system-ui, sans-serif";
+    ctx.textAlign = "center";
+    ctx.lineWidth = 9; ctx.strokeStyle = "rgba(20,16,40,.65)";
+    const t = String(score);
+    ctx.strokeText(t, W / 2, 92);
+    ctx.fillStyle = "#fff";
+    ctx.fillText(t, W / 2, 92);
+  }
+  if (state === "ready") {
+    ctx.font = "800 34px system-ui, sans-serif";
+    ctx.textAlign = "center";
+    ctx.lineWidth = 7; ctx.strokeStyle = "rgba(20,16,40,.6)";
+    const pulse = 1 + Math.sin(performance.now() / 240) * 0.04;
+    ctx.save(); ctx.translate(W / 2, 120); ctx.scale(pulse, pulse);
+    ctx.strokeText("Тап — и полетели! 👆", 0, 0);
+    ctx.fillStyle = "#ffe259";
+    ctx.fillText("Тап — и полетели! 👆", 0, 0);
+    ctx.restore();
+  }
+}
+
+/* ---------- цикл ---------- */
+function loop(ts){
+  const dt = Math.min(0.033, lastTs ? (ts - lastTs) / 1000 : 0.016);
+  lastTs = ts;
+  update(dt);
+  draw();
+  requestAnimationFrame(loop);
+}
+
+/* ---------- управление ---------- */
+function press(e){
+  if (state === "play" || state === "ready") { flap(); }
+}
+cv.addEventListener("pointerdown", e => { e.preventDefault(); press(e); });
+document.addEventListener("keydown", e => {
+  if (e.code === "Space" || e.code === "ArrowUp") {
+    if (state === "menu") { startGame(); return; }
+    if (state === "over" && overOv.classList.contains("hidden") === false) return;
+    e.preventDefault(); press(e);
+  }
+});
+$("playBtn").onclick = () => startGame();
+$("againBtn").onclick = () => startGame();
+document.addEventListener("visibilitychange", () => { lastTs = 0; });
+
+$("menuBest").textContent = best;
+$("overBest").textContent = best;
+resetWorld();
+requestAnimationFrame(loop);
+})();
+</script>
+<!-- Значки-картинки (Twemoji): на компе Erik часть смайлов не рисуется шрифтом Windows и видна как □. Подменяем их картинками — одинаково на телефоне и на компе. -->
+<script src="https://cdn.jsdelivr.net/npm/twemoji@14.0.2/dist/twemoji.min.js" crossorigin="anonymous"></script>
+<style>img.emoji{height:1em;width:1em;margin:0 .05em 0 .1em;vertical-align:-.1em}</style>
+<script>
+(function(){
+  function parseAll(){ if(window.twemoji){ try{ twemoji.parse(document.body); }catch(e){} } }
+  if(document.readyState==='loading'){ document.addEventListener('DOMContentLoaded',parseAll); } else { parseAll(); }
+  if(window.MutationObserver){
+    var mo=new MutationObserver(function(muts){
+      if(!window.twemoji) return;
+      muts.forEach(function(m){
+        m.addedNodes.forEach(function(n){
+          if(n.nodeType===1 && (!n.classList || !n.classList.contains('emoji'))){ try{ twemoji.parse(n); }catch(e){} }
+        });
+      });
+    });
+    mo.observe(document.body,{childList:true,subtree:true});
+  }
+})();
+</script>
+</body>
+</html>
