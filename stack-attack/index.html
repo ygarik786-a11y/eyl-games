@@ -165,11 +165,13 @@ function tryPush(dir){
   const m=G.man;
   const edge=dir>0?m.x+m.w:m.x;
   const col=Math.floor((edge+dir*2-FX)/CELL);
-  const row=ROWS-1-Math.floor((FLOOR-(m.y+m.h))/CELL);
-  // ящик в ряду, на котором стоит человечек
-  const feetRow=ROWS-1-Math.floor((m.y+m.h-1-FY)/CELL);
-  for(let r=feetRow;r>=0;r--){
-    if(col<0||col>=COLS)break;
+  if(col<0||col>=COLS)return false;
+  // ящик в ряду, на котором стоит человечек (ряд = (y-FY)/CELL, 0 — верх);
+  // если в ряду ног пусто — пробуем ряд выше (ящик на уровне груди)
+  const feetRow=Math.floor((m.y+m.h-1-FY)/CELL);
+  const rows=[feetRow,feetRow-1];
+  for(const r of rows){
+    if(r<0||r>=ROWS)continue;
     if(G.grid[r][col]){
       // толкать можно только ящик без ящиков сверху и со свободным местом
       if(r>0&&G.grid[r-1][col])return false;
@@ -243,7 +245,7 @@ function update(dt){
     // толкание
     if(nxClamped!==m.x){
       const blocked=wouldHitBox(m,move);
-      if(blocked){tryPush(move);}
+      if(blocked){if(tryPush(move))m.x=nxClamped;/* толкнул — и сам шагнул следом */}
       else m.x=nxClamped;
     }
     if(Math.floor(G.t*12)!==Math.floor((G.t-dt)*12))sfx.move();
@@ -261,12 +263,13 @@ function update(dt){
   if(G.msgT>0){G.msgT-=dt;if(G.msgT<=0)G.msg='';}
 }
 function wouldHitBox(m,dir){
-  // есть ли ящик вплотную по ходу на уровне ног
-  const feetRow=ROWS-1-Math.floor((m.y+m.h-1-FY)/CELL);
+  // есть ли ящик вплотную по ходу в рядах, которые занимает человечек
+  const topRow=Math.max(0,Math.floor((m.y-FY)/CELL));
+  const feetRow=Math.min(ROWS-1,Math.floor((m.y+m.h-1-FY)/CELL));
   const edge=dir>0?m.x+m.w:m.x;
   const col=Math.floor((edge+dir*2-FX)/CELL);
   if(col<0||col>=COLS)return true;
-  for(let r=feetRow;r>=0;r--)if(G.grid[r][col])return true;
+  for(let r=topRow;r<=feetRow;r++)if(G.grid[r][col])return true;
   return false;
 }
 function checkRows(){

@@ -8,7 +8,7 @@
 <script>
 // Самообновление каталога: телефон Erik держал старую копию страницы
 // из кэша и не видел новые игры. Сверяемся с gversion.txt на сервере.
-var GAMES_VER = 52;
+var GAMES_VER = 53;
 fetch("gversion.txt?x=" + Date.now()).then(function(r){ return r.text(); }).then(function(t){
   var rv = parseInt(t, 10);
   if (rv && rv > GAMES_VER && sessionStorage.getItem("gamesUpd") !== String(rv)) {
@@ -119,6 +119,7 @@ fetch("gversion.txt?x=" + Date.now()).then(function(r){ return r.text(); }).then
   .c-catch  { background:linear-gradient(150deg,#ffd93d,#b8860b 60%,#4a3503); }
   .c-race   { background:linear-gradient(150deg,#ff8a3d,#c81e5b 55%,#1d0b2e); }
   .c-stack  { background:linear-gradient(150deg,#8fb8d8,#2b4a6b 60%,#0a1a2e); }
+  .c-color  { background:linear-gradient(150deg,#f9a8d4,#a855f7 55%,#3b0764); }
   .c-snowball{ background:linear-gradient(150deg,#a5f3fc,#2b6cb0 60%,#0b2a4a); }
 
   .gbody { padding:15px 17px 17px; display:flex; flex-direction:column; gap:7px; flex:1; }
@@ -145,7 +146,7 @@ fetch("gversion.txt?x=" + Date.now()).then(function(r){ return r.text(); }).then
     <h1><span class="gold">E.Y.L</span> GAMES</h1>
     <p class="sub">Игровая империя президента <b>Erik Lebed</b> 🎮<br>Бесплатные игры прямо в браузере — без скачивания и регистрации.<br>Открыл — и играешь. Прогресс сохраняется в телефоне.</p>
     <div class="chips">
-      <span class="chip gold">👑 105 игр</span>
+      <span class="chip gold">👑 106 игр</span>
       <span class="chip" id="visitsChip">👀 Заходов: …</span>
       <span class="chip">🎄 С наступающим Новым годом!</span>
       <span class="chip">💸 Полностью бесплатно</span>
@@ -182,6 +183,18 @@ fetch("gversion.txt?x=" + Date.now()).then(function(r){ return r.text(); }).then
 
   <h2 class="sec">🎮 Все игры</h2>
   <div class="grid">
+    <a class="game" href="coloring/">
+      <div class="cover c-color">
+        <span class="tag">Раскраски • для всех</span><span class="new">НОВОЕ</span>
+        <span class="main">🎨</span>
+      </div>
+      <div class="gbody">
+        <h3>🎨 Раскраски E.Y.L</h3>
+        <p>Шесть картинок для раскрашивания: лебедь 🦢, ёлка 🎄, машинка 🚗, котик 🐱, домик 🏠 и Линда 🐶! Нажимай на части картинки — они закрашиваются твоей краской. Есть отмена, ластик, кнопка «Раскрасить за меня» и сохранение готовой картины как фото!</p>
+        <div class="meta">🖌️ 14 красок • ↩ Отмена • ✨ Авто-раскраска • 💾 Сохранение картинки</div>
+        <div class="play">Играть →</div>
+      </div>
+    </a>
     <a class="game" href="emoji-racing/">
       <div class="cover c-race">
         <span class="tag">Гонки • только эмодзи</span><span class="new">НОВОЕ</span>
