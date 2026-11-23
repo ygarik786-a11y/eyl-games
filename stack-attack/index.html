@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Stack Attack — Siemens A75 Classic</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;background:#10131c;font-family:'Courier New',monospace;color:#dfe8f2;overflow:hidden}
+#wrap{max-width:420px;margin:0 auto;height:100%;display:flex;flex-direction:column;align-items:center;padding:10px}
+/* корпус телефона Siemens A75 */
+#phone{width:340px;max-width:96vw;background:linear-gradient(160deg,#2b3a5e,#16223d 55%,#0d1526);border-radius:34px 34px 44px 44px;padding:14px 12px 16px;box-shadow:0 10px 30px rgba(0,0,0,.7),inset 0 2px 0 rgba(255,255,255,.18);border:1px solid #3c4f7d}
+#brand{text-align:center;font-size:13px;letter-spacing:6px;color:#8fa8d8;font-weight:bold;margin-bottom:4px}
+#brand b{color:#fff}
+#speaker{display:flex;justify-content:center;gap:4px;margin:2px 0 8px}
+#speaker i{width:5px;height:5px;border-radius:50%;background:#0a0f1e;box-shadow:inset 0 1px 1px #000,0 1px 0 #ffffff22}
+#screenBox{background:#0a0f1e;border-radius:10px;padding:8px;box-shadow:inset 0 0 0 2px #2a3550,inset 0 4px 12px #000}
+#cv{display:block;width:100%;image-rendering:pixelated;border-radius:4px;background:#9fb8c8}
+#softkeys{display:flex;justify-content:space-between;margin:8px 4px 0;font-size:11px;color:#8fa8d8}
+#softkeys b{color:#fff}
+.pad{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:12px}
+.kbtn{border:0;border-radius:14px;padding:15px 6px;font-size:24px;font-weight:bold;color:#fff;background:linear-gradient(180deg,#3a4a72,#1d2a4a);box-shadow:0 3px 0 #0a0f1e,0 5px 10px rgba(0,0,0,.5);cursor:pointer;font-family:inherit}
+.kbtn:active,.kbtn.held{transform:translateY(2px);box-shadow:0 1px 0 #0a0f1e;background:#4a5f96}
+.kbtn span{display:block;font-size:10px;font-weight:normal;color:#aebfee}
+.kbtn.act{background:linear-gradient(180deg,#1e7a3a,#14532a)}
+.kbtn.pause{background:linear-gradient(180deg,#8a6d1f,#6b5312)}
+#under{margin-top:12px;text-align:center;font-size:12px;color:#7d8fb5;line-height:1.5}
+#under b{color:#c7d6f2}
+.btn{display:block;width:100%;padding:13px;margin:8px 0;border:0;border-radius:14px;font-size:17px;font-weight:bold;color:#fff;background:linear-gradient(180deg,#3b5bff,#1f37c9);box-shadow:0 3px 0 #14207a;cursor:pointer;font-family:inherit}
+.btn.gold{background:linear-gradient(180deg,#ffb400,#e07f00);box-shadow:0 3px 0 #7a4a00}
+.btn.gray{background:linear-gradient(180deg,#475569,#1e293b);box-shadow:0 3px 0 #0f172a}
+</style>
+</head>
+<body>
+<div id="wrap">
+  <div id="phone">
+    <div id="brand"><b>SIEMENS</b> A75</div>
+    <div id="speaker"><i></i><i></i><i></i><i></i><i></i></div>
+    <div id="screenBox"><canvas id="cv" width="200" height="280"></canvas></div>
+    <div id="softkeys"><span>◀ Меню</span><span><b>STACK ATTACK</b></span><span>Опции ▶</span></div>
+    <div class="pad">
+      <button class="kbtn" id="btnL">◀<span>ВЛЕВО</span></button>
+      <button class="kbtn act" id="btnA">⬆<span>ДЕЙСТВИЕ</span></button>
+      <button class="kbtn" id="btnR">▶<span>ВПРАВО</span></button>
+      <button class="kbtn pause" id="btnP">⏸<span>ПАУЗА</span></button>
+      <button class="kbtn" id="btnSnd">🔊<span>ЗВУК</span></button>
+      <button class="kbtn" id="btnNew">↻<span>ЗАНОВО</span></button>
+    </div>
+  </div>
+  <div id="under">
+    <b>STACK ATTACK</b> — та самая игра с Siemens A75<br>
+    Краны сбрасывают ящики • Толкай их человечком • Собери полный ряд — он разобьётся!<br>
+    Ящик, упавший на человечка, — минус жизнь. Рекорд: <b id="hiScore">0</b>
+  </div>
+  <button class="btn gray" style="max-width:340px" onclick="location.href='../'">⬅️ На главную игр</button>
+</div>
+<script>
+'use strict';
+/* ===== STACK ATTACK — воссоздание оригинала Siemens A75 =====
+   Механика оригинала (проверено по описаниям и ремейку GZ Games):
+   - краны наверху сбрасывают цветные ящики, ящики падают и складываются;
+   - человечек внизу ходит влево-вправо, прыгает и толкает ящики;
+   - полный горизонтальный ряд ящиков разбивается и даёт очки;
+   - упавший на человечка ящик — минус жизнь (всего 3);
+   - уровни ускоряют падение, кранов 2 или 3 (настройка).
+   Оригинальные спрайты как ассеты нигде не лежат — пиксельные
+   спрайты человечка, кранов и ящиков нарисованы здесь заново
+   в том же стиле и палитре CSTN-экрана A75. */
+const cv=document.getElementById('cv'),ctx=cv.getContext('2d');
+ctx.imageSmoothingEnabled=false;
+const COLS=10,ROWS=12,CELL=16;
+const FX=20,FY=52,FW=COLS*CELL,FH=ROWS*CELL; // игровое поле на экране
+const FLOOR=FY+FH;
+const COLORS=[null,'#d8382a','#2a7ad8','#2aa84a','#e8b400','#8a4ad8']; // 1-красный 2-синий 3-зелёный 4-жёлтый 5-фиолетовый
+const DARK=['','#8a1a12','#123f7a','#14602c','#8a6d00','#4a1a8a'];
+const LIGHT=['','#ff8a70','#7ab8ff','#7ae89a','#ffe970','#c08aff'];
+const SAVE_HI='sa_hiscore',SAVE_CFG='sa_cfg';
+let hi=0;try{hi=parseInt(localStorage.getItem(SAVE_HI)||'0')||0;}catch(e){}
+let cfg={cranes:2,sound:true};try{Object.assign(cfg,JSON.parse(localStorage.getItem(SAVE_CFG)||'{}'));}catch(e){}
+document.getElementById('hiScore').textContent=hi;
+/* --- пиксельный человечек (8x14) --- */
+const MAN=[
+'..KKKK..',
+'.KFFFFK.',
+'.KFEFEK.',
+'.KFFFFK.',
+'..FFFF..',
+'..SSSS..',
+'.SSSSSS.',
+'KSSSSSSK',
+'KSSSSSSK',
+'..SSSS..',
+'..S..S..',
+'..S..S..',
+'.SS..SS.',
+'.BB..BB.'];
+const MAN_C={K:'#1a1a1a',F:'#f2c184',E:'#1a1a1a',S:'#2a5ad8',B:'#5a3a1a'};
+function drawMan(x,y,flip,walk){
+  const s=2; // масштаб пикселя
+  ctx.save();
+  if(flip){ctx.translate(x+16,y);ctx.scale(-1,1);ctx.translate(-x,-y);}
+  for(let r=0;r<MAN.length;r++)for(let c=0;c<MAN[r].length;c++){
+    const ch=MAN[r][c];if(ch==='.')continue;
+    let col=MAN_C[ch];
+    if(ch==='S'&&walk&&((r===10||r===11)&&((c<4)!==(Math.floor(walk)%2===0))))col='#1e4ab0';
+    ctx.fillStyle=col;ctx.fillRect(x+c*s,y+r*s,s,s);
+  }
+  ctx.restore();
+}
+/* --- ящик --- */
+function drawBox(px,py,color,flash){
+  const c=COLORS[color];
+  ctx.fillStyle=flash?'#ffffff':c;ctx.fillRect(px,py,CELL,CELL);
+  ctx.fillStyle=flash?'#ffffff':LIGHT[color];ctx.fillRect(px,py,CELL,3);ctx.fillRect(px,py,3,CELL);
+  ctx.fillStyle=flash?'#ffffff':DARK[color];ctx.fillRect(px,py+CELL-3,CELL,3);ctx.fillRect(px+CELL-3,py,3,CELL);
+  ctx.strokeStyle='rgba(0,0,0,.35)';ctx.lineWidth=1;ctx.strokeRect(px+0.5,py+0.5,CELL-1,CELL-1);
+  ctx.fillStyle='rgba(255,255,255,.25)';ctx.fillRect(px+4,py+5,8,2);
+}
+/* --- кран --- */
+function drawCrane(x,y){
+  ctx.fillStyle='#3a3a3a';
+  ctx.fillRect(x-14,y,28,5);
+  ctx.fillRect(x-2,y,4,12);
+  ctx.fillStyle='#c8a020';ctx.fillRect(x-6,y+12,12,8);
+  ctx.fillStyle='#1a1a1a';ctx.fillRect(x-4,y+14,8,4);
+  ctx.fillStyle='#d8382a';ctx.fillRect(x-14,y-3,5,5);ctx.fillRect(x+9,y-3,5,5);
+}
+/* --- звук: ретро-бипы --- */
+let AC=null;
+function beep(f,d,type,g){if(!cfg.sound)return;try{AC=AC||new (window.AudioContext||window.webkitAudioContext)();const o=AC.createOscillator(),gn=AC.createGain();o.type=type||'square';o.frequency.value=f;gn.gain.value=g||0.05;o.connect(gn);gn.connect(AC.destination);o.start();gn.gain.exponentialRampToValueAtTime(0.001,AC.currentTime+(d||0.07));o.stop(AC.currentTime+(d||0.07));}catch(e){}}
+const sfx={
+  move(){beep(300,.04,'square',.03);},
+  jump(){beep(500,.09,'square',.04);},
+  land(){beep(180,.06,'square',.05);},
+  push(){beep(220,.07,'sawtooth',.04);},
+  drop(){beep(140,.05,'square',.04);},
+  clear(){[660,880,1100].forEach((f,i)=>setTimeout(()=>beep(f,.09,'square',.05),i*70));},
+  crush(){[400,300,200,120].forEach((f,i)=>setTimeout(()=>beep(f,.12,'sawtooth',.06),i*90));},
+  level(){[523,659,784].forEach((f,i)=>setTimeout(()=>beep(f,.1,'square',.05),i*90));},
+  over(){[392,330,262,196].forEach((f,i)=>setTimeout(()=>beep(f,.18,'square',.06),i*150));}
+};
+/* ===== СОСТОЯНИЕ ИГРЫ ===== */
+let G=null;
+function newGame(){
+  G={state:'title',grid:[],score:0,lives:3,level:1,rows:0,rowsToLevel:8,
+     man:{x:FX+FW/2-8,y:FLOOR-28,w:16,h:28,vx:0,vy:0,ground:true,flip:false,walk:0,inv:0,dead:0},
+     cranes:[],falling:[],flash:[],t:0,dropT:0,over:0,msg:'',msgT:0};
+  for(let r=0;r<ROWS;r++)G.grid.push(new Array(COLS).fill(0));
+  const n=cfg.cranes;
+  for(let i=0;i<n;i++)G.cranes.push({x:FX+30+i*(FW-60)/Math.max(1,n-1),dir:i%2?1:-1,spd:24+i*8,cool:1.2+i*0.9});
+  G.state='title';
+}
+function startGame(){
+  newGame();G.state='play';beep(660,.1);setTimeout(()=>beep(880,.12),120);
+}
+function colHeight(c){for(let r=0;r<ROWS;r++)if(G.grid[r][c])return ROWS-r;return 0;}
+function supportY(man){
+  // опора под человечком: пол или верх стопки в его колонке
+  const cx=Math.floor((man.x+man.w/2-FX)/CELL);
+  if(cx<0||cx>=COLS)return FLOOR;
+  const h=colHeight(cx);
+  return FLOOR-h*CELL;
+}
+function tryPush(dir){
+  const m=G.man;
+  const edge=dir>0?m.x+m.w:m.x;
+  const col=Math.floor((edge+dir*2-FX)/CELL);
+  const row=ROWS-1-Math.floor((FLOOR-(m.y+m.h))/CELL);
+  // ящик в ряду, на котором стоит человечек
+  const feetRow=ROWS-1-Math.floor((m.y+m.h-1-FY)/CELL);
+  for(let r=feetRow;r>=0;r--){
+    if(col<0||col>=COLS)break;
+    if(G.grid[r][col]){
+      // толкать можно только ящик без ящиков сверху и со свободным местом
+      if(r>0&&G.grid[r-1][col])return false;
+      const nc=col+dir;
+      if(nc<0||nc>=COLS||G.grid[r][nc])return false;
+      G.grid[r][nc]=G.grid[r][col];G.grid[r][col]=0;sfx.push();return true;
+    }
+  }
+  return false;
+}
+function dropBox(crane){
+  const col=Math.max(0,Math.min(COLS-1,Math.round((crane.x-FX)/CELL)));
+  const color=1+Math.floor(Math.random()*5);
+  G.falling.push({col,x:FX+col*CELL,y:FY-18,vy:0,color});
+  crane.cool=dropInterval();
+}
+function dropInterval(){return Math.max(0.85,2.3-G.level*0.16);}
+function fallSpeed(){return 55+G.level*9;}
+function update(dt){
+  if(!G||G.state!=='play')return;
+  G.t+=dt;
+  const m=G.man;
+  if(m.inv>0)m.inv-=dt;
+  if(m.dead>0){m.dead-=dt;if(m.dead<=0){m.x=FX+FW/2-8;m.y=FLOOR-28;m.vy=0;m.inv=1.5;}return;}
+  // краны
+  G.cranes.forEach(c=>{
+    c.x+=c.dir*c.spd*dt;
+    if(c.x<FX+8){c.x=FX+8;c.dir=1;}
+    if(c.x>FX+FW-8){c.x=FX+FW-8;c.dir=-1;}
+    c.cool-=dt;
+    if(c.cool<=0)dropBox(c);
+  });
+  // падающие ящики
+  const fs=fallSpeed();
+  for(let i=G.falling.length-1;i>=0;i--){
+    const b=G.falling[i];
+    b.vy=Math.min(fs*2.2,b.vy+fs*4*dt);
+    b.y+=b.vy*dt;
+    // раздавил человечка?
+    if(m.inv<=0&&b.x<m.x+m.w&&b.x+CELL>m.x&&b.y<m.y+m.h&&b.y+CELL>m.y){
+      G.falling.splice(i,1);
+      loseLife();
+      continue;
+    }
+    // приземление: пол или стопка
+    const h=colHeight(b.col);
+    const landY=FLOOR-h*CELL-CELL;
+    if(b.y>=landY){
+      b.y=landY;
+      const row=ROWS-1-h;
+      if(row<0){ // стопка достигла кранов — конец игры
+        G.falling.splice(i,1);
+        gameOver('Башня выросла до кранов!');
+        return;
+      }
+      G.grid[row][b.col]=b.color;
+      G.falling.splice(i,1);
+      sfx.drop();G.score+=5;
+      checkRows();
+    }
+  }
+  // движение человечка
+  const speed=78;
+  let move=0;
+  if(keys.left)move-=1;
+  if(keys.right)move+=1;
+  if(move!==0){
+    m.flip=move<0;m.walk+=dt*10;
+    const nx=m.x+move*speed*dt;
+    const nxClamped=Math.max(FX,Math.min(FX+FW-m.w,nx));
+    // толкание
+    if(nxClamped!==m.x){
+      const blocked=wouldHitBox(m,move);
+      if(blocked){tryPush(move);}
+      else m.x=nxClamped;
+    }
+    if(Math.floor(G.t*12)!==Math.floor((G.t-dt)*12))sfx.move();
+  }
+  // прыжок
+  if(keys.jump&&m.ground){m.vy=-185;m.ground=false;sfx.jump();keys.jump=false;}
+  // гравитация
+  m.vy+=420*dt;
+  m.y+=m.vy*dt;
+  const sup=supportY(m);
+  if(m.y+m.h>=sup){m.y=sup-m.h;if(!m.ground)sfx.land();m.vy=0;m.ground=true;}
+  else m.ground=false;
+  // вспышки разбитых рядов
+  G.flash=G.flash.filter(f=>{f.t-=dt;return f.t>0;});
+  if(G.msgT>0){G.msgT-=dt;if(G.msgT<=0)G.msg='';}
+}
+function wouldHitBox(m,dir){
+  // есть ли ящик вплотную по ходу на уровне ног
+  const feetRow=ROWS-1-Math.floor((m.y+m.h-1-FY)/CELL);
+  const edge=dir>0?m.x+m.w:m.x;
+  const col=Math.floor((edge+dir*2-FX)/CELL);
+  if(col<0||col>=COLS)return true;
+  for(let r=feetRow;r>=0;r--)if(G.grid[r][col])return true;
+  return false;
+}
+function checkRows(){
+  let cleared=0;
+  for(let r=ROWS-1;r>=0;r--){
+    if(G.grid[r].every(v=>v>0)){
+      G.flash.push({row:r,t:0.45});
+      G.grid.splice(r,1);
+      G.grid.unshift(new Array(COLS).fill(0));
+      cleared++;r++;
+    }
+  }
+  if(cleared>0){
+    const pts=[0,100,300,600,1000][Math.min(cleared,4)]*G.level;
+    G.score+=pts;G.rows+=cleared;
+    sfx.clear();
+    G.msg='+'+pts;G.msgT=1;
+    if(G.rows>=G.rowsToLevel){
+      G.level++;G.rows=0;G.rowsToLevel=8+G.level*2;
+      if(G.level===3&&G.cranes.length<3){G.cranes.push({x:FX+FW/2,dir:1,spd:34,cool:1.5});G.msg='3-Й КРАН!';}
+      else G.msg='УРОВЕНЬ '+G.level+'!';
+      G.msgT=1.5;sfx.level();
+    }
+  }
+}
+function loseLife(){
+  G.lives--;sfx.crush();G.man.dead=1.2;G.man.inv=2;
+  if(navigator.vibrate)navigator.vibrate(120);
+  if(G.lives<=0)gameOver('Человечка раздавило!');
+}
+function gameOver(reason){
+  G.state='over';G.over=reason;
+  if(G.score>hi){hi=G.score;try{localStorage.setItem(SAVE_HI,String(hi));}catch(e){}document.getElementById('hiScore').textContent=hi;}
+  sfx.over();
+}
+/* ===== ОТРИСОВКА ЭКРАНА A75 ===== */
+function draw(){
+  // фон экрана CSTN
+  ctx.fillStyle='#9fb8c8';ctx.fillRect(0,0,200,280);
+  ctx.fillStyle='#8aa8b8';ctx.fillRect(0,0,200,26);
+  ctx.fillStyle='#5a7a8c';ctx.fillRect(0,26,200,2);
+  // HUD
+  ctx.fillStyle='#12303e';ctx.font='bold 11px monospace';ctx.textAlign='left';ctx.textBaseline='top';
+  ctx.fillText('СЧЁТ '+String(G?G.score:0).padStart(6,'0'),4,4);
+  ctx.fillText('УР.'+(G?G.level:1),150,4);
+  ctx.fillText('♥'.repeat(G?G.lives:3)+'  РЕКОРД '+hi,4,15);
+  // поле
+  ctx.fillStyle='#7fa0b0';ctx.fillRect(FX-3,FY-3,FW+6,FH+6);
+  ctx.fillStyle='#a8c4d2';ctx.fillRect(FX,FY,FW,FH);
+  // сетка
+  ctx.strokeStyle='rgba(18,48,62,.12)';ctx.lineWidth=1;
+  for(let c=1;c<COLS;c++){ctx.beginPath();ctx.moveTo(FX+c*CELL,FY);ctx.lineTo(FX+c*CELL,FY+FH);ctx.stroke();}
+  for(let r=1;r<ROWS;r++){ctx.beginPath();ctx.moveTo(FX,FY+r*CELL);ctx.lineTo(FX+FW,FY+r*CELL);ctx.stroke();}
+  // пол
+  ctx.fillStyle='#4a6a7a';ctx.fillRect(FX-3,FLOOR,FW+6,6);
+  ctx.fillStyle='#2a4a5a';ctx.fillRect(FX-3,FLOOR+6,FW+6,2);
+  if(!G){requestAnimationFrame(draw);return;}
+  // ящики
+  for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++){
+    const v=G.grid[r][c];if(!v)continue;
+    const fl=G.flash.some(f=>f.row===r);
+    drawBox(FX+c*CELL,FY+r*CELL,v,fl);
+  }
+  // падающие
+  G.falling.forEach(b=>drawBox(b.x,b.y,b.color,false));
+  // краны
+  if(G.state==='play'||G.state==='pause')G.cranes.forEach(cr=>drawCrane(cr.x,FY-16));
+  // человечек
+  const m=G.man;
+  if(G.state!=='over'||G.lives>0){
+    if(!(m.inv>0&&Math.floor(G.t*10)%2===0))drawMan(m.x,m.y,m.flip,m.walk);
+  }
+  // сообщение
+  if(G.msg){ctx.fillStyle='#12303e';ctx.font='bold 13px monospace';ctx.textAlign='center';ctx.fillText(G.msg,100,40);}
+  // экраны
+  if(G.state==='title'){
+    ctx.fillStyle='rgba(18,48,62,.82)';ctx.fillRect(10,70,180,140);
+    ctx.fillStyle='#fff';ctx.textAlign='center';
+    ctx.font='bold 16px monospace';ctx.fillText('STACK ATTACK',100,88);
+    ctx.font='11px monospace';ctx.fillText('SIEMENS A75 CLASSIC',100,108);
+    ctx.fillText('Краны роняют ящики.',100,128);
+    ctx.fillText('Толкай их и собирай',100,142);
+    ctx.fillText('полные ряды!',100,156);
+    ctx.fillStyle='#ffd94d';ctx.font='bold 12px monospace';
+    ctx.fillText('▶ НАЖМИ ДЕЙСТВИЕ',100,180);
+    ctx.fillStyle='#fff';ctx.font='10px monospace';
+    ctx.fillText('Кранов: '+(cfg.cranes===2?'2 ◀ ▶ 3':'◀ 2 ▶ 3'),100,198);
+  }
+  if(G.state==='pause'){
+    ctx.fillStyle='rgba(18,48,62,.8)';ctx.fillRect(30,110,140,60);
+    ctx.fillStyle='#fff';ctx.textAlign='center';ctx.font='bold 16px monospace';ctx.fillText('⏸ ПАУЗА',100,128);
+    ctx.font='11px monospace';ctx.fillText('ДЕЙСТВИЕ — дальше',100,150);
+  }
+  if(G.state==='over'){
+    ctx.fillStyle='rgba(18,48,62,.88)';ctx.fillRect(10,80,180,130);
+    ctx.fillStyle='#ff6a5a';ctx.textAlign='center';ctx.font='bold 15px monospace';ctx.fillText('ИГРА ОКОНЧЕНА',100,98);
+    ctx.fillStyle='#fff';ctx.font='11px monospace';ctx.fillText(G.over||'',100,120);
+    ctx.fillText('СЧЁТ: '+G.score,100,140);
+    ctx.fillText('УРОВЕНЬ: '+G.level,100,156);
+    ctx.fillStyle='#ffd94d';ctx.font='bold 12px monospace';
+    ctx.fillText(G.score>=hi&&G.score>0?'★ НОВЫЙ РЕКОРД! ★':'РЕКОРД: '+hi,100,176);
+    ctx.fillStyle='#fff';ctx.font='11px monospace';ctx.fillText('ДЕЙСТВИЕ — ещё раз',100,196);
+  }
+  ctx.textAlign='left';
+}
+/* ===== УПРАВЛЕНИЕ ===== */
+const keys={left:false,right:false,jump:false};
+function bindHold(id,on,off){
+  const el=document.getElementById(id);
+  const d=e=>{e.preventDefault();on();el.classList.add('held');};
+  const u=e=>{e.preventDefault();off();el.classList.remove('held');};
+  el.addEventListener('pointerdown',d);el.addEventListener('pointerup',u);el.addEventListener('pointerleave',u);el.addEventListener('pointercancel',u);
+}
+bindHold('btnL',()=>keys.left=true,()=>keys.left=false);
+bindHold('btnR',()=>keys.right=true,()=>keys.right=false);
+bindHold('btnA',()=>{keys.jump=true;actionPress();},()=>{keys.jump=false;});
+bindHold('btnP',()=>togglePause(),()=>{});
+document.getElementById('btnSnd').addEventListener('click',()=>{cfg.sound=!cfg.sound;try{localStorage.setItem(SAVE_CFG,JSON.stringify(cfg));}catch(e){}document.getElementById('btnSnd').innerHTML=cfg.sound?'🔊<span>ЗВУК</span>':'🔇<span>ЗВУК</span>';if(cfg.sound)beep(660,.08);});
+document.getElementById('btnNew').addEventListener('click',()=>{startGame();});
+function actionPress(){
+  if(!G)return;
+  if(G.state==='title')startGame();
+  else if(G.state==='over')startGame();
+  else if(G.state==='pause')G.state='play';
+}
+function togglePause(){
+  if(!G)return;
+  if(G.state==='play'){G.state='pause';}
+  else if(G.state==='pause'){G.state='play';}
+}
+window.addEventListener('keydown',e=>{
+  if(e.key==='ArrowLeft'){keys.left=true;e.preventDefault();}
+  if(e.key==='ArrowRight'){keys.right=true;e.preventDefault();}
+  if(e.key==='ArrowUp'||e.key===' '){keys.jump=true;actionPress();e.preventDefault();}
+  if(e.key==='p'||e.key==='P'||e.key==='Escape')togglePause();
+});
+window.addEventListener('keyup',e=>{
+  if(e.key==='ArrowLeft')keys.left=false;
+  if(e.key==='ArrowRight')keys.right=false;
+  if(e.key==='ArrowUp'||e.key===' ')keys.jump=false;
+});
+// смена числа кранов на титульном экране стрелками
+window.addEventListener('keydown',e=>{
+  if(G&&G.state==='title'&&(e.key==='ArrowLeft'||e.key==='ArrowRight')){
+    cfg.cranes=cfg.cranes===2?3:2;try{localStorage.setItem(SAVE_CFG,JSON.stringify(cfg));}catch(err){}newGame();
+  }
+});
+/* ===== ГЛАВНЫЙ ЦИКЛ ===== */
+newGame();
+if(!cfg.sound)document.getElementById('btnSnd').innerHTML='🔇<span>ЗВУК</span>';
+let last=performance.now();
+function loop(now){
+  const dt=Math.min(0.05,(now-last)/1000);last=now;
+  update(dt);
+  draw();
+  requestAnimationFrame(loop);
+}
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>

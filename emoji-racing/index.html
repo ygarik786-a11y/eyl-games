@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>🏎️ EMOJI RACING TURBO 🏁</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden;background:#0b0e1a;font-family:'Segoe UI',system-ui,sans-serif;color:#fff;touch-action:manipulation}
+#app{max-width:480px;margin:0 auto;height:100%;position:relative;background:linear-gradient(180deg,#141a33,#0b0e1a);display:flex;flex-direction:column}
+.screen{display:none;flex:1;overflow-y:auto;padding:14px 14px 20px}
+.screen.on{display:block}
+h1{font-size:30px;text-align:center;line-height:1.15;margin:6px 0 2px}
+h1 .sub{display:block;font-size:15px;color:#ffd94d;letter-spacing:3px}
+.sub2{text-align:center;color:#9fb2ff;font-size:13px;margin-bottom:12px}
+.btn{display:block;width:100%;padding:14px 12px;margin:8px 0;border:0;border-radius:16px;font-size:18px;font-weight:800;color:#fff;background:linear-gradient(180deg,#3b5bff,#1f37c9);box-shadow:0 4px 0 #14207a,0 6px 14px rgba(0,0,0,.5);cursor:pointer;text-align:left}
+.btn:active{transform:translateY(3px);box-shadow:0 1px 0 #14207a}
+.btn small{float:right;opacity:.85;font-weight:600;font-size:13px}
+.btn.gold{background:linear-gradient(180deg,#ffb400,#e07f00);box-shadow:0 4px 0 #7a4a00,0 6px 14px rgba(0,0,0,.5)}
+.btn.green{background:linear-gradient(180deg,#22c55e,#15803d);box-shadow:0 4px 0 #14532d,0 6px 14px rgba(0,0,0,.5)}
+.btn.red{background:linear-gradient(180deg,#ef4444,#991b1b);box-shadow:0 4px 0 #450a0a,0 6px 14px rgba(0,0,0,.5)}
+.btn.gray{background:linear-gradient(180deg,#475569,#1e293b);box-shadow:0 4px 0 #0f172a,0 6px 14px rgba(0,0,0,.5)}
+.btn:disabled{opacity:.45}
+.topbar{display:flex;justify-content:space-between;align-items:center;background:rgba(255,255,255,.08);border-radius:14px;padding:8px 12px;margin-bottom:10px;font-weight:800;font-size:16px}
+.topbar .coins{color:#ffd94d}
+.card{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);border-radius:16px;padding:12px;margin:9px 0}
+.card.sel{border-color:#ffd94d;background:rgba(255,217,77,.12);box-shadow:0 0 0 2px #ffd94d55}
+.card .car{font-size:52px;text-align:center;line-height:1.1}
+.card h3{text-align:center;font-size:18px;margin:4px 0}
+.stat{display:flex;align-items:center;gap:6px;font-size:12px;margin:3px 0}
+.stat b{width:96px;font-weight:600;color:#c7d2fe}
+.bar{flex:1;height:9px;background:rgba(0,0,0,.45);border-radius:6px;overflow:hidden}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,#22d3ee,#22c55e);border-radius:6px}
+.row{display:flex;gap:8px}
+.row .btn{flex:1;text-align:center}
+.mini{font-size:12px;color:#9fb2ff;text-align:center;margin-top:4px}
+.pill{display:inline-block;background:rgba(255,255,255,.12);border-radius:20px;padding:4px 10px;font-size:13px;margin:3px 3px 0 0}
+#raceWrap{position:relative;flex:1;display:none;flex-direction:column}
+#raceWrap.on{display:flex}
+#cv{width:100%;flex:1;display:block;background:#222}
+.hud{position:absolute;top:8px;left:8px;right:8px;display:flex;justify-content:space-between;pointer-events:none;z-index:3}
+.hud .box{background:rgba(0,0,0,.65);border-radius:12px;padding:6px 10px;font-weight:800;font-size:15px}
+.hud .box small{display:block;font-size:10px;color:#9fb2ff;font-weight:600}
+#nitroBar{position:absolute;top:64px;left:8px;right:8px;height:12px;background:rgba(0,0,0,.6);border-radius:8px;overflow:hidden;z-index:3;border:1px solid #ffffff33}
+#nitroFill{height:100%;width:50%;background:linear-gradient(90deg,#22d3ee,#a78bfa,#f472b6)}
+#speedo{position:absolute;bottom:118px;right:10px;background:rgba(0,0,0,.65);border-radius:12px;padding:6px 12px;font-weight:800;font-size:22px;z-index:3}
+#speedo small{font-size:11px;color:#9fb2ff}
+#msg{position:absolute;top:38%;left:0;right:0;text-align:center;font-size:44px;font-weight:900;text-shadow:0 3px 0 #000,0 0 24px #000;z-index:4;pointer-events:none}
+#msg small{display:block;font-size:18px}
+.controls{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;padding:10px;background:rgba(0,0,0,.35)}
+.cbtn{border:0;border-radius:16px;padding:16px 4px;font-size:30px;color:#fff;background:rgba(255,255,255,.14);box-shadow:0 3px 0 rgba(0,0,0,.5);cursor:pointer;user-select:none}
+.cbtn:active,.cbtn.held{background:#3b5bff;transform:translateY(2px)}
+.cbtn.gas{background:linear-gradient(180deg,#22c55e,#15803d)}
+.cbtn.brk{background:linear-gradient(180deg,#ef4444,#991b1b)}
+.cbtn.nitro{background:linear-gradient(180deg,#a855f7,#6d28d9)}
+.cbtn span{display:block;font-size:11px;font-weight:700}
+select,input[type=range]{width:100%;accent-color:#ffd94d}
+.toggle{display:flex;justify-content:space-between;align-items:center;padding:10px 2px;font-size:16px;font-weight:700}
+.center{text-align:center}
+.big{font-size:64px;line-height:1.1}
+.prize{font-size:20px;font-weight:800;color:#ffd94d;text-align:center;margin:8px 0}
+</style>
+</head>
+<body>
+<div id="app">
+  <!-- ГЛАВНОЕ МЕНЮ -->
+  <div class="screen on" id="scr-menu">
+    <h1>🏎️ EMOJI<br>RACING TURBO<span class="sub">🏁 ТУРБО-ГОНКИ ИЗ ЭМОДЗИ 🏁</span></h1>
+    <p class="sub2">Всё в игре — только из эмодзи: машины, трасса, погода и даже дым 💨</p>
+    <div class="topbar"><span>👤 <span id="menuCar">🚗</span> <span id="menuCarName">Городской</span></span><span class="coins">🪙 <span id="menuCoins">0</span></span></div>
+    <button class="btn gold" onclick="ERT.startRace()">🏎️ Начать гонку <small>3 круга • 6 гонщиков</small></button>
+    <button class="btn" onclick="ERT.show('garage')">🚘 Мой гараж <small id="garageCount"></small></button>
+    <button class="btn" onclick="ERT.show('tuning')">🔧 Тюнинг <small>двигатель • турбо • колёса</small></button>
+    <button class="btn" onclick="ERT.show('champ')">🏆 Чемпионаты <small id="champInfo"></small></button>
+    <button class="btn" onclick="ERT.show('tracks')">🏁 Выбор трассы <small id="trackInfo"></small></button>
+    <button class="btn" onclick="ERT.show('shop')">🪙 Магазин <small>машины и нитро</small></button>
+    <button class="btn gray" onclick="ERT.show('settings')">⚙️ Настройки</button>
+    <p class="mini">🏆 Побед: <span id="menuWins">0</span> • 🥇 Лучшее место: <span id="menuBest">—</span> • 🪙 Всего заработано: <span id="menuEarned">0</span></p>
+  </div>
+
+  <!-- ГАРАЖ -->
+  <div class="screen" id="scr-garage">
+    <div class="topbar"><button class="btn gray" style="width:auto;margin:0;padding:8px 14px" onclick="ERT.show('menu')">⬅️ Назад</button><span class="coins">🪙 <span class="cCoins">0</span></span></div>
+    <h1>🚘 Мой гараж</h1>
+    <p class="sub2">Выбери машину — у каждой свои скорость, разгон и управляемость</p>
+    <div id="garageList"></div>
+  </div>
+
+  <!-- ТЮНИНГ -->
+  <div class="screen" id="scr-tuning">
+    <div class="topbar"><button class="btn gray" style="width:auto;margin:0;padding:8px 14px" onclick="ERT.show('menu')">⬅️ Назад</button><span class="coins">🪙 <span class="cCoins">0</span></span></div>
+    <h1>🔧 Тюнинг</h1>
+    <p class="sub2">Улучшай свою машину: <span id="tuneCar"></span></p>
+    <div id="tuneList"></div>
+  </div>
+
+  <!-- ЧЕМПИОНАТЫ -->
+  <div class="screen" id="scr-champ">
+    <div class="topbar"><button class="btn gray" style="width:auto;margin:0;padding:8px 14px" onclick="ERT.show('menu')">⬅️ Назад</button><span class="coins">🪙 <span class="cCoins">0</span></span></div>
+    <h1>🏆 Чемпионаты</h1>
+    <p class="sub2">Три гонки подряд — набери больше всех очков и забери кубок и приз</p>
+    <div id="champList"></div>
+  </div>
+
+  <!-- ТРАССЫ -->
+  <div class="screen" id="scr-tracks">
+    <div class="topbar"><button class="btn gray" style="width:auto;margin:0;padding:8px 14px" onclick="ERT.show('menu')">⬅️ Назад</button><span class="coins">🪙 <span class="cCoins">0</span></span></div>
+    <h1>🏁 Выбор трассы</h1>
+    <p class="sub2">Каждая трасса — своё оформление, сцепление и погода</p>
+    <div id="trackList"></div>
+  </div>
+
+  <!-- МАГАЗИН -->
+  <div class="screen" id="scr-shop">
+    <div class="topbar"><button class="btn gray" style="width:auto;margin:0;padding:8px 14px" onclick="ERT.show('menu')">⬅️ Назад</button><span class="coins">🪙 <span class="cCoins">0</span></span></div>
+    <h1>🪙 Магазин</h1>
+    <p class="sub2">Покупай машины и нитро за монеты, заработанные в гонках</p>
+    <div id="shopList"></div>
+  </div>
+
+  <!-- НАСТРОЙКИ -->
+  <div class="screen" id="scr-settings">
+    <div class="topbar"><button class="btn gray" style="width:auto;margin:0;padding:8px 14px" onclick="ERT.show('menu')">⬅️ Назад</button><span>⚙️ Настройки</span></div>
+    <h1>⚙️ Настройки</h1>
+    <div class="card">
+      <div class="toggle">🔊 Звук <button class="btn green" style="width:auto;margin:0;padding:8px 16px" id="sndBtn" onclick="ERT.toggleSound()">Вкл</button></div>
+      <div class="toggle">🌦️ Погода в гонке <button class="btn green" style="width:auto;margin:0;padding:8px 16px" id="wthBtn" onclick="ERT.toggleWeather()">Случайная</button></div>
+      <div class="toggle">📳 Вибрация <button class="btn green" style="width:auto;margin:0;padding:8px 16px" id="vibBtn" onclick="ERT.toggleVib()">Вкл</button></div>
+    </div>
+    <div class="card">
+      <h3 class="center">🎨 Цвет моей машины</h3>
+      <div class="center" style="font-size:44px" id="colorPreview">🚗</div>
+      <div id="colorList" class="center"></div>
+      <p class="mini">Цвет меняет только внешний вид — характеристики не трогает</p>
+    </div>
+    <button class="btn red" onclick="ERT.resetSave()">🗑️ Сбросить весь прогресс</button>
+    <p class="mini">Прогресс хранится в телефоне и не пропадает после перезапуска</p>
+  </div>
+
+  <!-- ФИНИШ -->
+  <div class="screen" id="scr-finish">
+    <h1 id="finTitle">🏁 Финиш!</h1>
+    <div class="center big" id="finEmoji">🏆</div>
+    <div class="prize" id="finPlace"></div>
+    <div class="card center" id="finStats"></div>
+    <div class="prize" id="finCoins"></div>
+    <button class="btn gold" onclick="ERT.startRace()">🔄 Ещё раз</button>
+    <button class="btn" onclick="ERT.show('menu')">🏠 В меню</button>
+  </div>
+
+  <!-- ГОНКА -->
+  <div id="raceWrap">
+    <canvas id="cv" width="400" height="560"></canvas>
+    <div class="hud">
+      <div class="box">🏁 Круг <span id="hudLap">1/3</span><small>⏱ <span id="hudTime">0:00.0</span></small></div>
+      <div class="box">📍 Место <span id="hudPlace">6/6</span><small id="hudTrack">🌆 Ночной город</small></div>
+      <div class="box">🪙 <span id="hudCoins">0</span><small>💨 нитро</small></div>
+    </div>
+    <div id="nitroBar"><div id="nitroFill"></div></div>
+    <div id="speedo">0<small> км/ч</small></div>
+    <div id="msg"></div>
+    <button class="btn gray" style="position:absolute;top:80px;right:8px;width:auto;margin:0;padding:6px 12px;z-index:3;font-size:14px" onclick="ERT.quitRace()">⏸ Пауза</button>
+    <div class="controls">
+      <button class="cbtn" id="btnL">⬅️<span>влево</span></button>
+      <button class="cbtn gas" id="btnGas">⬆️<span>ГАЗ</span></button>
+      <button class="cbtn" id="btnR">➡️<span>вправо</span></button>
+      <button class="cbtn brk" id="btnBrk">⬇️<span>ТОРМОЗ</span></button>
+      <button class="cbtn nitro" id="btnNitro">💨<span>НИТРО</span></button>
+      <button class="cbtn" id="btnHorn">📣<span>сигнал</span></button>
+    </div>
+  </div>
+</div>
+<script>
+'use strict';
+/* ============ ДАННЫЕ ============ */
+const CARS=[
+ {id:'city', e:'🚗', name:'Городской', cls:'🚕 Городские', spd:62, acc:55, hnd:60, brk:60, hp:60, price:0},
+ {id:'taxi', e:'🚕', name:'Такси «Шашечки»', cls:'🚕 Городские', spd:66, acc:60, hnd:62, brk:62, hp:62, price:300},
+ {id:'suv', e:'🚙', name:'Внедорожник', cls:'🚙 Внедорожники', spd:70, acc:58, hnd:55, brk:58, hp:92, price:600},
+ {id:'sport', e:'🚘', name:'Спорткар', cls:'🚗 Спортивные', spd:80, acc:75, hnd:72, brk:70, hp:66, price:1200},
+ {id:'muscle', e:'🏎️', name:'Мускул-кар', cls:'🚗 Спортивные', spd:84, acc:80, hnd:66, brk:64, hp:74, price:2000},
+ {id:'police', e:'🚓', name:'Полицейский', cls:'🚓 Специальные', spd:86, acc:78, hnd:74, brk:82, hp:88, price:3000},
+ {id:'f1', e:'🏎️', name:'Формула E.Y.L', cls:'🏎️ Суперкары', spd:95, acc:92, hnd:90, brk:86, hp:70, price:5000},
+ {id:'gold', e:'🚘', name:'Золотой фантом', cls:'🚘 Редкие', spd:90, acc:85, hnd:88, brk:84, hp:80, price:8000},
+ {id:'cyber', e:'🚗', name:'Кибер-лебедь', cls:'🚘 Редкие', spd:98, acc:95, hnd:92, brk:90, hp:85, price:12000},
+ {id:'jeep', e:'🚙', name:'Джип «Лебедян»', cls:'🚙 Внедорожники', spd:74, acc:64, hnd:60, brk:66, hp:98, price:1500},
+ {id:'pickup', e:'🛻', name:'Пикап', cls:'🚙 Внедорожники', spd:72, acc:62, hnd:58, brk:60, hp:95, price:900},
+ {id:'limo', e:'🚘', name:'Лимузин', cls:'🚕 Городские', spd:76, acc:58, hnd:52, brk:58, hp:90, price:2500}
+];
+const TRACKS=[
+ {id:'city', e:'🌆', name:'Ночной город', grip:1.0, spd:1.0, deco:['🏢','🌃','🚦','🌉','🏙️','💡'], sky:'#1a1440', road:'#2b2b3a', desc:'Неон, небоскрёбы и светофоры'},
+ {id:'desert', e:'🏜️', name:'Пустыня', grip:0.85, spd:1.05, deco:['🌵','🏜️','☀️','🐫','⛰️','🌵'], sky:'#f7c873', road:'#5a4632', desc:'Песок, кактусы и жара'},
+ {id:'forest', e:'🌲', name:'Лес', grip:0.92, spd:0.97, deco:['🌲','🌳','🍄','🦌','🌿','🪵'], sky:'#1e4d2b', road:'#3a3a30', desc:'Ёлки, грибы и свежий воздух'},
+ {id:'mount', e:'🏔️', name:'Горные дороги', grip:0.88, spd:1.0, deco:['🏔️','⛰️','🦅','🌲','❄️','🏔️'], sky:'#7fa8c9', road:'#3d3d4a', desc:'Серпантины и обрывы'},
+ {id:'snow', e:'❄️', name:'Снежная трасса', grip:0.7, spd:0.9, deco:['❄️','⛄','🎄','🧊','🏔️','❄️'], sky:'#cfe8ff', road:'#8a97a8', desc:'Скользко! Тормози заранее'},
+ {id:'tropic', e:'🌴', name:'Тропический остров', grip:0.95, spd:1.02, deco:['🌴','🥥','🌺','🐬','🏖️','🌊'], sky:'#4fc3f7', road:'#4a4a42', desc:'Пальмы, океан и солнце'},
+ {id:'bridge', e:'🌉', name:'Мосты и тоннели', grip:1.0, spd:1.08, deco:['🌉','🚇','💡','🌉','🏗️','🚦'], sky:'#28304a', road:'#33333f', desc:'Самый быстрый асфальт'},
+ {id:'neon', e:'🌃', name:'Неоновый город', grip:0.98, spd:1.05, deco:['🌃','💜','🎆','🛸','🌆','✨'], sky:'#2a0a4a', road:'#241a33', desc:'Неон, диско и скорость'}
+];
+const WEATHERS=[
+ {id:'sun', e:'☀️', name:'Солнце', grip:1.0},
+ {id:'rain', e:'🌧️', name:'Дождь', grip:0.82},
+ {id:'storm', e:'⛈️', name:'Гроза', grip:0.75},
+ {id:'snow', e:'❄️', name:'Снег', grip:0.7},
+ {id:'night', e:'🌙', name:'Ночь', grip:0.95},
+ {id:'sunset', e:'🌅', name:'Закат', grip:0.98}
+];
+const TUNES=[
+ {id:'engine', e:'⚙️', name:'Двигатель', desc:'+максимальная скорость', max:5, cost:400},
+ {id:'turbo', e:'🌀', name:'Турбонаддув', desc:'+разгон с места', max:5, cost:350},
+ {id:'wheels', e:'🛞', name:'Колёса', desc:'+управляемость', max:5, cost:300},
+ {id:'brakes', e:'🛑', name:'Тормоза', desc:'+торможение', max:5, cost:300},
+ {id:'susp', e:'🔩', name:'Подвеска', desc:'+прочность при ударах', max:5, cost:250},
+ {id:'nitro', e:'💨', name:'Нитро-бак', desc:'+запас нитро', max:5, cost:350}
+];
+const CHAMPS=[
+ {id:'rookie', e:'🥉', name:'Кубок Новичка', prize:800, tracks:['city','forest','tropic'], desc:'3 гонки • соперники слабые'},
+ {id:'pro', e:'🥈', name:'Кубок Профи', prize:2500, tracks:['desert','mount','neon'], desc:'3 гонки • быстрые соперники'},
+ {id:'legend', e:'🏆', name:'Кубок Легенды', prize:6000, tracks:['snow','bridge','neon'], desc:'3 гонки • снег, мосты и неон'}
+];
+const COLORS=[{n:'Красный',e:'🔴'},{n:'Синий',e:'🔵'},{n:'Зелёный',e:'🟢'},{n:'Жёлтый',e:'🟡'},{n:'Фиолетовый',e:'🟣'},{n:'Чёрный',e:'⚫'},{n:'Белый',e:'⚪'}];
+const AI_NAMES=['🦊 Лис','🐻 Миша','🐱 Мурка','🦁 Лев','🐼 Панда'];
+const SAVE_KEY='ert_save_v1';
+let S=null;
+function defSave(){return {coins:500, car:'city', owned:['city'], tunes:{}, track:'city', weather:'random', sound:true, vib:true, color:0, wins:0, races:0, best:0, earned:0, champ:{}, unlockedTracks:['city','forest','tropic','desert','mount','snow','bridge','neon']}}
+function load(){try{const r=localStorage.getItem(SAVE_KEY);S=r?Object.assign(defSave(),JSON.parse(r)):defSave();}catch(e){S=defSave();}}
+function save(){try{localStorage.setItem(SAVE_KEY,JSON.stringify(S));}catch(e){}}
+function car(){return CARS.find(c=>c.id===S.car)}
+function track(){return TRACKS.find(t=>t.id===S.track)}
+function effStats(c){
+  const t=S.tunes||{};const lv=id=>(t[id]||0);
+  return {spd:Math.min(99,c.spd+lv('engine')*2+lv('turbo')*1),acc:Math.min(99,c.acc+lv('turbo')*3+lv('engine')*1),hnd:Math.min(99,c.hnd+lv('wheels')*3),brk:Math.min(99,c.brk+lv('brakes')*3),hp:Math.min(99,c.hp+lv('susp')*3),nitro:60+lv('nitro')*14};
+}
+/* ============ ЗВУК ============ */
+let AC=null;
+function beep(f,d,type,g){if(!S.sound)return;try{AC=AC||new (window.AudioContext||window.webkitAudioContext)();const o=AC.createOscillator(),gn=AC.createGain();o.type=type||'square';o.frequency.value=f;gn.gain.value=g||0.06;o.connect(gn);gn.connect(AC.destination);o.start();gn.gain.exponentialRampToValueAtTime(0.001,AC.currentTime+(d||0.08));o.stop(AC.currentTime+(d||0.08));}catch(e){}}
+function buzz(p){if(S.vib&&navigator.vibrate)navigator.vibrate(p||30)}
+/* ============ ЭКРАНЫ ============ */
+const $=id=>document.getElementById(id);
+function statBar(label,val){return '<div class="stat"><b>'+label+'</b><div class="bar"><i style="width:'+val+'%"></i></div><span>'+val+'</span></div>'}
+function carCard(c,btnHtml){
+  const st=effStats(c);
+  return '<div class="card'+(S.car===c.id?' sel':'')+'"><div class="car">'+c.e+'</div><h3>'+c.name+'</h3><div class="center"><span class="pill">'+c.cls+'</span></div>'
+  +statBar('Скорость',st.spd)+statBar('Ускорение',st.acc)+statBar('Управление',st.hnd)+statBar('Тормоза',st.brk)+statBar('Прочность',st.hp)
+  +'<div class="mini">Нитро-бак: '+st.nitro+' • '+(btnHtml||'')+'</div></div>';
+}
+const ERT={
+show(name){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
+  $('raceWrap').classList.remove('on');
+  if(name==='menu'){$('scr-menu').classList.add('on');ERT.renderMenu();}
+  if(name==='garage'){$('scr-garage').classList.add('on');ERT.renderGarage();}
+  if(name==='tuning'){$('scr-tuning').classList.add('on');ERT.renderTune();}
+  if(name==='champ'){$('scr-champ').classList.add('on');ERT.renderChamp();}
+  if(name==='tracks'){$('scr-tracks').classList.add('on');ERT.renderTracks();}
+  if(name==='shop'){$('scr-shop').classList.add('on');ERT.renderShop();}
+  if(name==='settings'){$('scr-settings').classList.add('on');ERT.renderSettings();}
+  if(name==='finish'){$('scr-finish').classList.add('on');}
+  document.querySelectorAll('.cCoins').forEach(e=>e.textContent=S.coins);
+  window.scrollTo(0,0);
+},
+renderMenu(){
+  const c=car();$('menuCar').textContent=c.e;$('menuCarName').textContent=c.name;
+  $('menuCoins').textContent=S.coins;$('menuWins').textContent=S.wins;
+  $('menuBest').textContent=S.best?('🥇 '+S.best+' место'):'—';$('menuEarned').textContent=S.earned;
+  $('garageCount').textContent=S.owned.length+' из '+CARS.length;
+  $('champInfo').textContent=Object.keys(S.champ).filter(k=>S.champ[k]).length+' из 3 выиграно';
+  $('trackInfo').textContent=track().e+' '+track().name;
+},
+renderGarage(){
+  $('garageList').innerHTML=CARS.filter(c=>S.owned.includes(c.id)).map(c=>{
+    const btn=S.car===c.id?'<span style="color:#ffd94d">✅ Выбрана</span>':'<button class="btn green" style="margin:6px 0 0;padding:10px" onclick="ERT.pickCar(\''+c.id+'\')">Выбрать эту</button>';
+    return carCard(c,btn);
+  }).join('')||'<p class="center">В гараже пусто — загляни в магазин 🪙</p>';
+},
+pickCar(id){S.car=id;save();beep(700,.08);ERT.renderGarage();ERT.show('menu');},
+renderTune(){
+  const c=car();$('tuneCar').textContent=c.e+' '+c.name;
+  $('tuneList').innerHTML=TUNES.map(t=>{
+    const lv=(S.tunes[t.id]||0);const maxed=lv>=t.max;const cost=t.cost*(lv+1);
+    return '<div class="card"><h3>'+t.e+' '+t.name+' — ур. '+lv+'/'+t.max+'</h3><p class="mini">'+t.desc+'</p><div class="bar" style="margin:8px 0"><i style="width:'+(lv/t.max*100)+'%"></i></div>'
+    +(maxed?'<p class="center" style="color:#ffd94d">⭐ МАКСИМУМ</p>':'<button class="btn gold" style="text-align:center" onclick="ERT.buyTune(\''+t.id+'\')" '+(S.coins<cost?'disabled':'')+'>Улучшить за 🪙 '+cost+'</button>')+'</div>';
+  }).join('');
+},
+buyTune(id){
+  const t=TUNES.find(x=>x.id===id);const lv=S.tunes[id]||0;if(lv>=t.max)return;
+  const cost=t.cost*(lv+1);if(S.coins<cost){alert('Не хватает монет! Выиграй гонку 🪙');return;}
+  S.coins-=cost;S.tunes[id]=lv+1;save();beep(880,.12);ERT.renderTune();
+},
+renderChamp(){
+  $('champList').innerHTML=CHAMPS.map((ch,i)=>{
+    const won=S.champ[ch.id];
+    return '<div class="card'+(won?' sel':'')+'"><div class="car">'+ch.e+'</div><h3>'+ch.name+'</h3><p class="center">'+ch.desc+'</p><p class="center">Трассы: '+ch.tracks.map(t=>{const tr=TRACKS.find(x=>x.id===t);return tr.e+' '+tr.name}).join(' → ')+'</p><p class="prize">Приз 🏆 🪙 '+ch.prize+'</p>'
+    +(won?'<p class="center" style="color:#ffd94d">🏆 ВЫИГРАН! Можно пройти ещё раз</p>':'')
+    +'<button class="btn gold" style="text-align:center" onclick="ERT.startChamp('+i+')">Начать чемпионат</button></div>';
+  }).join('');
+},
+renderTracks(){
+  $('trackList').innerHTML=TRACKS.map(t=>{
+    const w=ERT.curWeather();
+    return '<div class="card'+(S.track===t.id?' sel':'')+'"><div class="car" style="font-size:44px">'+t.e+' '+t.deco[0]+' '+t.deco[1]+'</div><h3>'+t.e+' '+t.name+'</h3><p class="center">'+t.desc+'</p><p class="center"><span class="pill">🤝 Сцепление '+Math.round(t.grip*100)+'%</span><span class="pill">💨 Скорость '+Math.round(t.spd*100)+'%</span><span class="pill">'+w.e+' '+w.name+'</span></p>'
+    +'<button class="btn green" style="text-align:center" onclick="ERT.pickTrack(\''+t.id+'\')">'+(S.track===t.id?'✅ Выбрана':'Выбрать трассу')+'</button></div>';
+  }).join('');
+},
+pickTrack(id){S.track=id;save();beep(700,.08);ERT.renderTracks();},
+renderShop(){
+  $('shopList').innerHTML=CARS.filter(c=>!S.owned.includes(c.id)).map(c=>{
+    return carCard(c,'<button class="btn gold" style="margin:6px 0 0;padding:10px" onclick="ERT.buyCar(\''+c.id+'\')" '+(S.coins<c.price?'disabled':'')+'>Купить за 🪙 '+c.price+'</button>');
+  }).join('')+'<div class="card"><h3 class="center">💨 Нитро-заправка</h3><p class="center">Полный бак нитро на следующую гонку — бесплатно, просто загляни в гараж и выбери машину 😉</p></div>'
+  +(CARS.every(c=>S.owned.includes(c.id))?'<p class="center" style="color:#ffd94d">🎉 Все машины куплены! Ты — легенда гаража!</p>':'');
+},
+buyCar(id){
+  const c=CARS.find(x=>x.id===id);if(S.coins<c.price){alert('Не хватает монет! Выиграй гонку 🪙');return;}
+  S.coins-=c.price;S.owned.push(id);S.car=id;save();beep(990,.15);alert('🎉 Машина '+c.e+' '+c.name+' твоя!');ERT.renderShop();ERT.show('menu');
+},
+renderSettings(){
+  $('sndBtn').textContent=S.sound?'Вкл':'Выкл';$('sndBtn').className='btn '+(S.sound?'green':'gray');
+  $('wthBtn').textContent=S.weather==='random'?'Случайная':(WEATHERS.find(w=>w.id===S.weather)||{}).name;
+  $('vibBtn').textContent=S.vib?'Вкл':'Выкл';$('vibBtn').className='btn '+(S.vib?'green':'gray');
+  $('colorPreview').textContent=car().e;
+  $('colorList').innerHTML=COLORS.map((c,i)=>'<button class="btn" style="display:inline-block;width:auto;margin:4px;padding:10px 14px;'+(S.color===i?'outline:3px solid #ffd94d;':'')+'" onclick="ERT.pickColor('+i+')">'+c.e+' '+c.n+'</button>').join('');
+},
+toggleSound(){S.sound=!S.sound;save();ERT.renderSettings();beep(600,.08);},
+toggleVib(){S.vib=!S.vib;save();ERT.renderSettings();},
+toggleWeather(){
+  const order=['random','sun','rain','storm','snow','night','sunset'];
+  S.weather=order[(order.indexOf(S.weather)+1)%order.length];save();ERT.renderSettings();
+},
+pickColor(i){S.color=i;save();ERT.renderSettings();},
+resetSave(){if(confirm('Точно сбросить весь прогресс, монеты и машины?')){localStorage.removeItem(SAVE_KEY);load();ERT.show('menu');}},
+curWeather(){
+  if(S.weather!=='random')return WEATHERS.find(w=>w.id===S.weather);
+  return WEATHERS[Math.floor(Math.random()*WEATHERS.length)];
+},
+startChamp(i){
+  RACE.champ=CHAMPS[i];RACE.champRace=0;RACE.champPoints={you:0};
+  AI_NAMES.forEach(n=>RACE.champPoints[n]=0);
+  ERT.startRace(CHAMPS[i].tracks[0]);
+},
+quitRace(){RACE.running=false;ERT.show('menu');}
+};
+/* ============ ГОНКА ============ */
+const cv=$('cv'),ctx=cv.getContext('2d');
+const ROAD={x:56,w:288,lanes:4};
+const LANE_W=ROAD.w/ROAD.lanes;
+const LAP_LEN=2600; // метров на круг
+const RACE={running:false,champ:null,champRace:0,champPoints:{},raf:0};
+let G=null;
+function laneX(i){return ROAD.x+LANE_W*(i+0.5)}
+function newRace(trackId){
+  const tr=TRACKS.find(t=>t.id===trackId)||track();
+  const w=ERT.curWeather();
+  const st=effStats(car());
+  const maxSpd=(170+st.spd*1.5)*tr.spd;
+  G={tr,w,car:car(),st,maxSpd,
+    px:laneX(1),py:470,spd:0,nitro:st.nitro,nitroMax:st.nitro,coins:0,
+    dist:0,lap:1,laps:3,time:0,shake:0,smoke:[],parts:[],
+    roadOff:0,deco:[],obs:[],pickups:[],weatherP:[],
+    ai:[],countdown:3.2,finished:false,place:6,msgT:0,
+    grip:tr.grip*w.grip*(0.75+st.hnd*0.0025)};
+  for(let i=0;i<14;i++)G.deco.push({y:Math.random()*560,side:Math.random()<0.5?0:1,e:tr.deco[Math.floor(Math.random()*tr.deco.length)],s:18+Math.random()*18});
+  for(let i=0;i<24;i++)G.weatherP.push({x:Math.random()*400,y:Math.random()*560,v:2+Math.random()*3});
+  const names=AI_NAMES.slice();
+  for(let i=0;i<5;i++){
+    const aiCar=CARS[2+Math.floor(Math.random()*(CARS.length-2))];
+    G.ai.push({name:names[i],e:aiCar.e,lane:Math.floor(Math.random()*4),x:laneX(0),dist:120+i*90+Math.random()*80,
+      base:(0.82+Math.random()*0.16)*maxSpd,spd:0,wob:Math.random()*10,flash:0});
+    G.ai[i].x=laneX(G.ai[i].lane);
+  }
+  G.ai.sort((a,b)=>b.dist-a.dist);
+  return G;
+}
+function spawnThings(){
+  const r=Math.random();
+  if(r<0.45){ // препятствие
+    G.obs.push({lane:Math.floor(Math.random()*4),y:-40,e:Math.random()<0.5?'🚧':'🛢️',hit:false});
+  } else if(r<0.75){ // монета
+    G.pickups.push({lane:Math.floor(Math.random()*4),y:-40,e:'🪙',kind:'coin'});
+  } else { // нитро
+    G.pickups.push({lane:Math.floor(Math.random()*4),y:-40,e:'⚡',kind:'nitro'});
+  }
+}
+function startLoop(){
+  cancelAnimationFrame(RACE.raf);
+  let last=performance.now();
+  function frame(now){
+    const dt=Math.min(0.05,(now-last)/1000);last=now;
+    if(RACE.running)update(dt);
+    draw();
+    if(RACE.running)RACE.raf=requestAnimationFrame(frame);
+  }
+  RACE.raf=requestAnimationFrame(frame);
+}
+const keys={};
+window.addEventListener('keydown',e=>{keys[e.key]=true;if(e.key===' ') {e.preventDefault();keys.nitro=true;}});
+window.addEventListener('keyup',e=>{keys[e.key]=false;if(e.key===' ')keys.nitro=false;});
+function bindHold(id,on,off){
+  const el=$(id);
+  const d=e=>{e.preventDefault();on();el.classList.add('held');};
+  const u=e=>{e.preventDefault();off();el.classList.remove('held');};
+  el.addEventListener('pointerdown',d);el.addEventListener('pointerup',u);el.addEventListener('pointerleave',u);el.addEventListener('pointercancel',u);
+}
+bindHold('btnL',()=>keys.left=true,()=>keys.left=false);
+bindHold('btnR',()=>keys.right=true,()=>keys.right=false);
+bindHold('btnGas',()=>keys.gas=true,()=>keys.gas=false);
+bindHold('btnBrk',()=>keys.brk=true,()=>keys.brk=false);
+bindHold('btnNitro',()=>keys.nitro=true,()=>keys.nitro=false);
+$('btnHorn').addEventListener('click',()=>{beep(440,.15,'sawtooth',.09);beep(554,.15,'sawtooth',.09);});
+function update(dt){
+  if(G.countdown>0){G.countdown-=dt;if(G.countdown<=0){$('msg').textContent='';}else{$('msg').innerHTML=Math.ceil(G.countdown)>3?'🏁':Math.ceil(G.countdown);if(Math.ceil(G.countdown)!==G._cd){G._cd=Math.ceil(G.countdown);beep(660,.1);}}return;}
+  if(G.finished)return;
+  G.time+=dt;
+  const st=G.st;
+  // газ / тормоз
+  const accel=(0.5+st.acc*0.012);
+  if(keys.gas||keys.ArrowUp)G.spd+=accel*140*dt;
+  else G.spd-=40*dt;
+  if(keys.brk||keys.ArrowDown)G.spd-=260*dt;
+  // нитро
+  let top=G.maxSpd;
+  if((keys.nitro||keys[' '])&&G.nitro>0&&G.spd>30){top*=1.45;G.nitro-=26*dt;if(Math.random()<0.6)G.parts.push({x:G.px,y:G.py+26,e:'💨',vy:120,life:0.5});if(Math.random()<0.1)beep(1200,.05,'sawtooth',.03);}
+  else if(G.spd>0)G.nitro=Math.min(G.nitroMax,G.nitro+3*dt);
+  G.spd=Math.max(0,Math.min(top,G.spd));
+  // руление
+  const steer=(0.55+st.hnd*0.004)*G.grip*260;
+  if(keys.left||keys.ArrowLeft)G.px-=steer*dt*(0.4+G.spd/G.maxSpd);
+  if(keys.right||keys.ArrowRight)G.px+=steer*dt*(0.4+G.spd/G.maxSpd);
+  G.px=Math.max(ROAD.x+18,Math.min(ROAD.x+ROAD.w-18,G.px));
+  // дистанция и круги
+  const mps=G.spd*0.28; // км/ч -> м/с
+  G.dist+=mps*dt;
+  const lap=Math.floor(G.dist/LAP_LEN)+1;
+  if(lap!==G.lap){G.lap=lap;if(lap>G.laps){finishRace();return;}beep(880,.15);flashMsg('🏁 Круг '+Math.min(lap,G.laps)+'!');}
+  // дорога и декорации
+  G.roadOff+=G.spd*dt*1.4;
+  G.deco.forEach(d=>{d.y+=G.spd*dt*1.1;if(d.y>580){d.y=-30;d.e=G.tr.deco[Math.floor(Math.random()*G.tr.deco.length)];}});
+  G.weatherP.forEach(p=>{p.y+=p.v*G.spd*0.02+1.5;p.x+=G.w.id==='rain'?1.2:0;if(p.y>560){p.y=-10;p.x=Math.random()*400;}});
+  // спавн
+  if(Math.random()<dt*1.6)spawnThings();
+  // препятствия и подборы
+  const vy=G.spd*1.1;
+  G.obs.forEach(o=>{o.y+=vy*dt;});
+  G.pickups.forEach(p=>{p.y+=vy*dt;});
+  G.obs=G.obs.filter(o=>o.y<600);
+  G.pickups=G.pickups.filter(p=>p.y<600);
+  // столкновения с препятствиями
+  G.obs.forEach(o=>{
+    if(!o.hit&&Math.abs(o.y-G.py)<34&&Math.abs(laneX(o.lane)-G.px)<34){
+      o.hit=true;G.spd*=0.45;G.shake=10;buzz(80);beep(160,.2,'sawtooth',.09);
+      G.parts.push({x:G.px,y:G.py,e:'💥',vy:0,life:0.6});
+      flashMsg('💥 Удар!');
+    }
+  });
+  // подборы
+  G.pickups.forEach(p=>{
+    if(!p.taken&&Math.abs(p.y-G.py)<34&&Math.abs(laneX(p.lane)-G.px)<36){
+      p.taken=true;
+      if(p.kind==='coin'){G.coins++;S.coins++;beep(1320,.07);G.parts.push({x:G.px,y:G.py-20,e:'🪙',vy:-40,life:0.5});}
+      else{G.nitro=Math.min(G.nitroMax,G.nitro+30);beep(990,.1);flashMsg('⚡ +НИТРО!');}
+    }
+  });
+  G.pickups=G.pickups.filter(p=>!p.taken);
+  // ИИ
+  G.ai.forEach(a=>{
+    a.spd=a.base*(0.96+0.08*Math.sin(G.time*0.5+a.wob));
+    a.dist+=a.spd*0.28*dt;
+    // перестроения
+    if(Math.random()<dt*0.5){const nl=Math.max(0,Math.min(3,a.lane+(Math.random()<0.5?-1:1)));a.lane=nl;}
+    const tx=laneX(a.lane);
+    a.x+=(tx-a.x)*dt*1.5;
+    // ИИ объезжает препятствия
+    G.obs.forEach(o=>{if(Math.abs(o.y-(G.py-160))<60&&Math.abs(laneX(o.lane)-a.x)<40){a.lane=a.lane>1?a.lane-1:a.lane+1;}});
+    // столкновение с игроком
+    const ay=G.py-(a.dist-G.dist)*0.9;
+    if(Math.abs(ay-G.py)<36&&Math.abs(a.x-G.px)<36){
+      G.spd*=0.7;a.spd*=0.85;G.shake=8;buzz(50);beep(200,.12,'sawtooth',.07);
+      G.parts.push({x:G.px,y:G.py,e:'💨',vy:60,life:0.4});
+    }
+  });
+  // дым из выхлопа
+  if(G.spd>40&&Math.random()<dt*6)G.smoke.push({x:G.px-8+Math.random()*16,y:G.py+24,life:0.7});
+  G.smoke.forEach(s=>{s.y+=40*dt;s.life-=dt;});
+  G.smoke=G.smoke.filter(s=>s.life>0);
+  G.parts.forEach(p=>{p.y+=p.vy*dt;p.life-=dt;});
+  G.parts=G.parts.filter(p=>p.life>0);
+  if(G.shake>0)G.shake-=dt*30;
+  // место
+  const ahead=G.ai.filter(a=>a.dist>G.dist).length;
+  G.place=ahead+1;
+  // HUD
+  $('hudLap').textContent=Math.min(G.lap,G.laps)+'/'+G.laps;
+  $('hudTime').textContent=fmtTime(G.time);
+  $('hudPlace').textContent=G.place+'/6';
+  $('hudTrack').textContent=G.tr.e+' '+G.tr.name+' '+G.w.e;
+  $('hudCoins').textContent=G.coins;
+  $('nitroFill').style.width=(G.nitro/G.nitroMax*100)+'%';
+  $('speedo').innerHTML=Math.round(G.spd)+'<small> км/ч</small>';
+  if(G.msgT>0){G.msgT-=dt;if(G.msgT<=0)$('msg').textContent='';}
+}
+function fmtTime(t){const m=Math.floor(t/60),s=(t%60).toFixed(1);return m+':'+(s<10?'0':'')+s}
+function flashMsg(t){$('msg').innerHTML='<small>'+t+'</small>';G.msgT=1.2;}
+/* ============ ОТРИСОВКА ============ */
+function draw(){
+  ctx.save();
+  if(G.shake>0)ctx.translate((Math.random()-0.5)*G.shake,(Math.random()-0.5)*G.shake);
+  // небо/фон трассы
+  ctx.fillStyle=G.tr.sky;ctx.fillRect(0,0,400,560);
+  // декорации по бокам
+  ctx.font='28px serif';ctx.textAlign='center';ctx.textBaseline='middle';
+  G.deco.forEach(d=>{
+    const x=d.side===0?8+Math.random()*0:372;
+    ctx.font=d.s+'px serif';
+    ctx.fillText(d.e,d.side===0?26:374,d.y);
+  });
+  // дорога
+  ctx.fillStyle=G.tr.road;ctx.fillRect(ROAD.x,0,ROAD.w,560);
+  ctx.fillStyle='#ffd94d';
+  ctx.fillRect(ROAD.x-4,0,4,560);ctx.fillRect(ROAD.x+ROAD.w,0,4,560);
+  // полосы
+  ctx.strokeStyle='rgba(255,255,255,.75)';ctx.lineWidth=3;ctx.setLineDash([22,26]);ctx.lineDashOffset=-G.roadOff;
+  for(let i=1;i<ROAD.lanes;i++){ctx.beginPath();ctx.moveTo(ROAD.x+LANE_W*i,0);ctx.lineTo(ROAD.x+LANE_W*i,560);ctx.stroke();}
+  ctx.setLineDash([]);
+  // стартовая линия при начале круга
+  if(G.dist<LAP_LEN*0.02){ctx.font='20px serif';ctx.fillStyle='#fff';ctx.fillText('🏁 СТАРТ 🏁',200,60);}
+  // подборы и препятствия
+  ctx.font='30px serif';
+  G.pickups.forEach(p=>{ctx.fillText(p.e,laneX(p.lane),p.y);});
+  G.obs.forEach(o=>{ctx.fillText(o.e,laneX(o.lane),o.y);});
+  // ИИ-соперники
+  G.ai.forEach(a=>{
+    const ay=G.py-(a.dist-G.dist)*0.9;
+    if(ay>-50&&ay<610){
+      ctx.font='34px serif';
+      ctx.fillText(a.e,a.x,ay);
+      if(Math.abs(ay-G.py)<120){ctx.font='11px sans-serif';ctx.fillStyle='#fff';ctx.fillText(a.name,a.x,ay-26);}
+    }
+  });
+  // дым
+  G.smoke.forEach(s=>{ctx.globalAlpha=Math.max(0,s.life);ctx.font='18px serif';ctx.fillText('💨',s.x,s.y);ctx.globalAlpha=1;});
+  // игрок
+  ctx.font='40px serif';
+  const tilt=(keys.left?-0.12:keys.right?0.12:0);
+  ctx.save();ctx.translate(G.px,G.py);ctx.rotate(tilt);
+  ctx.fillText(G.car.e,0,0);
+  ctx.restore();
+  // эффекты
+  G.parts.forEach(p=>{ctx.globalAlpha=Math.max(0,Math.min(1,p.life*2));ctx.font='26px serif';ctx.fillText(p.e,p.x,p.y);ctx.globalAlpha=1;});
+  // погода
+  if(G.w.id==='rain'||G.w.id==='storm'){
+    ctx.strokeStyle='rgba(174,194,255,.5)';ctx.lineWidth=1;
+    G.weatherP.forEach(p=>{ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.lineTo(p.x-4,p.y+14);ctx.stroke();});
+    if(G.w.id==='storm'&&Math.random()<0.01){ctx.fillStyle='rgba(255,255,200,.25)';ctx.fillRect(0,0,400,560);ctx.font='40px serif';ctx.fillText('⚡',200,100);}
+  }
+  if(G.w.id==='snow'){ctx.fillStyle='#fff';G.weatherP.forEach(p=>{ctx.beginPath();ctx.arc(p.x,p.y,2.4,0,7);ctx.fill();});}
+  if(G.w.id==='night'){ctx.fillStyle='rgba(5,5,30,.35)';ctx.fillRect(0,0,400,560);ctx.fillStyle='rgba(255,255,180,.12)';ctx.beginPath();ctx.moveTo(G.px-30,G.py);ctx.lineTo(G.px+30,G.py);ctx.lineTo(G.px+90,G.py-190);ctx.lineTo(G.px-90,G.py-190);ctx.closePath();ctx.fill();}
+  if(G.w.id==='sunset'){const gr=ctx.createLinearGradient(0,0,0,560);gr.addColorStop(0,'rgba(255,120,60,.18)');gr.addColorStop(1,'rgba(255,60,120,.12)');ctx.fillStyle=gr;ctx.fillRect(0,0,400,560);}
+  // обратный отсчёт
+  if(G.countdown>0&&G.countdown<=3.2){
+    ctx.font='bold 60px sans-serif';ctx.fillStyle='#fff';ctx.strokeStyle='#000';ctx.lineWidth=6;
+    const t=G.countdown>3?'🏁':Math.ceil(G.countdown);
+    ctx.strokeText(t,200,240);ctx.fillText(t,200,240);
+  }
+  ctx.restore();
+}
+/* ============ СТАРТ / ФИНИШ ============ */
+ERT.startRace=function(trackId){
+  if(trackId)S.track=trackId;
+  newRace(S.track);
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
+  $('raceWrap').classList.add('on');
+  $('msg').textContent='';$('speedo').innerHTML='0<small> км/ч</small>';
+  RACE.running=true;
+  beep(520,.1);setTimeout(()=>beep(520,.1),200);setTimeout(()=>beep(880,.2),400);
+  startLoop();
+};
+function finishRace(){
+  G.finished=true;RACE.running=false;
+  S.races++;
+  const place=G.place;
+  const base=[1000,600,400,250,150,80][place-1];
+  let reward=base+G.coins*10;
+  if(place===1){S.wins++;reward+=200;beep(880,.2);setTimeout(()=>beep(1174,.25),180);}
+  S.best=(!S.best||place<S.best)?place:S.best;
+  S.coins+=reward;S.earned+=reward;save();
+  // чемпионат
+  let champText='';
+  if(RACE.champ){
+    RACE.champPoints.you+=(7-place);
+    G.ai.forEach((a,i)=>{RACE.champPoints[a.name]+=Math.max(0,6-i);});
+    RACE.champRace++;
+    if(RACE.champRace<3){
+      const nextTrack=RACE.champ.tracks[RACE.champRace];
+      setTimeout(()=>{flashMsg('Следующая гонка чемпионата!');ERT.startRace(nextTrack);},600);
+      return;
+    } else {
+      const sorted=Object.entries(RACE.champPoints).sort((a,b)=>b[1]-a[1]);
+      const youRank=sorted.findIndex(e=>e[0]==='you')+1;
+      if(youRank===1){S.champ[RACE.champ.id]=true;S.coins+=RACE.champ.prize;S.earned+=RACE.champ.prize;save();champText='<br>🏆 ЧЕМПИОН! Кубок «'+RACE.champ.name+'» твой! +🪙 '+RACE.champ.prize;}
+      else champText='<br>Чемпионат: ты '+youRank+'-й из 6. Попробуй ещё раз!';
+      RACE.champ=null;
+    }
+  }
+  $('finTitle').textContent=place===1?'🏆 ПОБЕДА!':place<=3?'🥉 Финиш!':'🏁 Финиш!';
+  $('finEmoji').textContent=place===1?'🏆':place===2?'🥈':place===3?'🥉':'🏎️';
+  $('finPlace').textContent='Ты финишировал '+place+'-м из 6 • '+G.tr.e+' '+G.tr.name;
+  $('finStats').innerHTML='⏱ Время: <b>'+fmtTime(G.time)+'</b><br>🪙 Монет собрано на трассе: <b>'+G.coins+'</b><br>💨 Нитро использовано: <b>'+Math.round(G.nitroMax-G.nitro)+'</b>'+champText;
+  $('finCoins').textContent='+ 🪙 '+reward+' монет!';
+  setTimeout(()=>{ERT.show('finish');},700);
+}
+load();
+ERT.show('menu');
+</script>
+</body>
+</html>

@@ -8,7 +8,7 @@
 <script>
 // Самообновление каталога: телефон Erik держал старую копию страницы
 // из кэша и не видел новые игры. Сверяемся с gversion.txt на сервере.
-var GAMES_VER = 51;
+var GAMES_VER = 52;
 fetch("gversion.txt?x=" + Date.now()).then(function(r){ return r.text(); }).then(function(t){
   var rv = parseInt(t, 10);
   if (rv && rv > GAMES_VER && sessionStorage.getItem("gamesUpd") !== String(rv)) {
@@ -117,6 +117,8 @@ fetch("gversion.txt?x=" + Date.now()).then(function(r){ return r.text(); }).then
   .c-santa  { background:linear-gradient(150deg,#ff6b6b,#a61e1e 60%,#2b0505); }
   .c-winter { background:linear-gradient(150deg,#7dd3fc,#1663ad 60%,#0a2f57); }
   .c-catch  { background:linear-gradient(150deg,#ffd93d,#b8860b 60%,#4a3503); }
+  .c-race   { background:linear-gradient(150deg,#ff8a3d,#c81e5b 55%,#1d0b2e); }
+  .c-stack  { background:linear-gradient(150deg,#8fb8d8,#2b4a6b 60%,#0a1a2e); }
   .c-snowball{ background:linear-gradient(150deg,#a5f3fc,#2b6cb0 60%,#0b2a4a); }
 
   .gbody { padding:15px 17px 17px; display:flex; flex-direction:column; gap:7px; flex:1; }
@@ -143,7 +145,7 @@ fetch("gversion.txt?x=" + Date.now()).then(function(r){ return r.text(); }).then
     <h1><span class="gold">E.Y.L</span> GAMES</h1>
     <p class="sub">Игровая империя президента <b>Erik Lebed</b> 🎮<br>Бесплатные игры прямо в браузере — без скачивания и регистрации.<br>Открыл — и играешь. Прогресс сохраняется в телефоне.</p>
     <div class="chips">
-      <span class="chip gold">👑 103 игры</span>
+      <span class="chip gold">👑 105 игр</span>
       <span class="chip" id="visitsChip">👀 Заходов: …</span>
       <span class="chip">🎄 С наступающим Новым годом!</span>
       <span class="chip">💸 Полностью бесплатно</span>
@@ -180,6 +182,30 @@ fetch("gversion.txt?x=" + Date.now()).then(function(r){ return r.text(); }).then
 
   <h2 class="sec">🎮 Все игры</h2>
   <div class="grid">
+    <a class="game" href="emoji-racing/">
+      <div class="cover c-race">
+        <span class="tag">Гонки • только эмодзи</span><span class="new">НОВОЕ</span>
+        <span class="main">🏎️</span>
+      </div>
+      <div class="gbody">
+        <h3>🏎️ EMOJI RACING TURBO</h3>
+        <p>Настоящие гонки, где ВСЁ из эмодзи: машины 🚗🏎️, трасса, погода и даже дым 💨. 12 машин в гараже, тюнинг, 8 трасс — от ночного города 🌆 до снежной трассы ❄️, нитро, обгоны, чемпионаты и монеты. 3 круга, 6 гонщиков, погода влияет на сцепление!</p>
+        <div class="meta">🚘 12 машин • 🔧 Тюнинг • 🏁 8 трасс • 🌦️ Погода • 💨 Нитро • 🏆 Чемпионаты</div>
+        <div class="play">Играть →</div>
+      </div>
+    </a>
+    <a class="game" href="stack-attack/">
+      <div class="cover c-stack">
+        <span class="tag">Ретро • Siemens A75</span><span class="new">НОВОЕ</span>
+        <span class="main">🧱</span>
+      </div>
+      <div class="gbody">
+        <h3>🧱 Stack Attack — Siemens A75</h3>
+        <p>Та самая игра с кнопочного Siemens A75! Краны роняют цветные ящики, а маленький человечек бегает внизу, толкает их и собирает полные ряды — они разбиваются в очки. Ящик на голову — минус жизнь. Пиксельная графика, ретро-звуки и рекорд, как в детстве!</p>
+        <div class="meta">🏗️ Краны • 🧱 Ящики • 👷 Человечек • 🏆 Рекорд • 🔊 Ретро-звук</div>
+        <div class="play">Играть →</div>
+      </div>
+    </a>
     <a class="game" href="monopoly/">
       <div class="cover c-yolochka">
         <span class="tag">Настольная • Лебедян</span><span class="new">НОВОЕ</span>
