@@ -178,6 +178,10 @@
   /* ================= ТЕЛЕВИЗОР ================= */
   var CHANNELS = [
     { n:'📺 Квартал ТВ', u:'https://dash2.antik.sk/live/kvartal_tv/playlist.m3u8' },
+    { n:'📺 Super+', u:'https://rr2.tvdosug.net/~201af66d572197816b137775813348e2276/73615/hlsx/pl.m3u8' },
+    { n:'📺 СТБ', u:'https://live.uspeh.my/8090/video.m3u8?token=B4N8unVvzL6JRCuk' },
+    { n:'📺 ТЕТ', u:'https://live.uspeh.my/8138/video.m3u8?token=B4N8unVvzL6JRCuk' },
+    { n:'📺 Новий канал', u:'https://live.uspeh.my/8130/video.m3u8?token=B4N8unVvzL6JRCuk' },
     { n:'🎬 Фантастика: кино', u:'https://cityeden.catcast.tv/content/45268/index.m3u8' },
     { n:'🇺🇦 FilmUA Live: фильмы и сериалы', u:'https://dash2.antik.sk/live/test_film_life_atktv/playlist.m3u8' },
     { n:'🎬 Star Cinema', u:'https://dash2.antik.sk/live/test_star_cinema_atktv/playlist.m3u8' },
@@ -200,6 +204,7 @@
     { n:'🎬 Кинопоказ', u:'https://stream8.cinerama.uz/1057/tracks-v1a1/mono.m3u8' },
     { n:'🎬 Кинопремьера', u:'https://stream8.cinerama.uz/1207/tracks-v1a1/mono.m3u8' },
     { n:'🎬 КиноДрама', u:'https://cityeden.catcast.tv/content/45269/index.m3u8' },
+    { n:'🧸 Піксель TV', u:'https://cdn15.live-tv.cloud/ua_infinitas_tv/pixel-abr/playlist.m3u8' },
     { n:'🧸 Детский', u:'https://stream8.cinerama.uz/1033/playlist.m3u8' },
     { n:'🧸 Nickelodeon', u:'https://ma.anixa.tv/clips/stream/nickelodeon/playlist.php' },
     { n:'🧸 Nicktoons', u:'https://stream8.cinerama.uz/1502/playlist.m3u8' },
@@ -216,6 +221,17 @@
     { n:'🧸 Карусель', u:'https://stream.smotrim.ru/hls2/karusel/playlist_3.m3u8' },
     { n:'🧸 Nick Jr.', u:'https://stream8.cinerama.uz/1501/playlist.m3u8' },
     { n:'🧸 Nickelodeon CIS', u:'https://stream8.cinerama.uz/1500/playlist.m3u8' },
+    { n:'🧸 Film TV Kids', u:'https://ottiptvfilmtvgroup.zapto.org:8080/FilmTVKids/index.m3u8?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3ODg2ODMzNjIsImV4cCI6MTc4ODc2OTc2Miwic3ViIjoiQWRtaW4ifQ.elQlt9rDrYlfbg85aZPXxIarprRqhdf58qFUNs3wQqs', slow:1 },
+    { n:'🧸 Da Vinci', u:'https://stitch-ua4.fastad.pro/stream.m3u8?c=2097&dt=2&is_kids=false&o=aHR0cHM6Ly9obHMxNy5zd2VldC50di9zdHJlYW0veGoyNmEzbnoyaWhxdnM2Nmtzc3hyaTdieG5oaGVpejNpd3hocGRpcGY3d253dXhkMng4Y3ZqN3p6eGJnYnB2bTlpY2E5dnF1dmFzNzd3cDQ5ZmV2MmprZmloamJzczhrbW5uOWVnOGJ4ZHRqNjR2ajVpdXF6eXk3YXg0Y3MzanVlZXZqZ2lzdnB6aHZ2M2F4cXJydjJ5MmgzeHdrbWhwYmN4ZjV0ODlpNW16dGl0Nml0cmFhaXVlZW03NzRqOXpreXljMnpnZnVmZT09PT09PQ%3D%3D&p=1&session=3593014673826237905&u=4658946636260375128&variant=2', slow:1 },
+    { n:'🧸 Da Vinci Explore the World HD', u:'https://stitch-ua6.fastad.pro/stream.m3u8?c=2086&dt=2&is_kids=false&o=aHR0cHM6Ly9obHM0Ni5zd2VldC50di9zdHJlYW0vbWt1ZzJzc3Q3M2R4NWUydnp4OHh1NHltYTJ0ZWl6Ynp4Znl4cDM5a3BwZGV6bXlrMzdpeWtmdnA5bTNxcjc2aGk3eHRlNmlmOXN2N3p2amJ5Y3dtNmN6aTl2ODhzbnA2bWI1eWhydGN1YTY4M2Y5YmNlMno2aHdoYXNlc3RiaXpwYWdmN3Nocm5iZ2ZmOWloOXU3aDJ6YmZ0eXJrYXVlcWEyZGtzajJyNWp1d2Myazc3dXd0c3doejQ3bWgyOHplaTNqcHY0cz0%3D&p=1&session=12876683556880706132&u=4658946636260375128&variant=2', slow:1 },
+    { n:'🧸 Щенячий патруль', u:'https://stitch-ua6.fastad.pro/stream.m3u8?c=1777&dt=2&is_kids=false&o=aHR0cHM6Ly9obHMxMi5zd2VldC50di9zdHJlYW0vN2l1anRmamo3dHg3aDhucnhtd2Q3ODRhMnc3N2kyOTk2M3A5dGpqYmQ4Z3VqNHY5NGF4ZmozcmZ2YnA2dHB0cmh5OWd2Y3A2c2FxNnV1OGZueWV6ZmR1eHBrcHNxNmpqeWlheGo3NHpoa25oampzaGFodmNlZjV3OGR6OWR0djlhMzhtYTZkMnU4NWo5cHlwZHhuMmRyNnl4aW5oaTVuM3k0cTQ1cG11dnNpZzdtamU5aW10ZDMzZGN6MmR0dXF0dzV3aGs5ZXc%3D&p=1&session=2492431788068939275&u=4658946636260375128&variant=2', slow:1 },
+    { n:'🧸 Черепашки-ніндзя', u:'https://stitch-ua8.fastad.pro/stream.m3u8?c=3187&dt=2&is_kids=false&o=aHR0cHM6Ly9obHMxNi5zd2VldC50di9zdHJlYW0vcWJycWFqNGhhYjZwOGh6dGVjZDNzc3d4eGtqd3RydWkzNjZxdmJzcWVqaGF2M24zZjR0bXBnNXlzYjhudGJ0MnVmZGdkNXJwY3phOGVodGo1eWpwdDV2NWprOTRlNzlpZWJqcXl6MzN4d2RudnpwbmRlZTQzanlicmp4anBhc2pzbnNwOGptc2lnY2I2OTVkOHZzNDdpZTVxejRudTU1eTd4ZDdlM3o3aHNmYzN3c3c3M2pzd3plcjlrNWE1OW12aXFqZndodmc%3D&p=1&session=9525880326811533604&u=4658946636260375128&variant=2', slow:1 },
+    { n:'🧸 Трансформери', u:'https://stitch-ua7.fastad.pro/stream.m3u8?c=3303&dt=2&is_kids=false&o=aHR0cHM6Ly9obHMyMC5zd2VldC50di9zdHJlYW0vZ3hiNXkzNHRocXJhNjJlZnNudGc4OGNibTl6cWloNGRhNW5mbWZuOXlpcXA3YXNkZWZjZWNodnN1YWFzZGszYXg2dGZlcjdkend2M2phNGdhZDhpMnl6anZhZjVucmJ2eTZocXdtcTluMzRiemR3d3plcmE2anM1MmtqY2E1aWNncmczY2R4cWJoeGhzaWFpOHc4enN6aXZ2Ym44YnhmemhqejR4cjdwMmJ5ZTJ5cHpucXFzc2VkNTJianhybTdzdXczcGlnYzRydz09PT09PQ%3D%3D&p=1&session=872500390274495790&u=4658946636260375128&variant=2', slow:1 },
+    { n:'🧸 Свинка Пеппа', u:'https://stitch-ua9.fastad.pro/stream.m3u8?c=1760&dt=2&is_kids=false&o=aHR0cHM6Ly9obHMzMC5zd2VldC50di9zdHJlYW0vNDY3M3h3dzlma3I4YXRjc3J5dDl3d3UyY2Z1cGJ0czh6NWh6N3NyNjd5eWV3OXE5ZXd3N2Z2eGdlOTZ1dHl0cTlrZTg1NmY3MzQzYXJ0eDJteTc4dHJmOXhuNG5haG5hNXRwZXI3cmE2Z3B3cTdmcHB4d2hlM3Yyd3JzaXNycnk4aTRkODZqcWc4bnY5c2dqY3JrdjdpY3Nhc3ppY2FoNHh5anY4Nzc0d2llZWVycmdmYmdkNmhnMmVzdW56eXFmamh1azZrbnY%3D&p=1&session=14455419532945645428&u=4658946636260375128&variant=2', slow:1 },
+    { n:'🧸 Сонік Бум', u:'https://stitch-ua3.fastad.pro/stream.m3u8?c=3107&dt=2&is_kids=false&o=aHR0cHM6Ly9obHMxMy5zd2VldC50di9zdHJlYW0vN2dxMmpmNnM5dnBycmo5azduZm03d2t1NXlzZnJnaHo4eHM2c3B2aDZkNnV6NmF0ZGR6Mm15dW52aWc1ZXZxcWluNzYyN3NjM216ejJ6N2I3Zm1tanBic3BzcXAyaGhjNHZxZ3kyajZla2E2anNubXBxc3o1cWFwYzl4OHhocnMzOHpzY2t3Zzc0aGhjYXFtcXRiaXVyaTU1YjlkNG5jdmlrZG5ldzVzMzRpeHd1cWh4eDZzeXpnZHR6NGV5dXRndm5kd2s9PT0%3D&p=1&session=15324928397425260872&u=4658946636260375128&variant=2', slow:1 },
+    { n:'🧸 СуперKids', u:'https://stitch-ua5.fastad.pro/stream.m3u8?c=2693&dt=2&is_kids=false&o=aHR0cHM6Ly9obHM0Ni5zd2VldC50di9zdHJlYW0vcmJlZGpmbTlpYXRoZmZ3eTJ4ZTVoZ2FpNTdhMmh0ejc2OGhhaGR6ZDNxOG02ODdxdzRuMmY4dWJnaGZwdTNodDduYmhhNzJhcHN4bXZ4bmo5ZHR1eHh4OHFlOTZ1eDNqZWp2bXVobnc3NzlmYmh0dXdrZ2lyZnFmYWZpcjZ0amdobmt0c2N6M3RieXRrZTJhbmhiOHdqZ3QyeGNmOXEyY3Znd2IybnNyYmNhd2p0NGhmZXhtOWM3NWZoYXRoYzVpbXNqYnBmbnhzMj09PT09PQ%3D%3D&p=1&session=2434982437469811989&u=4658946636260375128&variant=2', slow:1 },
+    { n:'🧸 Першосвіт', u:'https://stitch-ua4.fastad.pro/stream.m3u8?c=1820&dt=2&is_kids=false&o=aHR0cHM6Ly9obHM0Ni5zd2VldC50di9zdHJlYW0venhzNDdzN2loOWR5cXR1eHBzdWc3a3RyeTViZ25waTNndjh4cHZ4NnRoOTVnc2Vjdmh6aHA0cHU1OG5kOXZ1N3U2OXNwZ2ttYWVkdzluN3duaXF5ZmozNWM4OW5udGpmOTNzNXgyZTl6dHp4dnB6dWN2dmI4cDJnbTQ2azVkaGFrNmV2OHMzd2Q3YnNndG05cjg0dXVzNWJrM3NqN3M1Y3dobmg5cWdhZnVmbXBiMmkyZndpOWNxaGZremdjM3Z4N2h3Z2hkYjI%3D&p=1&session=13208546922325025140&u=4658946636260375128&variant=2', slow:1 },
+    { n:'🧸 РетроМульт', u:'https://stitch-ua9.fastad.pro/stream.m3u8?c=2707&dt=2&is_kids=false&o=aHR0cHM6Ly9obHM0Ni5zd2VldC50di9zdHJlYW0vaDdwYWJwcjh3dHhwZWZrbXJhYWFoZm1kYXgyaHl0czNxOTJ4aHh4dzZkc3p5bWVxbm14Y3gzNDd3c3NlZWF4c3MzOXFxeGRuODJqOTRudTJxaWk5ZGFkNXJzZnNmMzJ2YTQ5M2NudW4zdXhuaWhncGZ5dTV5NG5udTQ2a2Nxc3V2ODR6ampwNGJzOGI1ZGhtY2ZhdzcyYnhwc3B1Zzk5dHpoNGh4dnJjdnI4dzR0bnd2NHN1ZHJyd2NqcDdubWtxYWt5anRua3phbj09PT09PQ%3D%3D&p=1&session=3435390359929879692&u=4658946636260375128&variant=2', slow:1 },
     { n:'🎵 Maidan: музыка', u:'https://live-maidantv.cdnvideo.ru/maidantv/maidantv.smil/playlist.m3u8' },
     { n:'🎵 Deluxe Dance: танцы', u:'https://sdn-global-live-streaming-packager-cache.3qsdn.com/64733/64733_264_live.m3u8' },
     { n:'🎵 Deluxe Music', u:'https://sdn-global-live-streaming-packager-cache.3qsdn.com/13456/13456_264_live.m3u8' },
@@ -263,7 +279,7 @@
       video.src = url; video.play().catch(function(){});
     }
     clearTimeout(errTimer);
-    errTimer = setTimeout(function(){ if (video.readyState < 2) tvError(); }, 9000);
+    errTimer = setTimeout(function(){ if (video.readyState < 2) tvError(); }, CHANNELS[chIdx].slow ? 20000 : 9000);
   }
   function tvError(){
     trying++;
