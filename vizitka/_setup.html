@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vizitka setup</title>
+<style>body{font-family:monospace;background:#111;color:#eee;padding:24px;font-size:18px;line-height:1.7} b{color:#ffd700}</style>
+</head>
+<body>
+<div id="out">SETUP RUNNING...</div>
+<script>
+(function(){
+  var out = document.getElementById('out');
+  var data = { socials: [
+    { name: 'Instagram', url: 'https://instagram.com/eriklebed2' },
+    { name: 'Telegram', url: 'https://t.me/eylrob1' },
+    { name: 'E.Y.L — мой профиль', url: 'https://eriksocial.alwaysdata.net' }
+  ], photo: null };
+  function line(t){ out.innerHTML += '<br>' + t; }
+  fetch('https://jsonblob.com/api/jsonBlob', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+    body: JSON.stringify(data)
+  }).then(function(r){
+    line('CREATE status: ' + r.status);
+    var loc = r.headers.get('Location') || r.headers.get('location') || '';
+    line('Location: ' + loc);
+    var id = loc.split('/').pop();
+    line('BLOB_ID: ' + id);
+    return fetch('https://jsonblob.com/api/jsonBlob/' + id).then(function(r2){
+      return r2.json().then(function(j){
+        line('GET check socials: ' + (j.socials ? j.socials.length : 'NONE'));
+        return fetch('https://jsonblob.com/api/jsonBlob/' + id, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        }).then(function(r3){
+          line('PUT status: ' + r3.status);
+          line('SETUP DONE');
+        });
+      });
+    });
+  }).catch(function(e){ line('ERROR: ' + e.message); line('SETUP FAILED'); });
+})();
+</script>
+</body>
+</html>
