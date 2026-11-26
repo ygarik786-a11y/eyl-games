@@ -10,126 +10,161 @@
   html { scroll-behavior: smooth; }
   body {
     font-family: -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
-    background: #0e0f13;
+    background: #0b0c10;
     color: #f2f2f2;
     line-height: 1.6;
     -webkit-text-size-adjust: 100%;
+    overflow-x: hidden;
   }
   a { color: inherit; text-decoration: none; }
-  .wrap { max-width: 860px; margin: 0 auto; padding: 0 20px; }
+  .wrap { max-width: 880px; margin: 0 auto; padding: 0 20px; position: relative; z-index: 1; }
 
-  /* ---------- top nav ---------- */
+  /* ---------- фон: золотые блики ---------- */
+  .glow { position: fixed; border-radius: 50%; filter: blur(90px); z-index: 0; pointer-events: none; }
+  .glow.g1 { width: 420px; height: 420px; background: rgba(212,175,55,.16); top: -120px; left: -100px; }
+  .glow.g2 { width: 380px; height: 380px; background: rgba(120,90,200,.14); bottom: -140px; right: -110px; }
+  .glow.g3 { width: 300px; height: 300px; background: rgba(212,175,55,.09); top: 42%; left: 62%; }
+
+  /* ---------- верхнее меню ---------- */
   nav {
     position: sticky; top: 0; z-index: 10;
-    background: rgba(14,15,19,.92);
-    backdrop-filter: blur(8px);
-    border-bottom: 1px solid #22232a;
+    background: rgba(11,12,16,.85);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(255,255,255,.07);
   }
-  nav .wrap { display: flex; align-items: center; gap: 22px; height: 56px; }
-  .logo { font-weight: 800; letter-spacing: .14em; font-size: 18px;
-    background: linear-gradient(90deg,#f6d365,#d4af37,#f6d365);
+  nav .wrap { display: flex; align-items: center; gap: 18px; height: 56px; }
+  .logo { font-weight: 900; letter-spacing: .14em; font-size: 18px; white-space: nowrap;
+    background: linear-gradient(90deg,#f9e29a,#d4af37,#f9e29a);
     -webkit-background-clip: text; background-clip: text; color: transparent; }
-  nav a.link { color: #b9bcc7; font-size: 15px; }
+  nav a.link { color: #b9bcc7; font-size: 15px; white-space: nowrap; }
   nav a.link:hover { color: #fff; }
   nav .spacer { flex: 1; }
-
-  /* ---------- hero ---------- */
-  header { text-align: center; padding: 72px 0 56px; }
-  .swan {
-    width: 84px; height: 84px; margin: 0 auto 18px; border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 40px; font-weight: 800; color: #141414;
-    background: linear-gradient(135deg,#f6d365,#d4af37);
-    box-shadow: 0 0 0 6px rgba(212,175,55,.14), 0 10px 30px rgba(0,0,0,.45);
+  @media (max-width: 520px) {
+    nav .wrap { gap: 13px; }
+    nav a.link { font-size: 13.5px; }
+    .logo { font-size: 16px; }
   }
+
+  /* ---------- герой ---------- */
+  header { text-align: center; padding: 64px 0 50px; }
+  .photo-ring {
+    width: 132px; height: 132px; margin: 0 auto 20px; border-radius: 50%;
+    padding: 4px;
+    background: linear-gradient(135deg,#f9e29a,#d4af37 45%,#8a6d1f);
+    box-shadow: 0 0 0 6px rgba(212,175,55,.12), 0 0 44px rgba(212,175,55,.35), 0 12px 32px rgba(0,0,0,.5);
+  }
+  .photo-ring .photo {
+    width: 100%; height: 100%; border-radius: 50%; overflow: hidden;
+    background: linear-gradient(135deg,#23242c,#14151a);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 52px; font-weight: 900; color: #d4af37;
+  }
+  .photo-ring .photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
   h1 {
-    font-size: clamp(56px, 14vw, 110px); line-height: 1; font-weight: 900; letter-spacing: .06em;
+    font-size: clamp(58px, 14vw, 112px); line-height: .95; font-weight: 900; letter-spacing: .05em;
     background: linear-gradient(90deg,#f9e29a,#d4af37 45%,#f9e29a);
     -webkit-background-clip: text; background-clip: text; color: transparent;
+    text-shadow: 0 0 60px rgba(212,175,55,.25);
   }
-  .tagline { margin-top: 14px; color: #c9ccd6; font-size: 18px; }
-  .hello { margin-top: 10px; color: #9a9eab; font-size: 15px; }
-  .cta { margin-top: 28px; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  .tagline { margin-top: 16px; color: #e8e9ee; font-size: 19px; font-weight: 600; }
+  .hello { margin-top: 8px; color: #9a9eab; font-size: 15.5px; max-width: 520px; margin-left: auto; margin-right: auto; }
+  .cta { margin-top: 30px; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
   .btn {
-    display: inline-block; padding: 12px 24px; border-radius: 999px; font-size: 15px; font-weight: 600;
-    background: linear-gradient(135deg,#f6d365,#d4af37); color: #141414;
+    display: inline-block; padding: 13px 26px; border-radius: 999px; font-size: 15px; font-weight: 700;
+    background: linear-gradient(135deg,#f9e29a,#d4af37); color: #141414;
+    box-shadow: 0 6px 22px rgba(212,175,55,.35);
     transition: transform .18s ease, box-shadow .18s ease;
   }
-  .btn:hover { transform: translateY(-2px); box-shadow: 0 8px 22px rgba(212,175,55,.35); }
-  .btn.ghost { background: transparent; color: #f2f2f2; border: 1px solid #3a3b44; }
-  .btn.ghost:hover { border-color: #d4af37; box-shadow: none; }
+  .btn:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(212,175,55,.45); }
+  .btn.ghost { background: rgba(255,255,255,.06); color: #f2f2f2; border: 1px solid rgba(255,255,255,.16); box-shadow: none; }
+  .btn.ghost:hover { border-color: #d4af37; }
 
-  /* ---------- sections ---------- */
-  section { padding: 34px 0; }
-  h2 { font-size: 26px; font-weight: 800; margin-bottom: 6px; }
+  /* ---------- секции ---------- */
+  section { padding: 36px 0; }
+  h2 { font-size: 27px; font-weight: 800; margin-bottom: 6px; }
   h2 .bar { color: #d4af37; }
   .sub { color: #9a9eab; font-size: 15px; margin-bottom: 20px; }
-  .fade { opacity: 0; transform: translateY(14px); transition: opacity .5s ease, transform .5s ease; }
+  .fade { opacity: 0; transform: translateY(16px); transition: opacity .55s ease, transform .55s ease; }
   .fade.in { opacity: 1; transform: none; }
 
   .about-card {
-    background: #17181d; border: 1px solid #26272e; border-radius: 18px; padding: 24px;
-    font-size: 16px; color: #dfe1e8;
+    background: linear-gradient(160deg, rgba(255,255,255,.07), rgba(255,255,255,.02));
+    border: 1px solid rgba(255,255,255,.09); border-radius: 20px; padding: 26px;
+    font-size: 16.5px; color: #e6e7ec;
+    box-shadow: 0 12px 32px rgba(0,0,0,.35);
   }
   .about-card b { color: #f6d365; }
 
-  /* ---------- projects ---------- */
+  /* ---------- проекты ---------- */
   .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
   @media (max-width: 600px) { .grid { grid-template-columns: 1fr; } }
   .card {
-    display: block; background: #17181d; border: 1px solid #26272e; border-radius: 18px; padding: 20px;
-    transition: transform .18s ease, border-color .18s ease;
+    display: block; border-radius: 20px; padding: 22px;
+    background: linear-gradient(160deg, rgba(255,255,255,.07), rgba(255,255,255,.02));
+    border: 1px solid rgba(255,255,255,.09);
+    box-shadow: 0 10px 26px rgba(0,0,0,.3);
+    transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease;
   }
-  .card:hover { transform: translateY(-3px); border-color: #d4af37; }
+  .card:hover { transform: translateY(-4px); border-color: rgba(212,175,55,.65); box-shadow: 0 16px 34px rgba(0,0,0,.4); }
   .card .mark {
-    width: 44px; height: 44px; border-radius: 12px; margin-bottom: 12px;
+    width: 48px; height: 48px; border-radius: 14px; margin-bottom: 14px;
     display: flex; align-items: center; justify-content: center;
-    font-size: 20px; font-weight: 800; color: #141414;
-    background: linear-gradient(135deg,#f6d365,#d4af37);
+    font-size: 22px; font-weight: 900; color: #141414;
+    background: linear-gradient(135deg,#f9e29a,#d4af37);
+    box-shadow: 0 4px 14px rgba(212,175,55,.35);
   }
-  .card h3 { font-size: 18px; margin-bottom: 4px; }
+  .card h3 { font-size: 18.5px; margin-bottom: 4px; }
   .card p { color: #9a9eab; font-size: 14.5px; }
-  .card .go { display: inline-block; margin-top: 12px; color: #f6d365; font-size: 14px; font-weight: 600; }
+  .card .go { display: inline-block; margin-top: 13px; color: #f6d365; font-size: 14px; font-weight: 700; }
 
-  /* ---------- contacts ---------- */
+  /* ---------- контакты ---------- */
   .socials { display: flex; flex-wrap: wrap; gap: 10px; }
   .chip {
-    display: inline-flex; align-items: center; gap: 8px;
-    background: #17181d; border: 1px solid #26272e; border-radius: 999px; padding: 10px 16px;
-    font-size: 15px; transition: border-color .18s ease;
+    display: inline-flex; align-items: center; gap: 9px;
+    background: linear-gradient(160deg, rgba(255,255,255,.07), rgba(255,255,255,.02));
+    border: 1px solid rgba(255,255,255,.1); border-radius: 999px; padding: 11px 17px;
+    font-size: 15px; font-weight: 600;
+    transition: border-color .18s ease, transform .18s ease;
   }
-  .chip:hover { border-color: #d4af37; }
-  .chip .dot { width: 9px; height: 9px; border-radius: 50%; background: #d4af37; flex: none; }
+  .chip:hover { border-color: rgba(212,175,55,.7); transform: translateY(-2px); }
+  .chip .dot { width: 9px; height: 9px; border-radius: 50%; background: linear-gradient(135deg,#f9e29a,#d4af37); flex: none; box-shadow: 0 0 8px rgba(212,175,55,.7); }
   .chip .x {
-    border: none; background: none; color: #9a9eab; font-size: 16px; cursor: pointer; padding: 0 0 0 4px;
+    border: none; background: none; color: #9a9eab; font-size: 17px; cursor: pointer; padding: 0 0 0 4px; line-height: 1;
   }
   .chip .x:hover { color: #ff7b7b; }
   .editor {
-    margin-top: 18px; background: #14151a; border: 1px dashed #3a3b44; border-radius: 16px; padding: 16px;
+    margin-top: 20px; border-radius: 18px; padding: 18px;
+    background: rgba(255,255,255,.04); border: 1px dashed rgba(255,255,255,.16);
   }
-  .editor h4 { font-size: 15px; margin-bottom: 10px; color: #c9ccd6; }
+  .editor h4 { font-size: 15px; margin-bottom: 12px; color: #dfe1e8; }
   .editor .row { display: flex; gap: 8px; flex-wrap: wrap; }
-  .editor input {
-    flex: 1 1 160px; padding: 11px 13px; border-radius: 10px; border: 1px solid #33343c;
+  .editor input[type=text], .editor input[type=url] {
+    flex: 1 1 160px; padding: 12px 14px; border-radius: 12px; border: 1px solid #33343c;
     background: #0e0f13; color: #f2f2f2; font-size: 15px; outline: none;
   }
   .editor input:focus { border-color: #d4af37; }
-  .editor button {
-    padding: 11px 18px; border-radius: 10px; border: none; cursor: pointer;
-    background: linear-gradient(135deg,#f6d365,#d4af37); color: #141414; font-size: 15px; font-weight: 700;
+  .editor button.add {
+    padding: 12px 20px; border-radius: 12px; border: none; cursor: pointer;
+    background: linear-gradient(135deg,#f9e29a,#d4af37); color: #141414; font-size: 15px; font-weight: 800;
   }
-  .editor .mini {
-    margin-top: 10px; background: none; border: none; color: #9a9eab; font-size: 13.5px;
-    cursor: pointer; text-decoration: underline; padding: 0;
+  .editor .photo-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-top: 14px; }
+  .editor .photo-btn {
+    padding: 11px 18px; border-radius: 12px; border: 1px solid rgba(212,175,55,.6); cursor: pointer;
+    background: rgba(212,175,55,.12); color: #f6d365; font-size: 14.5px; font-weight: 700;
   }
-  .note { margin-top: 14px; color: #8a8e9b; font-size: 13.5px; }
-  .ok { color: #8fce9b; font-size: 14px; margin-top: 8px; min-height: 20px; }
+  .editor .photo-del {
+    padding: 11px 14px; border-radius: 12px; border: 1px solid rgba(255,255,255,.14); cursor: pointer;
+    background: transparent; color: #9a9eab; font-size: 14px; font-weight: 600;
+  }
+  .ok { color: #8fce9b; font-size: 14px; margin-top: 10px; min-height: 20px; }
+  .err { color: #ff9a9a; font-size: 14px; margin-top: 10px; min-height: 20px; }
 
-  footer { text-align: center; color: #8a8e9b; font-size: 14px; padding: 30px 0 40px; }
+  footer { text-align: center; color: #8a8e9b; font-size: 14px; padding: 34px 0 44px; }
   footer b { color: #d4af37; }
 </style>
 </head>
 <body>
+<div class="glow g1"></div><div class="glow g2"></div><div class="glow g3"></div>
 
 <nav>
   <div class="wrap">
@@ -144,10 +179,10 @@
 <div class="wrap" id="top">
 
   <header>
-    <div class="swan">E</div>
+    <div class="photo-ring"><div class="photo" id="photoBox">E</div></div>
     <h1>E.Y.L</h1>
     <p class="tagline">Визитка Ерика Лебедя</p>
-    <p class="hello">Привет! Я создаю свою маленькую вселенную в интернете —<br>заходи, смотри, оставайся.</p>
+    <p class="hello">Привет! Я создаю свою маленькую вселенную в интернете — заходи, смотри, оставайся.</p>
     <div class="cta">
       <a class="btn" href="#projects">Мои проекты</a>
       <a class="btn ghost" href="#contacts">Связаться со мной</a>
@@ -218,13 +253,16 @@
       <div class="row">
         <input id="socName" type="text" placeholder="Название, например VK" maxlength="30">
         <input id="socUrl" type="url" placeholder="Ссылка, например https://vk.com/..." maxlength="200">
-        <button id="socAdd" type="button">Добавить</button>
+        <button class="add" id="socAdd" type="button">Добавить</button>
+      </div>
+      <div class="photo-row">
+        <button class="photo-btn" id="photoBtn" type="button">Поставить моё фото</button>
+        <button class="photo-del" id="photoDel" type="button" style="display:none">Убрать фото</button>
+        <input id="photoFile" type="file" accept="image/*" style="display:none">
       </div>
       <div class="ok" id="socMsg"></div>
-      <button class="mini" id="socExport" type="button">Скопировать список для Миты — чтобы соцсети видели все</button>
+      <div class="err" id="socErr"></div>
     </div>
-    <p class="note">Добавленные тобой соцсети сохраняются на этом телефоне и сразу показываются здесь.
-    Чтобы их видели все посетители — скопируй список и пришли мне, я добавлю их на сайт насовсем.</p>
   </section>
 
   <footer>Сделано с любовью · <b>E.Y.L</b> · Erik Lebed</footer>
@@ -235,84 +273,158 @@
   /* плавное появление секций */
   var io = new IntersectionObserver(function(es){
     es.forEach(function(e){ if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
-  }, { threshold: .12 });
+  }, { threshold: .1 });
   document.querySelectorAll('.fade').forEach(function(el){ io.observe(el); });
 
-  /* --- соцсети: свои + добавленные --- */
-  var KEY = 'eyl_vizitka_socials_v1';
-  var defaults = [
+  /* --- общее хранилище: npoint, видно всем --- */
+  var BIN = 'https://api.npoint.io/3c74c92e0bbfcbbf0efb';
+  var defaults = { socials: [
     { name: 'Instagram', url: 'https://instagram.com/eriklebed2' },
     { name: 'Telegram', url: 'https://t.me/eylrob1' },
     { name: 'E.Y.L — мой профиль', url: 'https://eriksocial.alwaysdata.net' }
-  ];
-  function load(){
-    try {
-      var raw = localStorage.getItem(KEY);
-      var extra = raw ? JSON.parse(raw) : [];
-      if (!Array.isArray(extra)) extra = [];
-      return defaults.concat(extra);
-    } catch(e){ return defaults.slice(); }
-  }
-  function saveExtra(list){
-    try { localStorage.setItem(KEY, JSON.stringify(list)); } catch(e){}
-  }
-  function extraList(){
-    try {
-      var raw = localStorage.getItem(KEY);
-      var extra = raw ? JSON.parse(raw) : [];
-      return Array.isArray(extra) ? extra : [];
-    } catch(e){ return []; }
-  }
+  ], photo: null };
+  var state = JSON.parse(JSON.stringify(defaults));
+
   var box = document.getElementById('socials');
+  var photoBox = document.getElementById('photoBox');
   var msg = document.getElementById('socMsg');
+  var err = document.getElementById('socErr');
+  var photoDel = document.getElementById('photoDel');
+
+  function sayOk(t){ msg.textContent = t || ''; }
+  function sayErr(t){ err.textContent = t || ''; }
+
   function render(){
-    var items = load();
     box.innerHTML = '';
-    items.forEach(function(it, i){
+    state.socials.forEach(function(it, i){
       var a = document.createElement('a');
       a.className = 'chip'; a.href = it.url; a.target = '_blank'; a.rel = 'noopener';
       var dot = document.createElement('span'); dot.className = 'dot';
       var t = document.createElement('span'); t.textContent = it.name;
       a.appendChild(dot); a.appendChild(t);
-      if (i >= defaults.length) {
-        var x = document.createElement('button');
-        x.className = 'x'; x.type = 'button'; x.textContent = '×'; x.title = 'Убрать';
-        x.addEventListener('click', function(ev){
-          ev.preventDefault(); ev.stopPropagation();
-          var ex = extraList(); ex.splice(i - defaults.length, 1);
-          saveExtra(ex); render();
-        });
-        a.appendChild(x);
-      }
+      var x = document.createElement('button');
+      x.className = 'x'; x.type = 'button'; x.textContent = '×'; x.title = 'Убрать';
+      x.addEventListener('click', function(ev){
+        ev.preventDefault(); ev.stopPropagation();
+        state.socials.splice(i, 1);
+        save();
+      });
+      a.appendChild(x);
       box.appendChild(a);
     });
+    photoBox.innerHTML = '';
+    if (state.photo) {
+      var img = document.createElement('img');
+      img.src = state.photo; img.alt = 'Erik';
+      photoBox.appendChild(img);
+      photoDel.style.display = '';
+    } else {
+      photoBox.textContent = 'E';
+      photoDel.style.display = 'none';
+    }
   }
+
+  function load(){
+    fetch(BIN + '?t=' + Date.now())
+      .then(function(r){ if (!r.ok) throw new Error('net'); return r.json(); })
+      .then(function(j){
+        if (j && Array.isArray(j.socials)) state = j;
+        render();
+      })
+      .catch(function(){ render(); });
+  }
+
+  function save(){
+    sayOk('Сохраняю…'); sayErr('');
+    fetch(BIN, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ contents: state })
+    }).then(function(r){
+      if (!r.ok) throw new Error('save');
+      sayOk('Готово — теперь это видят все.');
+      render();
+    }).catch(function(){
+      sayOk('');
+      sayErr('Не сохранилось — проверь интернет и попробуй ещё раз.');
+      load();
+    });
+  }
+
   document.getElementById('socAdd').addEventListener('click', function(){
     var name = document.getElementById('socName').value.trim();
     var url = document.getElementById('socUrl').value.trim();
-    if (!name || !url) { msg.textContent = 'Напиши название и ссылку.'; return; }
+    if (!name || !url) { sayErr('Напиши название и ссылку.'); return; }
     if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
-    var ex = extraList();
-    ex.push({ name: name, url: url });
-    saveExtra(ex);
+    state.socials.push({ name: name, url: url });
     document.getElementById('socName').value = '';
     document.getElementById('socUrl').value = '';
-    msg.textContent = 'Добавлено! Теперь соцсеть есть на твоей визитке.';
-    render();
+    save();
   });
-  document.getElementById('socExport').addEventListener('click', function(){
-    var lines = load().map(function(it){ return it.name + ' — ' + it.url; }).join('\n');
-    function done(){ msg.textContent = 'Список скопирован! Пришли его мне в чат — добавлю всем насовсем.'; }
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(lines).then(done, function(){ msg.textContent = 'Не получилось скопировать. Список: ' + lines; });
-    } else {
-      var ta = document.createElement('textarea');
-      ta.value = lines; document.body.appendChild(ta); ta.select();
-      try { document.execCommand('copy'); done(); } catch(e){ msg.textContent = 'Список: ' + lines; }
-      document.body.removeChild(ta);
-    }
+
+  /* --- фото: загрузка на catbox, запас — прямо в хранилище --- */
+  function compress(file, done){
+    var img = new Image();
+    var url = URL.createObjectURL(file);
+    img.onload = function(){
+      var max = 900, w = img.width, h = img.height;
+      if (w > max || h > max) {
+        var k = Math.min(max / w, max / h);
+        w = Math.round(w * k); h = Math.round(h * k);
+      }
+      var c = document.createElement('canvas');
+      c.width = w; c.height = h;
+      c.getContext('2d').drawImage(img, 0, 0, w, h);
+      URL.revokeObjectURL(url);
+      c.toBlob(function(b){ done(b); }, 'image/jpeg', 0.82);
+    };
+    img.onerror = function(){ URL.revokeObjectURL(url); sayErr('Это фото не открывается. Попробуй другое.'); };
+    img.src = url;
+  }
+  function uploadPhoto(blob){
+    sayOk('Загружаю фото…'); sayErr('');
+    var fd = new FormData();
+    fd.append('reqtype', 'fileupload');
+    fd.append('fileToUpload', blob, 'erik-photo.jpg');
+    fetch('https://catbox.moe/user/api.php', { method: 'POST', body: fd })
+      .then(function(r){ if (!r.ok) throw new Error('catbox'); return r.text(); })
+      .then(function(link){
+        link = (link || '').trim();
+        if (!/^https?:\/\//.test(link)) throw new Error('catbox');
+        state.photo = link;
+        save();
+      })
+      .catch(function(){
+        /* запасной путь: фото прямо в общее хранилище */
+        var rd = new FileReader();
+        rd.onload = function(){
+          var dataUrl = rd.result;
+          if (dataUrl.length > 260000) {
+            sayOk('');
+            sayErr('Фото слишком большое для хранилища. Пришли его мне в чат — я поставлю его сама.');
+            return;
+          }
+          state.photo = dataUrl;
+          save();
+        };
+        rd.readAsDataURL(blob);
+      });
+  }
+  document.getElementById('photoBtn').addEventListener('click', function(){
+    document.getElementById('photoFile').click();
   });
-  render();
+  document.getElementById('photoFile').addEventListener('change', function(ev){
+    var f = ev.target.files && ev.target.files[0];
+    if (!f) return;
+    ev.target.value = '';
+    compress(f, uploadPhoto);
+  });
+  photoDel.addEventListener('click', function(){
+    state.photo = null;
+    save();
+  });
+
+  load();
 })();
 </script>
 </body>
