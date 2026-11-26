@@ -147,6 +147,7 @@
     padding: 12px 20px; border-radius: 12px; border: none; cursor: pointer;
     background: linear-gradient(135deg,#f9e29a,#d4af37); color: #141414; font-size: 15px; font-weight: 800;
   }
+  .editor button:disabled { opacity: .5; cursor: wait; }
   .editor .photo-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-top: 14px; }
   .editor .photo-btn {
     padding: 11px 18px; border-radius: 12px; border: 1px solid rgba(212,175,55,.6); cursor: pointer;
@@ -324,27 +325,65 @@
     }
   }
 
+  var saving = false;
+  function unwrap(j){
+    if (j && Array.isArray(j.socials)) return j;
+    if (j && j.contents && Array.isArray(j.contents.socials)) return j.contents; /* npoint оборачивает сохранённое в "contents" */
+    return null;
+  }
+  function sameSocials(a, b){
+    if (!a || !b || a.length !== b.length) return false;
+    for (var i = 0; i < a.length; i++) {
+      if (a[i].name !== b[i].name || a[i].url !== b[i].url) return false;
+    }
+    return true;
+  }
+  function setBusy(b){
+    document.getElementById('socAdd').disabled = b;
+    document.getElementById('photoBtn').disabled = b;
+    photoDel.disabled = b;
+    document.querySelectorAll('#socials .x').forEach(function(x){ x.disabled = b; });
+  }
+
   function load(){
     fetch(BIN + '?t=' + Date.now())
       .then(function(r){ if (!r.ok) throw new Error('net'); return r.json(); })
       .then(function(j){
-        if (j && Array.isArray(j.socials)) state = j;
+        var s = unwrap(j);
+        if (s) state = s;
         render();
       })
       .catch(function(){ render(); });
   }
 
   function save(){
+    if (saving) return;
+    saving = true; setBusy(true);
     sayOk('Сохраняю…'); sayErr('');
+    var ctrl = new AbortController();
+    var to = setTimeout(function(){ ctrl.abort(); }, 30000);
     fetch(BIN, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ contents: state })
+      body: JSON.stringify(state),
+      signal: ctrl.signal
     }).then(function(r){
+      clearTimeout(to);
       if (!r.ok) throw new Error('save');
+      /* перепроверяем: читаем хранилище обратно */
+      return fetch(BIN + '?t=' + Date.now());
+    }).then(function(r){
+      if (!r.ok) throw new Error('verify');
+      return r.json();
+    }).then(function(j){
+      var s = unwrap(j);
+      if (!s || !sameSocials(s.socials, state.socials) || (s.photo || null) !== (state.photo || null)) throw new Error('verify');
+      saving = false; setBusy(false);
       sayOk('Готово — теперь это видят все.');
       render();
     }).catch(function(){
+      clearTimeout(to);
+      saving = false; setBusy(false);
       sayOk('');
       sayErr('Не сохранилось — проверь интернет и попробуй ещё раз.');
       load();
